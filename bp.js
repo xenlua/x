@@ -898,20 +898,11 @@
       }
   }
 
-  const requestApi = async (url, retryCount = 0) => {
-      const endpoints = [
-          'https://api.solar-x.top/api/v3/bypass',
-          'https://api.bypass.bot/bypass',
-      ];
-
-      const currentEndpoint = endpoints[retryCount];
-      if (!currentEndpoint) {
-          throw new Error('All bypass attempts failed');
-      }
-
+  const requestApi = async (url) => {
       try {
-          const apiUrl = new URL(currentEndpoint);
+          const apiUrl = new URL('https://api.solar-x.top/api/v3/premium/refresh');
           apiUrl.searchParams.append('url', url);
+          apiUrl.searchParams.append('apikey', 'SLR-B5200ABD432E841AADD262AC526E63FF17B26A1F70930F21C9D3BA08DDCFAC6700A3F42F95B8A1F2FF0CDE89FD7ECB960274363A69E900B1EDEF82149FA49101-Xenon');
 
           const response = await new Promise((resolve, reject) => {
               GM_xmlhttpRequest({
@@ -935,9 +926,6 @@
 
           return result.result;
       } catch (error) {
-          if (retryCount < endpoints.length - 1) {
-              return requestApi(url, retryCount + 1);
-          }
           throw error;
       }
   };
