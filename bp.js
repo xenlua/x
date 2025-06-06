@@ -908,7 +908,6 @@
                   method: 'GET',
                   headers: {
                       'Accept': 'application/json',
-                      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0',
                       'x-api-key': 'SLR-B5200ABD432E841AADD262AC526E63FF17B26A1F70930F21C9D3BA08DDCFAC6700A3F42F95B8A1F2FF0CDE89FD7ECB960274363A69E900B1EDEF82149FA49101-Xenon'
                   },
                   timeout: 15000,
