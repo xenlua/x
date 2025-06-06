@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Enhanced LuArmor Bypass
 // @namespace    http://tampermonkey.net/
-// @version      2.7
+// @version      2.8
 // @description  Advanced LuArmor bypass with improved accuracy, reliability, and modern UI
 // @author       Xenon
 // @match        https://ads.luarmor.net/*
@@ -9,7 +9,6 @@
 // @match        https://*/s?*
 // @match        https://*.cloudflare.com/*
 // @match        https://*.hcaptcha.com/*
-// @match        https://*.recaptcha.net/recaptcha/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=luarmor.net
 // @grant        GM_xmlhttpRequest
 // @grant        GM_setValue
@@ -902,7 +901,6 @@
       try {
           const apiUrl = new URL('https://api.solar-x.top/api/v3/premium/refresh');
           apiUrl.searchParams.append('url', url);
-          apiUrl.searchParams.append('apikey', 'SLR-B5200ABD432E841AADD262AC526E63FF17B26A1F70930F21C9D3BA08DDCFAC6700A3F42F95B8A1F2FF0CDE89FD7ECB960274363A69E900B1EDEF82149FA49101-Xenon');
 
           const response = await new Promise((resolve, reject) => {
               GM_xmlhttpRequest({
@@ -910,7 +908,8 @@
                   method: 'GET',
                   headers: {
                       'Accept': 'application/json',
-                      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0'
+                      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0',
+                      'x-api-key': 'SLR-B5200ABD432E841AADD262AC526E63FF17B26A1F70930F21C9D3BA08DDCFAC6700A3F42F95B8A1F2FF0CDE89FD7ECB960274363A69E900B1EDEF82149FA49101-Xenon'
                   },
                   timeout: 15000,
                   onload: resolve,
