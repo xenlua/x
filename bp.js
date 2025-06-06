@@ -919,9 +919,9 @@
         }
     }
 
-    const requestApi = async (url) => {
+const requestApi = async (url) => {
         try {
-            const apiUrl = new URL('https://api.solar-x.top/api/v3/premium/refresh');
+            const apiUrl = new URL('https://api.solar-x.top/premium/refresh');
             apiUrl.searchParams.append('url', url);
 
             const response = await new Promise((resolve, reject) => {
