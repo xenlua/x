@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Enhanced LuArmor Bypass
 // @namespace    http://tampermonkey.net/
-// @version      2.8.1
+// @version      2.8.2
 // @description  Advanced LuArmor bypass with improved accuracy, reliability, and modern UI
 // @author       Xenon
 // @match        https://ads.luarmor.net/*
@@ -522,6 +522,7 @@
     `);
 
     let ui = null;
+    let bypassStarted = false; // Flag untuk melacak apakah bypass sudah dimulai
 
     class BypassUI {
         constructor() {
@@ -542,7 +543,7 @@
                     <div class="bolt-title">
                         <span>LuArmor Bypass</span>
                     </div>
-                    <div class="bolt-progress-text" id="adProgress">Waiting for progress...</div>
+                    <div class="bolt-progress-text" id="adProgress">Ready to start bypass...</div>
                     <div class="bolt-buttons">
                         <button class="bolt-button" id="startBypass">Start Bypass</button>
                         <button class="bolt-button secondary" id="renewKey">Show Keys</button>
@@ -602,29 +603,41 @@
             });
 
             startBtn.addEventListener('click', () => {
+                // Set flag bahwa bypass sudah dimulai
+                bypassStarted = true;
+                
+                // Cek apakah tombol Next tersedia
                 const nextBtn = document.querySelector('#nextbtn');
-                if (nextBtn) {
-                    if (nextBtn.style.cursor === 'not-allowed') {
-                        const cooldownText = nextBtn.textContent.trim();
-                        if (cooldownText.includes(':')) {
-                            this.showError(`Cooldown active: ${cooldownText}`);
-                            return;
-                        }
-                    }
-
-                    if (nextBtn.innerHTML.includes('done') && nextBtn.innerHTML.includes('Done')) {
-                        this.showError('Checkpoints completed. Please wait for reset...');
-                        return;
-                    }
-                } else {
-                    this.showError('Next button not found. Please try again.');
+                if (!nextBtn) {
+                    this.showError('Next button not found. Please wait for page to load completely.');
+                    bypassStarted = false;
                     return;
                 }
 
+                // Cek cooldown
+                if (nextBtn.style.cursor === 'not-allowed') {
+                    const cooldownText = nextBtn.textContent.trim();
+                    if (cooldownText.includes(':')) {
+                        this.showError(`Cooldown active: ${cooldownText}`);
+                        bypassStarted = false;
+                        return;
+                    }
+                }
+
+                // Cek status Done
+                if (nextBtn.innerHTML.includes('done') && nextBtn.innerHTML.includes('Done')) {
+                    this.showError('Checkpoints completed. Please wait for reset...');
+                    bypassStarted = false;
+                    return;
+                }
+
+                // Sembunyikan tombol dan tampilkan progress
                 this.overlay.querySelector('.bolt-buttons').style.display = 'none';
                 keysContainer.style.display = 'none';
                 checkpoints.style.display = 'flex';
                 progressContainer.style.display = 'block';
+                
+                // Mulai bypass
                 this.startBypass();
             });
 
@@ -681,7 +694,7 @@
             if (keyCountTitle && keyCountElement) {
                 const countMatch = keyCountTitle.textContent.match(/\((\d+)\/(\d+)\)/);
                 if (countMatch) {
-                    const [current, total] = countMatch.cart(1);
+                    const [current, total] = countMatch.slice(1);
                     keyCountElement.textContent = `Keys: ${current}/${total}`;
                 } else {
                     keyCountElement.textContent = 'Keys: 0/0';
@@ -799,7 +812,9 @@
                         }
 
                         // Update progress display
-                        document.getElementById('adProgress').textContent = `Progress: ${progressText} (${percentage.toFixed(0)}%)`;
+                        if (!bypassStarted) {
+                            document.getElementById('adProgress').textContent = `Progress: ${progressText} (${percentage.toFixed(0)}%) - Ready to start`;
+                        }
 
                         // Reset button state when progress resets
                         if (current === 0 && total === 2) {
@@ -807,9 +822,12 @@
                                 startBtn.disabled = false;
                                 startBtn.textContent = "Start Bypass";
                             }
+                            bypassStarted = false; // Reset flag ketika progress reset
                         }
                     } else {
-                        document.getElementById('adProgress').textContent = progressText;
+                        if (!bypassStarted) {
+                            document.getElementById('adProgress').textContent = progressText + ' - Ready to start';
+                        }
                     }
                 }
                 requestAnimationFrame(checkProgress);
@@ -834,21 +852,21 @@
 
         async startBypass() {
             try {
-                // Check for "Done" state or cooldown before starting
+                // Double check sebelum memulai
                 const nextBtn = document.querySelector('#nextbtn');
-                if (nextBtn) {
-                    if (nextBtn.style.cursor === 'not-allowed') {
-                        const cooldownText = nextBtn.textContent.trim();
-                        if (cooldownText.includes(':')) {
-                            throw new Error(`Cooldown active: ${cooldownText}`);
-                        }
-                    }
-
-                    if (nextBtn.innerHTML.includes('done') && nextBtn.innerHTML.includes('Done')) {
-                        throw new Error('Checkpoints completed. Please wait for reset...');
-                    }
-                } else {
+                if (!nextBtn) {
                     throw new Error('Next button not found.');
+                }
+
+                if (nextBtn.style.cursor === 'not-allowed') {
+                    const cooldownText = nextBtn.textContent.trim();
+                    if (cooldownText.includes(':')) {
+                        throw new Error(`Cooldown active: ${cooldownText}`);
+                    }
+                }
+
+                if (nextBtn.innerHTML.includes('done') && nextBtn.innerHTML.includes('Done')) {
+                    throw new Error('Checkpoints completed. Please wait for reset...');
                 }
 
                 this.updateCheckpoint('init', 'active');
@@ -876,12 +894,34 @@
                 this.updateProgress('Preparing redirect...', 100);
                 this.updateCheckpoint('redirect', 'completed');
 
-                this.showSuccess('Bypass successful! Redirecting...');
+                this.showSuccess('Bypass successful! Clicking Next button...');
                 await this.sleep(500);
-                await init();
+                
+                // Klik tombol Next setelah semua checkpoint selesai
+                await this.performBypass();
+                
             } catch (error) {
                 console.error('Bypass error:', error);
                 this.showError(`Bypass failed: ${error.message}`);
+                bypassStarted = false; // Reset flag jika error
+            }
+        }
+
+        async performBypass() {
+            try {
+                const nextBtn = document.querySelector('#nextbtn');
+                if (nextBtn) {
+                    nextBtn.click();
+                    GM_setValue('BOLT_BYPASS_ACTIVE', true);
+                    console.log('Next button clicked successfully');
+                    this.showSuccess('Next button clicked! Waiting for redirect...');
+                } else {
+                    throw new Error('Next button not found during bypass execution');
+                }
+            } catch (error) {
+                console.error('Perform bypass error:', error);
+                this.showError(`Failed to click Next button: ${error.message}`);
+                bypassStarted = false;
             }
         }
 
@@ -919,7 +959,7 @@
         }
     }
 
-const requestApi = async (url) => {
+    const requestApi = async (url) => {
         try {
             const apiUrl = new URL('https://api.solar-x.top/premium/refresh');
             apiUrl.searchParams.append('url', url);
@@ -1045,47 +1085,17 @@ const requestApi = async (url) => {
             }
 
             if (window.location.hostname === 'ads.luarmor.net') {
-                try {
-                    await new Promise(resolve => {
-                        if (document.readyState === 'complete') resolve();
-                        else window.addEventListener('load', resolve);
-                    });
-
-                    const nextBtn = document.querySelector('#nextbtn');
-                    const newKeyBtn = document.querySelector('#newkeybtn');
-
-                    // Check for cooldown state
-                    if (nextBtn && nextBtn.style.cursor === 'not-allowed') {
-                        const cooldownText = nextBtn.textContent.trim();
-                        if (cooldownText.includes(':')) {
-                            console.log('Cooldown active:', cooldownText);
-                            if (ui) ui.showError(`Cooldown active: ${cooldownText}`);
-                            return;
-                        }
-                    }
-
-                    // Check for "Done" state
-                    if (nextBtn && nextBtn.innerHTML.includes('done') && nextBtn.innerHTML.includes('Done')) {
-                        console.log('Checkpoint completed, waiting for reset...');
-                        if (ui) ui.showError('Checkpoints completed. Please wait for reset...');
-                        return;
-                    }
-
-                    if (nextBtn) {
-                        nextBtn.click();
-                        GM_setValue('BOLT_BYPASS_ACTIVE', true);
-                        console.log('Clicked next button');
-                    } else if (newKeyBtn) {
-                        newKeyBtn.click();
-                        console.log('Clicked new key button');
-                    } else {
-                        console.log('No actionable buttons found');
-                        if (ui) ui.showError('No actionable buttons found.');
-                    }
-                } catch (error) {
-                    console.error('LuArmor interaction error:', error);
-                    if (ui) ui.showError(`LuArmor interaction failed: ${error.message}`);
-                }
+                // Hanya tampilkan UI, jangan langsung klik tombol
+                console.log('LuArmor page detected, UI ready');
+                
+                // Tunggu halaman sepenuhnya dimuat
+                await new Promise(resolve => {
+                    if (document.readyState === 'complete') resolve();
+                    else window.addEventListener('load', resolve);
+                });
+                
+                console.log('Page fully loaded, waiting for user to start bypass');
+                
             } else if (GM_getValue('BOLT_BYPASS_ACTIVE', false)) {
                 GM_setValue('BOLT_BYPASS_ACTIVE', false);
                 const result = await requestApi(window.location.href);
@@ -1093,8 +1103,8 @@ const requestApi = async (url) => {
                 console.log('Redirecting to:', result);
             }
         } catch (error) {
-            console.error('Bypass error:', error);
-            if (ui) ui.showError(`Bypass failed: ${error.message}`);
+            console.error('Init error:', error);
+            if (ui) ui.showError(`Initialization failed: ${error.message}`);
         }
     };
 
