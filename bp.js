@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Enhanced LuArmor Bypass
 // @namespace    http://tampermonkey.net/
-// @version      2.7
+// @version      2.8
 // @description  Advanced LuArmor bypass with improved accuracy, reliability, and modern UI
 // @author       Xenon
 // @match        https://ads.luarmor.net/*
@@ -35,28 +35,60 @@
           justify-content: center;
           align-items: flex-start;
           z-index: 2147483647;
-          font-family: system-ui, -apple-system, sans-serif;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
           opacity: 0;
-          transition: opacity 0.3s ease;
-          padding: 0.5rem;
+          transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+          padding: 1rem;
           box-sizing: border-box;
           overflow-y: auto;
           -webkit-overflow-scrolling: touch;
+          backdrop-filter: blur(10px);
+          background: rgba(0, 0, 0, 0.3);
       }
 
       .bolt-container {
-          background: rgb(31, 41, 55);
-          border-radius: 20px;
-          padding: 1.5rem;
+          background: linear-gradient(135deg, rgb(17, 24, 39) 0%, rgb(31, 41, 55) 100%);
+          border-radius: 24px;
+          padding: 2rem;
           width: 100%;
-          max-width: 480px;
-          box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
-          transform: translateY(20px);
-          transition: all 0.3s ease;
-          animation: slideIn 0.3s ease forwards;
+          max-width: 520px;
+          box-shadow:
+              0 25px 50px -12px rgba(0, 0, 0, 0.5),
+              0 0 0 1px rgba(255, 255, 255, 0.05),
+              inset 0 1px 0 rgba(255, 255, 255, 0.1);
+          transform: translateY(20px) scale(0.95);
+          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+          animation: slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
           position: relative;
           overflow: visible;
           margin: 1rem auto;
+          border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      @keyframes slideIn {
+          from {
+              opacity: 0;
+              transform: translateY(30px) scale(0.95);
+          }
+          to {
+              opacity: 1;
+              transform: translateY(0) scale(1);
+          }
+      }
+
+      @keyframes pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.7; }
+      }
+
+      @keyframes shimmer {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(100%); }
+      }
+
+      @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
       }
 
       @media (max-width: 480px) {
@@ -66,121 +98,126 @@
           }
 
           .bolt-container {
-              padding: 1rem;
+              padding: 1.5rem;
               border-radius: 0;
               margin: 0;
-              min-height: 100%;
+              min-height: 100vh;
+              max-width: none;
           }
 
           .bolt-title {
-              font-size: 1.25rem !important;
-              margin-bottom: 1.5rem !important;
+              font-size: 1.5rem !important;
+              margin-bottom: 2rem !important;
           }
 
           .bolt-button {
               padding: 1rem !important;
               font-size: 1rem !important;
-              margin-top: 0.75rem !important;
+              margin-top: 1rem !important;
               height: auto !important;
-              border-radius: 8px !important;
+              border-radius: 12px !important;
           }
 
           .bolt-key-item {
-              padding: 1rem;
-              margin-bottom: 0.5rem;
-              background: rgba(255, 255, 255, 0.05);
-              border-radius: 8px;
-          }
-
-          .bolt-key-item > div {
-              margin-top: 0.5rem;
-              display: flex;
-              justify-content: flex-start;
-              align-items: center;
-              gap: 0.5rem;
-              flex-wrap: wrap;
+              padding: 1.5rem;
+              margin-bottom: 1rem;
+              background: rgba(255, 255, 255, 0.08);
+              border-radius: 16px;
           }
 
           .bolt-key-text {
               font-size: 0.875rem !important;
+              margin-bottom: 1rem;
+          }
+
+          .bolt-key-actions {
+              flex-direction: column;
+              gap: 0.75rem;
+          }
+
+          .bolt-copy-btn, .bolt-renew-btn {
               width: 100%;
-              word-break: break-all;
-          }
-
-          .bolt-renew-btn {
-              padding: 0.5rem 1rem !important;
-              font-size: 0.875rem !important;
-              border-radius: 6px !important;
-              margin: 0 !important;
-          }
-
-          .bolt-checkpoint {
-              padding: 1rem !important;
-              font-size: 1rem !important;
-              margin-bottom: 0.5rem !important;
-              border-radius: 8px !important;
-          }
-
-          .bolt-keys {
-              margin: 1rem -1rem;
-              padding: 1rem;
-              border-radius: 0;
-              background: rgba(0, 0, 0, 0.2);
+              justify-content: center;
           }
       }
 
       .bolt-button {
-          background: #3b82f6;
+          background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
           color: white;
           border: none;
           padding: 1rem 2rem;
-          border-radius: 12px;
+          border-radius: 16px;
           font-size: 1rem;
           font-weight: 600;
           cursor: pointer;
           width: 100%;
           margin-top: 1rem;
-          transition: all 0.2s ease;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
           -webkit-tap-highlight-color: transparent;
           height: 3.5rem;
           display: flex;
           align-items: center;
           justify-content: center;
+          position: relative;
+          overflow: hidden;
+          box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+      }
+
+      .bolt-button::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+          transition: left 0.5s;
+      }
+
+      .bolt-button:hover::before {
+          left: 100%;
       }
 
       .bolt-button:hover {
-          background: #2563eb;
+          background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+          transform: translateY(-2px);
+          box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
       }
 
       .bolt-button:active {
-          transform: scale(0.98);
+          transform: translateY(0) scale(0.98);
       }
 
       .bolt-button:disabled {
-          background: #9ca3af;
+          background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
           cursor: not-allowed;
           opacity: 0.7;
+          transform: none;
+          box-shadow: none;
       }
 
       .bolt-button.secondary {
-          background: #4b5563;
-          margin-top: 0.5rem;
+          background: linear-gradient(135deg, #4b5563 0%, #374151 100%);
+          margin-top: 0.75rem;
+          box-shadow: 0 4px 15px rgba(75, 85, 99, 0.3);
       }
 
       .bolt-button.secondary:hover {
-          background: #374151;
+          background: linear-gradient(135deg, #374151 0%, #1f2937 100%);
+          box-shadow: 0 8px 25px rgba(75, 85, 99, 0.4);
       }
 
       .bolt-container.minimized {
           width: auto;
-          padding: 1rem;
+          padding: 1.5rem;
           cursor: pointer;
           transform: translateY(0);
           position: fixed;
-          bottom: 1rem;
-          right: 1rem;
-          max-width: none;
+          bottom: 2rem;
+          right: 2rem;
+          max-width: 300px;
           margin: 0;
+          backdrop-filter: blur(20px);
       }
 
       .bolt-container.minimized .bolt-checkpoints,
@@ -194,7 +231,7 @@
 
       .bolt-container.minimized .bolt-title {
           margin: 0;
-          font-size: 1rem;
+          font-size: 1.125rem;
       }
 
       .bolt-container.minimized .bolt-title::after {
@@ -203,27 +240,30 @@
 
       .bolt-toggle {
           position: absolute;
-          top: 0.75rem;
-          right: 0.75rem;
-          background: none;
+          top: 1rem;
+          right: 1rem;
+          background: rgba(255, 255, 255, 0.1);
           border: none;
-          color: #9ca3af;
+          color: #e5e7eb;
           cursor: pointer;
-          padding: 0.5rem;
-          border-radius: 0.375rem;
-          transition: all 0.2s ease;
+          padding: 0.75rem;
+          border-radius: 12px;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
           display: flex;
           align-items: center;
           justify-content: center;
-          width: 32px;
-          height: 32px;
+          width: 40px;
+          height: 40px;
           -webkit-tap-highlight-color: transparent;
           z-index: 10;
+          backdrop-filter: blur(10px);
+          border: 1px solid rgba(255, 255, 255, 0.1);
       }
 
       .bolt-toggle:hover {
-          background: rgba(255, 255, 255, 0.1);
+          background: rgba(255, 255, 255, 0.2);
           color: white;
+          transform: scale(1.05);
       }
 
       .bolt-toggle:active {
@@ -231,243 +271,367 @@
       }
 
       .bolt-progress-text {
-          color: #e5e7eb;
-          font-size: 0.9375rem;
-          margin: 1rem 0;
+          color: #f3f4f6;
+          font-size: 1rem;
+          margin: 1.5rem 0;
           text-align: center;
           word-break: break-word;
+          font-weight: 500;
       }
 
       .bolt-keys {
-          margin-top: 1rem;
-          background: rgba(255, 255, 255, 0.05);
-          border-radius: 12px;
-          padding: 1rem;
-          max-height: 300px;
+          margin-top: 1.5rem;
+          background: rgba(0, 0, 0, 0.2);
+          border-radius: 20px;
+          padding: 1.5rem;
+          max-height: 400px;
           overflow-y: auto;
           -webkit-overflow-scrolling: touch;
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          backdrop-filter: blur(10px);
+      }
+
+      .bolt-keys::-webkit-scrollbar {
+          width: 6px;
+      }
+
+      .bolt-keys::-webkit-scrollbar-track {
+          background: rgba(255, 255, 255, 0.1);
+          border-radius: 3px;
+      }
+
+      .bolt-keys::-webkit-scrollbar-thumb {
+          background: rgba(255, 255, 255, 0.3);
+          border-radius: 3px;
+      }
+
+      .bolt-keys::-webkit-scrollbar-thumb:hover {
+          background: rgba(255, 255, 255, 0.5);
       }
 
       .bolt-key-item {
           display: flex;
           flex-direction: column;
-          padding: 1rem;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-          color: #e5e7eb;
-          background: rgba(255, 255, 255, 0.03);
-          border-radius: 8px;
-          margin-bottom: 0.5rem;
+          padding: 1.5rem;
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          color: #f3f4f6;
+          background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+          border-radius: 16px;
+          margin-bottom: 1rem;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          position: relative;
+          overflow: hidden;
+      }
+
+      .bolt-key-item::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 2px;
+          background: linear-gradient(90deg, #3b82f6, #8b5cf6, #06b6d4);
+          opacity: 0;
+          transition: opacity 0.3s ease;
+      }
+
+      .bolt-key-item:hover {
+          background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.04) 100%);
+          transform: translateY(-2px);
+          box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+      }
+
+      .bolt-key-item:hover::before {
+          opacity: 1;
       }
 
       .bolt-key-item:last-child {
           margin-bottom: 0;
-          border-bottom: none;
+      }
+
+      .bolt-key-header {
+          display: flex;
+          align-items: center;
+          gap: 1rem;
+          margin-bottom: 1rem;
+      }
+
+      .bolt-key-icon {
+          width: 40px;
+          height: 40px;
+          background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+          border-radius: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 1.25rem;
+          flex-shrink: 0;
+      }
+
+      .bolt-key-info {
+          flex: 1;
+          min-width: 0;
       }
 
       .bolt-key-text {
-          font-family: monospace;
+          font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
           font-size: 0.875rem;
           word-break: break-all;
           margin-bottom: 0.5rem;
+          padding: 0.75rem;
+          background: rgba(0, 0, 0, 0.3);
+          border-radius: 8px;
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          color: #e5e7eb;
+          position: relative;
+      }
+
+      .bolt-key-meta {
           display: flex;
           align-items: center;
-          gap: 0.5rem;
+          gap: 0.75rem;
+          font-size: 0.875rem;
+          color: #9ca3af;
       }
 
       .bolt-key-status {
-          font-size: 0.875rem;
+          font-size: 0.75rem;
           padding: 0.375rem 0.75rem;
-          border-radius: 6px;
+          border-radius: 20px;
           white-space: nowrap;
-          font-weight: 500;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
       }
 
       .bolt-key-status.expired {
-          background: rgba(239, 68, 68, 0.2);
-          color: #ef4444;
+          background: linear-gradient(135deg, rgba(239, 68, 68, 0.2) 0%, rgba(220, 38, 38, 0.2) 100%);
+          color: #fca5a5;
+          border: 1px solid rgba(239, 68, 68, 0.3);
       }
 
       .bolt-key-status.active {
-          background: rgba(16, 185, 129, 0.2);
-          color: #10b981;
+          background: linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(5, 150, 105, 0.2) 100%);
+          color: #6ee7b7;
+          border: 1px solid rgba(16, 185, 129, 0.3);
       }
 
-      @keyframes slideIn {
-          from {
-              opacity: 0;
-              transform: translateY(20px);
-          }
-          to {
-              opacity: 1;
-              transform: translateY(0);
-          }
+      .bolt-key-actions {
+          display: flex;
+          gap: 0.75rem;
+          margin-top: 1rem;
+          align-items: center;
+      }
+
+      .bolt-copy-btn, .bolt-renew-btn {
+          padding: 0.75rem 1.5rem;
+          border: none;
+          border-radius: 12px;
+          font-size: 0.875rem;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          -webkit-tap-highlight-color: transparent;
+          position: relative;
+          overflow: hidden;
+      }
+
+      .bolt-copy-btn {
+          background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+          color: white;
+          flex: 1;
+          justify-content: center;
+          box-shadow: 0 4px 15px rgba(6, 182, 212, 0.3);
+      }
+
+      .bolt-copy-btn:hover {
+          background: linear-gradient(135deg, #0891b2 0%, #0e7490 100%);
+          transform: translateY(-1px);
+          box-shadow: 0 6px 20px rgba(6, 182, 212, 0.4);
+      }
+
+      .bolt-copy-btn.copied {
+          background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+          box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+      }
+
+      .bolt-renew-btn {
+          background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+          color: white;
+          box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+      }
+
+      .bolt-renew-btn:hover {
+          background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+          transform: translateY(-1px);
+          box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
+      }
+
+      .bolt-copy-btn:active, .bolt-renew-btn:active {
+          transform: scale(0.95);
       }
 
       .bolt-checkpoints {
-          margin-top: 1.5rem;
+          margin-top: 2rem;
           display: flex;
           flex-direction: column;
-          gap: 0.75rem;
+          gap: 1rem;
           display: none;
       }
 
       .bolt-checkpoint {
           display: flex;
           align-items: center;
-          gap: 0.75rem;
+          gap: 1rem;
           color: #9ca3af;
-          font-size: 0.9375rem;
-          padding: 0.75rem;
-          border-radius: 12px;
-          background: rgba(255, 255, 255, 0.05);
-          transition: all 0.3s ease;
+          font-size: 1rem;
+          padding: 1rem;
+          border-radius: 16px;
+          background: rgba(255, 255, 255, 0.03);
+          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+          border: 1px solid rgba(255, 255, 255, 0.05);
       }
 
       .bolt-checkpoint.active {
           color: white;
-          background: rgba(59, 130, 246, 0.1);
-          border: 1px solid rgba(59, 130, 246, 0.2);
+          background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(29, 78, 216, 0.15) 100%);
+          border: 1px solid rgba(59, 130, 246, 0.3);
+          transform: scale(1.02);
       }
 
       .bolt-checkpoint.completed {
-          color: #10b981;
-          background: rgba(16, 185, 129, 0.1);
-          border: 1px solid rgba(16, 185, 129, 0.2);
+          color: #6ee7b7;
+          background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(5, 150, 105, 0.15) 100%);
+          border: 1px solid rgba(16, 185, 129, 0.3);
       }
 
       .bolt-checkpoint-icon {
-          width: 24px;
-          height: 24px;
+          width: 32px;
+          height: 32px;
           border-radius: 50%;
           display: flex;
           align-items: center;
           justify-content: center;
-          font-size: 14px;
+          font-size: 16px;
           flex-shrink: 0;
+          background: rgba(255, 255, 255, 0.1);
+          transition: all 0.3s ease;
       }
 
       .bolt-checkpoint.active .bolt-checkpoint-icon {
-          background: #3b82f6;
+          background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
           color: white;
+          animation: pulse 2s infinite;
       }
 
       .bolt-checkpoint.completed .bolt-checkpoint-icon {
-          background: #10b981;
+          background: linear-gradient(135deg, #10b981 0%, #059669 100%);
           color: white;
       }
 
       .bolt-progress-container {
-          margin-top: 1.5rem;
+          margin-top: 2rem;
           display: none;
       }
 
       .bolt-progress-bar {
-          height: 6px;
+          height: 8px;
           background: rgba(59, 130, 246, 0.1);
-          border-radius: 3px;
+          border-radius: 4px;
           overflow: hidden;
-          margin: 1rem 0;
+          margin: 1.5rem 0;
           position: relative;
+          border: 1px solid rgba(59, 130, 246, 0.2);
       }
 
       .bolt-progress-fill {
           height: 100%;
           width: 0%;
-          background: linear-gradient(90deg, #3b82f6, #60a5fa);
-          border-radius: 3px;
-          transition: width 0.3s ease;
+          background: linear-gradient(90deg, #3b82f6, #60a5fa, #3b82f6);
+          background-size: 200% 100%;
+          border-radius: 4px;
+          transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
           position: relative;
           overflow: hidden;
-      }
-
-      .bolt-progress-fill::after {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background: linear-gradient(
-              90deg,
-              transparent,
-              rgba(255, 255, 255, 0.2),
-              transparent
-          );
-          animation: shimmer 1.5s infinite;
-      }
-
-      @keyframes shimmer {
-          0% { transform: translateX(-100%); }
-          100% { transform: translateX(100%); }
+          animation: shimmer 2s infinite;
       }
 
       .bolt-status {
-          color: #e5e7eb;
-          font-size: 0.9375rem;
-          margin-bottom: 0.5rem;
+          color: #f3f4f6;
+          font-size: 1rem;
+          margin-bottom: 0.75rem;
           display: flex;
           justify-content: space-between;
           align-items: center;
-          font-weight: 500;
+          font-weight: 600;
       }
 
       .bolt-detail {
           color: #9ca3af;
-          font-size: 0.8125rem;
-          margin-top: 0.75rem;
-          line-height: 1.4;
+          font-size: 0.875rem;
+          margin-top: 1rem;
+          line-height: 1.5;
           word-break: break-word;
       }
 
       .bolt-title {
           color: white;
-          font-size: 1.25rem;
-          font-weight: 600;
-          margin-bottom: 1rem;
+          font-size: 1.75rem;
+          font-weight: 700;
+          margin-bottom: 1.5rem;
           display: flex;
           align-items: center;
-          gap: 0.75rem;
+          gap: 1rem;
           position: relative;
-          padding-right: 2rem;
+          padding-right: 3rem;
+          background: linear-gradient(135deg, #ffffff 0%, #e5e7eb 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
       }
 
       .bolt-title::after {
           content: '';
           position: absolute;
-          bottom: -0.5rem;
+          bottom: -0.75rem;
           left: 0;
-          width: 2rem;
-          height: 2px;
-          background: #3b82f6;
-          border-radius: 1px;
+          width: 3rem;
+          height: 3px;
+          background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+          border-radius: 2px;
       }
 
       .bolt-success {
-          background: rgba(16, 185, 129, 0.1);
-          border: 1px solid rgba(16, 185, 129, 0.2);
-          color: #10b981;
-          padding: 1rem;
-          border-radius: 12px;
-          margin-top: 1rem;
-          font-size: 0.9375rem;
+          background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(5, 150, 105, 0.15) 100%);
+          border: 1px solid rgba(16, 185, 129, 0.3);
+          color: #6ee7b7;
+          padding: 1.5rem;
+          border-radius: 16px;
+          margin-top: 1.5rem;
+          font-size: 1rem;
           display: flex;
           align-items: center;
-          gap: 0.5rem;
+          gap: 0.75rem;
           word-break: break-word;
+          font-weight: 500;
       }
 
       .bolt-error {
-          background: rgba(239, 68, 68, 0.1);
-          border: 1px solid rgba(239, 68, 68, 0.2);
-          color: #ef4444;
-          padding: 1rem;
-          border-radius: 12px;
-          margin-top: 1rem;
-          font-size: 0.9375rem;
+          background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(220, 38, 38, 0.15) 100%);
+          border: 1px solid rgba(239, 68, 68, 0.3);
+          color: #fca5a5;
+          padding: 1.5rem;
+          border-radius: 16px;
+          margin-top: 1.5rem;
+          font-size: 1rem;
           display: flex;
           align-items: center;
-          gap: 0.5rem;
+          gap: 0.75rem;
           word-break: break-word;
+          font-weight: 500;
       }
 
       * {
@@ -476,40 +640,71 @@
       }
 
       .bolt-key-count {
-          color: #9ca3af;
-          font-size: 0.875rem;
-          margin-bottom: 1rem;
+          color: #e5e7eb;
+          font-size: 1rem;
+          margin-bottom: 1.5rem;
           display: flex;
           align-items: center;
-          gap: 0.5rem;
+          gap: 0.75rem;
+          font-weight: 600;
+          padding: 1rem;
+          background: rgba(255, 255, 255, 0.05);
+          border-radius: 12px;
+          border: 1px solid rgba(255, 255, 255, 0.1);
       }
 
       .bolt-new-key-btn {
-          background: #17c1e8;
+          background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
           color: white;
           border: none;
-          padding: 0.75rem 1.5rem;
-          border-radius: 8px;
-          font-size: 0.875rem;
-          font-weight: 500;
+          padding: 1rem 2rem;
+          border-radius: 16px;
+          font-size: 1rem;
+          font-weight: 600;
           cursor: pointer;
           display: flex;
           align-items: center;
-          gap: 0.5rem;
-          transition: all 0.2s ease;
-          margin-top: 1rem;
+          gap: 0.75rem;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          margin-bottom: 1.5rem;
+          width: 100%;
+          justify-content: center;
+          box-shadow: 0 4px 15px rgba(6, 182, 212, 0.3);
       }
 
       .bolt-new-key-btn:hover {
-          background: #0ea5c9;
+          background: linear-gradient(135deg, #0891b2 0%, #0e7490 100%);
+          transform: translateY(-2px);
+          box-shadow: 0 8px 25px rgba(6, 182, 212, 0.4);
       }
 
       .bolt-new-key-btn:active {
-          transform: scale(0.98);
+          transform: translateY(0) scale(0.98);
       }
 
-      .bolt-new-key-btn i {
-          font-size: 1.25rem;
+      .bolt-loading {
+          display: inline-block;
+          width: 16px;
+          height: 16px;
+          border: 2px solid rgba(255, 255, 255, 0.3);
+          border-radius: 50%;
+          border-top-color: #ffffff;
+          animation: spin 1s ease-in-out infinite;
+      }
+
+      .bolt-redirect-status {
+          background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(29, 78, 216, 0.15) 100%);
+          border: 1px solid rgba(59, 130, 246, 0.3);
+          color: #93c5fd;
+          padding: 1.5rem;
+          border-radius: 16px;
+          margin-top: 1.5rem;
+          font-size: 1rem;
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+          word-break: break-word;
+          font-weight: 500;
       }
   `);
 
@@ -520,30 +715,39 @@
           this.overlay = document.createElement('div');
           this.overlay.className = 'bolt-overlay';
           this.startTime = Date.now();
+          this.redirectStartTime = null;
+          this.isWaitingForRedirect = false;
           this.checkpoints = [
               { id: 'init', text: 'Initialize Bypass', status: 'pending' },
               { id: 'cloudflare', text: 'Cloudflare Check', status: 'pending' },
               { id: 'captcha', text: 'Captcha Verification', status: 'pending' },
               { id: 'request', text: 'API Request', status: 'pending' },
-              { id: 'redirect', text: 'Final Redirect', status: 'pending' }
+              { id: 'redirect', text: 'Waiting for Redirect', status: 'pending' }
           ];
 
           this.overlay.innerHTML = `
               <div class="bolt-container">
                   <button class="bolt-toggle" title="Toggle container">−</button>
                   <div class="bolt-title">
-                      <span>LuArmor Bypass</span>
+                      <span>🚀 LuArmor Bypass</span>
                   </div>
-                  <div class="bolt-progress-text" id="adProgress">Waiting for progress...</div>
+                  <div class="bolt-progress-text" id="adProgress">Ready to start bypass process...</div>
                   <div class="bolt-buttons">
-                      <button class="bolt-button" id="startBypass">Start Bypass</button>
-                      <button class="bolt-button secondary" id="renewKey">Show Keys</button>
+                      <button class="bolt-button" id="startBypass">
+                          <span>Start Bypass</span>
+                      </button>
+                      <button class="bolt-button secondary" id="renewKey">
+                          <span>🔑 Manage Keys</span>
+                      </button>
                   </div>
                   <div class="bolt-keys" id="boltKeys">
-                      <div class="bolt-key-count" id="boltKeyCount"></div>
+                      <div class="bolt-key-count" id="boltKeyCount">
+                          <span>🔑</span>
+                          <span>Loading keys...</span>
+                      </div>
                       <button class="bolt-new-key-btn" id="boltNewKey">
-                          <i class="material-icons">add</i>
-                          Get a new key
+                          <span>➕</span>
+                          <span>Get New Key</span>
                       </button>
                   </div>
                   <div class="bolt-checkpoints">
@@ -556,7 +760,7 @@
                   </div>
                   <div class="bolt-progress-container">
                       <div class="bolt-status">
-                          <span id="bolt-status-text">Waiting to start...</span>
+                          <span id="bolt-status-text">Initializing...</span>
                           <span id="bolt-percentage">0%</span>
                       </div>
                       <div class="bolt-progress-bar">
@@ -599,13 +803,13 @@
                   if (nextBtn.style.cursor === 'not-allowed') {
                       const cooldownText = nextBtn.textContent.trim();
                       if (cooldownText.includes(':')) {
-                          this.showError(`Cooldown active: ${cooldownText}`);
+                          this.showError(`⏱️ Cooldown active: ${cooldownText}`);
                           return;
                       }
                   }
 
                   if (nextBtn.innerHTML.includes('done') && nextBtn.innerHTML.includes('Done')) {
-                      this.showError('Checkpoints completed. Please wait for reset...');
+                      this.showError('✅ Checkpoints completed. Please wait for reset...');
                       return;
                   }
               }
@@ -638,6 +842,30 @@
           });
       }
 
+      async copyToClipboard(text) {
+          try {
+              if (navigator.clipboard && window.isSecureContext) {
+                  await navigator.clipboard.writeText(text);
+              } else {
+                  // Fallback for older browsers
+                  const textArea = document.createElement('textarea');
+                  textArea.value = text;
+                  textArea.style.position = 'fixed';
+                  textArea.style.left = '-999999px';
+                  textArea.style.top = '-999999px';
+                  document.body.appendChild(textArea);
+                  textArea.focus();
+                  textArea.select();
+                  document.execCommand('copy');
+                  textArea.remove();
+              }
+              return true;
+          } catch (err) {
+              console.error('Failed to copy text: ', err);
+              return false;
+          }
+      }
+
       monitorKeyCount() {
           const updateCount = () => {
               const keyCountTitle = document.querySelector('#keysrowtitle');
@@ -647,7 +875,10 @@
                   const countMatch = keyCountTitle.textContent.match(/\((\d+)\/(\d+)\)/);
                   if (countMatch) {
                       const [current, total] = countMatch.slice(1);
-                      keyCountElement.textContent = `Keys: ${current}/${total}`;
+                      keyCountElement.innerHTML = `
+                          <span>🔑</span>
+                          <span>Keys: ${current}/${total}</span>
+                      `;
                   }
               }
 
@@ -667,18 +898,31 @@
               const countMatch = keyCountTitle.textContent.match(/\((\d+)\/(\d+)\)/);
               if (countMatch) {
                   const [current, total] = countMatch.slice(1);
-                  keyCountElement.textContent = `Keys: ${current}/${total}`;
+                  keyCountElement.innerHTML = `
+                      <span>🔑</span>
+                      <span>Keys: ${current}/${total}</span>
+                  `;
               }
           }
 
           if (!tableBody) {
               keysContainer.innerHTML = `
-                  <div class="bolt-key-count" id="boltKeyCount">Keys: 0/0</div>
+                  <div class="bolt-key-count" id="boltKeyCount">
+                      <span>🔑</span>
+                      <span>Keys: 0/0</span>
+                  </div>
                   <button class="bolt-new-key-btn" id="boltNewKey">
-                      <i class="material-icons">add</i>
-                      Get a new key
+                      <span>➕</span>
+                      <span>Get New Key</span>
                   </button>
-                  <div class="bolt-key-item">No keys found</div>
+                  <div class="bolt-key-item">
+                      <div class="bolt-key-header">
+                          <div class="bolt-key-icon">❌</div>
+                          <div class="bolt-key-info">
+                              <div style="color: #9ca3af; font-size: 1rem;">No keys found</div>
+                          </div>
+                      </div>
+                  </div>
               `;
               return;
           }
@@ -700,22 +944,28 @@
               }
           });
 
-          const keyListHtml = keys.map(key => `
+          const keyListHtml = keys.map((key, index) => `
               <div class="bolt-key-item">
-                  <div class="bolt-key-text">
-                      <div class="d-flex px-2 py-1">
-                          <div>
-                              <img alt="key" src="./assets/img/keyicon.png" class="avatar avatar-sm me-2">
-                          </div>
-                          <div class="d-flex flex-column justify-content-center">
-                              <h6 class="mb-0 text-sm">${key.key}</h6>
+                  <div class="bolt-key-header">
+                      <div class="bolt-key-icon">${key.status === 'active' ? '🔑' : '🔒'}</div>
+                      <div class="bolt-key-info">
+                          <div class="bolt-key-meta">
+                              <span class="bolt-key-status ${key.status}">${key.status}</span>
+                              <span>⏱️ ${key.timeLeft}</span>
                           </div>
                       </div>
                   </div>
-                  <div>
-                      <span class="bolt-key-status ${key.status}">${key.status}</span>
+                  <div class="bolt-key-text">${key.key}</div>
+                  <div class="bolt-key-actions">
+                      <button class="bolt-copy-btn" data-key="${key.key}" data-index="${index}">
+                          <span>📋</span>
+                          <span>Copy Key</span>
+                      </button>
                       ${key.status === 'expired' && key.keyId ?
-                          `<button class="bolt-renew-btn" onclick="renewKey('${key.keyId}')">Renew Key</button>` :
+                          `<button class="bolt-renew-btn" onclick="renewKey('${key.keyId}')">
+                              <span>🔄</span>
+                              <span>Renew</span>
+                          </button>` :
                           ''
                       }
                   </div>
@@ -723,15 +973,27 @@
           `).join('');
 
           keysContainer.innerHTML = `
-              <div class="bolt-key-count" id="boltKeyCount"></div>
+              <div class="bolt-key-count" id="boltKeyCount">
+                  <span>🔑</span>
+                  <span>Loading...</span>
+              </div>
               <button class="bolt-new-key-btn" id="boltNewKey">
-                  <i class="material-icons">add</i>
-                  Get a new key
+                  <span>➕</span>
+                  <span>Get New Key</span>
               </button>
-              ${keyListHtml || '<div class="bolt-key-item">No keys found</div>'}
+              ${keyListHtml || `
+                  <div class="bolt-key-item">
+                      <div class="bolt-key-header">
+                          <div class="bolt-key-icon">❌</div>
+                          <div class="bolt-key-info">
+                              <div style="color: #9ca3af; font-size: 1rem;">No keys found</div>
+                          </div>
+                      </div>
+                  </div>
+              `}
           `;
 
-          // Reattach event listener for new key button
+          // Reattach event listeners
           const newKeyBtn = keysContainer.querySelector('#boltNewKey');
           if (newKeyBtn) {
               newKeyBtn.addEventListener('click', () => {
@@ -741,6 +1003,39 @@
                   }
               });
           }
+
+          // Add copy functionality to all copy buttons
+          keysContainer.querySelectorAll('.bolt-copy-btn').forEach(btn => {
+              btn.addEventListener('click', async (e) => {
+                  const keyText = btn.getAttribute('data-key');
+                  const index = btn.getAttribute('data-index');
+                  const success = await this.copyToClipboard(keyText);
+
+                  if (success) {
+                      const originalContent = btn.innerHTML;
+                      btn.classList.add('copied');
+                      btn.innerHTML = `
+                          <span>✅</span>
+                          <span>Copied!</span>
+                      `;
+
+                      setTimeout(() => {
+                          btn.classList.remove('copied');
+                          btn.innerHTML = originalContent;
+                      }, 2000);
+                  } else {
+                      const originalContent = btn.innerHTML;
+                      btn.innerHTML = `
+                          <span>❌</span>
+                          <span>Failed</span>
+                      `;
+
+                      setTimeout(() => {
+                          btn.innerHTML = originalContent;
+                      }, 2000);
+                  }
+              });
+          });
       }
 
       monitorProgress() {
@@ -760,10 +1055,13 @@
                       if (nextBtn && nextBtn.style.cursor === 'not-allowed') {
                           const cooldownText = nextBtn.textContent.trim();
                           if (cooldownText.includes(':')) {
-                              document.getElementById('adProgress').textContent = `Cooldown: ${cooldownText}`;
+                              document.getElementById('adProgress').innerHTML = `⏱️ Cooldown: <strong>${cooldownText}</strong>`;
                               if (startBtn) {
                                   startBtn.disabled = true;
-                                  startBtn.textContent = `Cooldown: ${cooldownText}`;
+                                  startBtn.innerHTML = `
+                                      <span class="bolt-loading"></span>
+                                      <span>Cooldown: ${cooldownText}</span>
+                                  `;
                               }
                               return;
                           }
@@ -771,26 +1069,29 @@
 
                       // Check for "Done" state
                       if (nextBtn && nextBtn.innerHTML.includes('done') && nextBtn.innerHTML.includes('Done')) {
-                          document.getElementById('adProgress').textContent = 'Checkpoints completed! Please wait for reset...';
+                          document.getElementById('adProgress').innerHTML = '✅ Checkpoints completed! <strong>Please wait for reset...</strong>';
                           if (startBtn) {
                               startBtn.disabled = true;
-                              startBtn.textContent = 'Waiting for reset...';
+                              startBtn.innerHTML = `
+                                  <span>⏳</span>
+                                  <span>Waiting for reset...</span>
+                              `;
                           }
                           return;
                       }
 
                       // Update progress display
-                      document.getElementById('adProgress').textContent = `Progress: ${progressText} (${percentage.toFixed(0)}%)`;
+                      document.getElementById('adProgress').innerHTML = `📊 Progress: <strong>${progressText}</strong> (${percentage.toFixed(0)}%)`;
 
                       // Reset button state when progress resets
                       if (current === 0 && total === 2) {
                           if (startBtn) {
                               startBtn.disabled = false;
-                              startBtn.textContent = "Start Bypass";
+                              startBtn.innerHTML = '<span>🚀 Start Bypass</span>';
                           }
                       }
                   } else {
-                      document.getElementById('adProgress').textContent = progressText;
+                      document.getElementById('adProgress').innerHTML = `📊 ${progressText}`;
                   }
               }
               requestAnimationFrame(checkProgress);
@@ -807,9 +1108,9 @@
 
           const icon = checkpoint.querySelector('.bolt-checkpoint-icon');
           if (status === 'completed') {
-              icon.innerHTML = '✓';
+              icon.innerHTML = '✅';
           } else if (status === 'active') {
-              icon.innerHTML = '•';
+              icon.innerHTML = '⚡';
           }
       }
 
@@ -831,35 +1132,37 @@
               }
 
               this.updateCheckpoint('init', 'active');
-              await this.sleep(500);
-              this.updateProgress('Initializing...', 20);
+              await this.sleep(800);
+              this.updateProgress('🔧 Initializing bypass system...', 20);
               this.updateCheckpoint('init', 'completed');
 
               this.updateCheckpoint('cloudflare', 'active');
-              await this.sleep(500);
-              this.updateProgress('Checking Cloudflare...', 40);
+              await this.sleep(1000);
+              this.updateProgress('☁️ Bypassing Cloudflare protection...', 40);
               this.updateCheckpoint('cloudflare', 'completed');
 
               this.updateCheckpoint('captcha', 'active');
-              await this.sleep(500);
-              this.updateProgress('Verifying captcha...', 60);
+              await this.sleep(800);
+              this.updateProgress('🤖 Solving captcha verification...', 60);
               this.updateCheckpoint('captcha', 'completed');
 
               this.updateCheckpoint('request', 'active');
-              await this.sleep(500);
-              this.updateProgress('Making API request...', 80);
+              await this.sleep(1200);
+              this.updateProgress('🌐 Processing API request...', 80);
               this.updateCheckpoint('request', 'completed');
 
               this.updateCheckpoint('redirect', 'active');
-              await this.sleep(500);
-              this.updateProgress('Preparing redirect...', 100);
-              this.updateCheckpoint('redirect', 'completed');
+              this.updateProgress('🔄 Preparing redirect...', 90);
 
-              this.showSuccess('Bypass successful! Redirecting...');
+              // Start redirect monitoring
+              this.isWaitingForRedirect = true;
+              this.redirectStartTime = Date.now();
+              this.showRedirectStatus('⏳ Waiting for redirect link...');
+
               await this.sleep(500);
               init();
           } catch (error) {
-              this.showError(`Bypass failed: ${error.message}`);
+              this.showError(`❌ Bypass failed: ${error.message}`);
           }
       }
 
@@ -872,28 +1175,61 @@
           const percentageText = document.getElementById('bolt-percentage');
           const progressBar = document.getElementById('bolt-progress');
           const detailText = document.getElementById('bolt-detail');
-          const elapsedTime = ((Date.now() - this.startTime) / 1000).toFixed(1);
 
-          if (statusText) statusText.textContent = status;
+          let elapsedTime;
+          if (this.isWaitingForRedirect && this.redirectStartTime) {
+              elapsedTime = ((Date.now() - this.redirectStartTime) / 1000).toFixed(1);
+          } else {
+              elapsedTime = ((Date.now() - this.startTime) / 1000).toFixed(1);
+          }
+
+          if (statusText) statusText.innerHTML = status;
           if (percentageText) percentageText.textContent = `${Math.round(percentage)}%`;
           if (progressBar) progressBar.style.width = `${percentage}%`;
-          if (detailText) detailText.textContent = `${detail}\nTime elapsed: ${elapsedTime}s`;
+          if (detailText) {
+              detailText.innerHTML = `
+                  ${detail ? detail + '<br>' : ''}
+                  ⏱️ Time elapsed: <strong>${elapsedTime}s</strong>
+              `;
+          }
       }
 
       showSuccess(message) {
           const container = this.overlay.querySelector('.bolt-container');
           const success = document.createElement('div');
           success.className = 'bolt-success';
-          success.innerHTML = `✓ ${message}`;
+          success.innerHTML = `✅ ${message}`;
           container.appendChild(success);
+
+          // Complete the redirect checkpoint
+          this.updateCheckpoint('redirect', 'completed');
+          this.updateProgress('✅ Redirect successful!', 100);
+          this.isWaitingForRedirect = false;
       }
 
       showError(message) {
           const container = this.overlay.querySelector('.bolt-container');
           const error = document.createElement('div');
           error.className = 'bolt-error';
-          error.innerHTML = `✕ ${message}`;
+          error.innerHTML = `❌ ${message}`;
           container.appendChild(error);
+          this.isWaitingForRedirect = false;
+      }
+
+      showRedirectStatus(message) {
+          const container = this.overlay.querySelector('.bolt-container');
+          let redirectStatus = container.querySelector('.bolt-redirect-status');
+
+          if (!redirectStatus) {
+              redirectStatus = document.createElement('div');
+              redirectStatus.className = 'bolt-redirect-status';
+              container.appendChild(redirectStatus);
+          }
+
+          redirectStatus.innerHTML = `
+              <span class="bolt-loading"></span>
+              <span>${message}</span>
+          `;
       }
   }
 
@@ -1054,11 +1390,28 @@
               }
           } else if (GM_getValue('BOLT_BYPASS_ACTIVE', false)) {
               GM_setValue('BOLT_BYPASS_ACTIVE', false);
+
+              // Show that we're getting the redirect link
+              if (ui) {
+                  ui.showRedirectStatus('🔗 Getting redirect link...');
+              }
+
               const result = await requestApi(window.location.href);
+
+              // Show success and redirect
+              if (ui) {
+                  ui.showSuccess('🎉 Bypass successful! Redirecting...');
+              }
+
+              // Small delay to show success message
+              await new Promise(resolve => setTimeout(resolve, 1000));
               window.location.href = result;
           }
       } catch (error) {
           console.error('Bypass error:', error);
+          if (ui) {
+              ui.showError(`Bypass failed: ${error.message}`);
+          }
       }
   };
 
