@@ -610,7 +610,7 @@
                 const nextBtn = document.querySelector('#nextbtn');
                 if (!nextBtn) {
                     this.showError('Next button not found. Please wait for page to load completely.');
-                    bypassStarted = false;
+                    bypassStarted = true;
                     return;
                 }
 
