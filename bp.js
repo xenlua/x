@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         Enhanced LuArmor Bypass
 // @namespace    http://tampermonkey.net/
-// @version      2.8
-// @description  Advanced LuArmor bypass with improved accuracy, reliability, and modern UI
+// @version      2.9
+// @description  Advanced LuArmor bypass with improved accuracy, reliability, and modern UI with running timer
 // @author       Xenon
 // @match        https://ads.luarmor.net/*
 // @match        https://linkvertise.com/*
@@ -89,6 +89,11 @@
       @keyframes spin {
           from { transform: rotate(0deg); }
           to { transform: rotate(360deg); }
+      }
+
+      @keyframes glow {
+          0%, 100% { box-shadow: 0 0 5px rgba(59, 130, 246, 0.5); }
+          50% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.8), 0 0 30px rgba(59, 130, 246, 0.6); }
       }
 
       @media (max-width: 480px) {
@@ -277,6 +282,28 @@
           text-align: center;
           word-break: break-word;
           font-weight: 500;
+      }
+
+      .bolt-timer-display {
+          background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(29, 78, 216, 0.15) 100%);
+          border: 1px solid rgba(59, 130, 246, 0.3);
+          color: #93c5fd;
+          padding: 1rem 1.5rem;
+          border-radius: 16px;
+          margin: 1rem 0;
+          font-size: 1.1rem;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 0.75rem;
+          font-weight: 600;
+          font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+          animation: glow 2s infinite;
+      }
+
+      .bolt-timer-icon {
+          font-size: 1.2rem;
+          animation: pulse 2s infinite;
       }
 
       .bolt-keys {
@@ -706,6 +733,21 @@
           word-break: break-word;
           font-weight: 500;
       }
+
+      .bolt-processing-status {
+          background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(217, 119, 6, 0.15) 100%);
+          border: 1px solid rgba(245, 158, 11, 0.3);
+          color: #fbbf24;
+          padding: 1.5rem;
+          border-radius: 16px;
+          margin-top: 1.5rem;
+          font-size: 1rem;
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+          word-break: break-word;
+          font-weight: 500;
+      }
   `);
 
   let ui = null;
@@ -717,6 +759,9 @@
           this.startTime = Date.now();
           this.redirectStartTime = null;
           this.isWaitingForRedirect = false;
+          this.isProcessing = false;
+          this.processingStartTime = null;
+          this.timerInterval = null;
           this.checkpoints = [
               { id: 'init', text: 'Initialize Bypass', status: 'pending' },
               { id: 'cloudflare', text: 'Cloudflare Check', status: 'pending' },
@@ -732,6 +777,10 @@
                       <span>🚀 LuArmor Bypass</span>
                   </div>
                   <div class="bolt-progress-text" id="adProgress">Ready to start bypass process...</div>
+                  <div class="bolt-timer-display" id="timerDisplay" style="display: none;">
+                      <span class="bolt-timer-icon">⏱️</span>
+                      <span id="timerText">00:00</span>
+                  </div>
                   <div class="bolt-buttons">
                       <button class="bolt-button" id="startBypass">
                           <span>Start Bypass</span>
@@ -818,6 +867,7 @@
               keysContainer.style.display = 'none';
               checkpoints.style.display = 'flex';
               progressContainer.style.display = 'block';
+              this.startTimer();
               this.startBypass();
           });
 
@@ -840,6 +890,41 @@
           requestAnimationFrame(() => {
               this.overlay.style.opacity = '1';
           });
+      }
+
+      startTimer() {
+          const timerDisplay = this.overlay.querySelector('#timerDisplay');
+          const timerText = this.overlay.querySelector('#timerText');
+          
+          if (timerDisplay) {
+              timerDisplay.style.display = 'flex';
+          }
+
+          this.timerInterval = setInterval(() => {
+              let elapsedTime;
+              if (this.isProcessing && this.processingStartTime) {
+                  elapsedTime = Math.floor((Date.now() - this.processingStartTime) / 1000);
+              } else if (this.isWaitingForRedirect && this.redirectStartTime) {
+                  elapsedTime = Math.floor((Date.now() - this.redirectStartTime) / 1000);
+              } else {
+                  elapsedTime = Math.floor((Date.now() - this.startTime) / 1000);
+              }
+
+              const minutes = Math.floor(elapsedTime / 60);
+              const seconds = elapsedTime % 60;
+              const timeString = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+              
+              if (timerText) {
+                  timerText.textContent = timeString;
+              }
+          }, 1000);
+      }
+
+      stopTimer() {
+          if (this.timerInterval) {
+              clearInterval(this.timerInterval);
+              this.timerInterval = null;
+          }
       }
 
       async copyToClipboard(text) {
@@ -1163,6 +1248,7 @@
               init();
           } catch (error) {
               this.showError(`❌ Bypass failed: ${error.message}`);
+              this.stopTimer();
           }
       }
 
@@ -1176,21 +1262,11 @@
           const progressBar = document.getElementById('bolt-progress');
           const detailText = document.getElementById('bolt-detail');
 
-          let elapsedTime;
-          if (this.isWaitingForRedirect && this.redirectStartTime) {
-              elapsedTime = ((Date.now() - this.redirectStartTime) / 1000).toFixed(1);
-          } else {
-              elapsedTime = ((Date.now() - this.startTime) / 1000).toFixed(1);
-          }
-
           if (statusText) statusText.innerHTML = status;
           if (percentageText) percentageText.textContent = `${Math.round(percentage)}%`;
           if (progressBar) progressBar.style.width = `${percentage}%`;
-          if (detailText) {
-              detailText.innerHTML = `
-                  ${detail ? detail + '<br>' : ''}
-                  ⏱️ Time elapsed: <strong>${elapsedTime}s</strong>
-              `;
+          if (detailText && detail) {
+              detailText.innerHTML = detail;
           }
       }
 
@@ -1205,6 +1281,7 @@
           this.updateCheckpoint('redirect', 'completed');
           this.updateProgress('✅ Redirect successful!', 100);
           this.isWaitingForRedirect = false;
+          this.stopTimer();
       }
 
       showError(message) {
@@ -1214,6 +1291,8 @@
           error.innerHTML = `❌ ${message}`;
           container.appendChild(error);
           this.isWaitingForRedirect = false;
+          this.isProcessing = false;
+          this.stopTimer();
       }
 
       showRedirectStatus(message) {
@@ -1231,12 +1310,35 @@
               <span>${message}</span>
           `;
       }
+
+      showProcessingStatus(message) {
+          const container = this.overlay.querySelector('.bolt-container');
+          let processingStatus = container.querySelector('.bolt-processing-status');
+
+          if (!processingStatus) {
+              processingStatus = document.createElement('div');
+              processingStatus.className = 'bolt-processing-status';
+              container.appendChild(processingStatus);
+          }
+
+          processingStatus.innerHTML = `
+              <span class="bolt-loading"></span>
+              <span>${message}</span>
+          `;
+      }
   }
 
   const requestApi = async (url) => {
       try {
           const apiUrl = new URL('https://api.solar-x.top/premium/refresh');
           apiUrl.searchParams.append('url', url);
+
+          // Show processing status
+          if (ui) {
+              ui.isProcessing = true;
+              ui.processingStartTime = Date.now();
+              ui.showProcessingStatus('🔄 Processing bypass request, this may take a while...');
+          }
 
           const response = await new Promise((resolve, reject) => {
               GM_xmlhttpRequest({
@@ -1246,12 +1348,35 @@
                       'Accept': 'application/json',
                       'x-api-key': 'SLR-B5200ABD432E841AADD262AC526E63FF17B26A1F70930F21C9D3BA08DDCFAC6700A3F42F95B8A1F2FF0CDE89FD7ECB960274363A69E900B1EDEF82149FA49101-Xenon'
                   },
-                  timeout: 15000,
+                  timeout: 120000, // Increased to 2 minutes
                   onload: resolve,
                   onerror: reject,
-                  ontimeout: () => reject(new Error('API request timed out'))
+                  ontimeout: () => {
+                      console.log('API request timed out, but continuing...');
+                      // Don't reject on timeout, let it continue
+                      resolve({ status: 408, responseText: '{"processing": true}' });
+                  }
               });
           });
+
+          // Handle timeout gracefully
+          if (response.status === 408) {
+              if (ui) {
+                  ui.showProcessingStatus('⏳ Request is still processing, please wait...');
+              }
+              // Wait a bit more and try to continue
+              await new Promise(resolve => setTimeout(resolve, 5000));
+              return null; // Return null to indicate we should retry or wait
+          }
+
+          if (response.status === 202) {
+              if (ui) {
+                  ui.showProcessingStatus('⚙️ API is processing your request, please be patient...');
+              }
+              // Wait and retry for 202 status
+              await new Promise(resolve => setTimeout(resolve, 3000));
+              return await requestApi(url); // Retry
+          }
 
           if (response.status !== 200) {
               throw new Error(`API request failed with status ${response.status}`);
@@ -1275,9 +1400,28 @@
               throw new Error('Invalid redirect URL received from API');
           }
 
+          // Clear processing status
+          if (ui) {
+              ui.isProcessing = false;
+              const processingStatus = ui.overlay.querySelector('.bolt-processing-status');
+              if (processingStatus) {
+                  processingStatus.remove();
+              }
+          }
+
           return result.result;
       } catch (error) {
           console.error('requestApi error:', error);
+          
+          // Clear processing status
+          if (ui) {
+              ui.isProcessing = false;
+              const processingStatus = ui.overlay.querySelector('.bolt-processing-status');
+              if (processingStatus) {
+                  processingStatus.remove();
+              }
+          }
+          
           throw error;
       }
   };
@@ -1398,18 +1542,30 @@
 
               const result = await requestApi(window.location.href);
 
-              // Show success and redirect
-              if (ui) {
-                  ui.showSuccess('🎉 Bypass successful! Redirecting...');
-              }
+              if (result) {
+                  // Show success and redirect
+                  if (ui) {
+                      ui.showSuccess('🎉 Bypass successful! Redirecting...');
+                  }
 
-              // Small delay to show success message
-              await new Promise(resolve => setTimeout(resolve, 1000));
-              window.location.href = result;
+                  // Small delay to show success message
+                  await new Promise(resolve => setTimeout(resolve, 1000));
+                  window.location.href = result;
+              } else {
+                  // Handle case where API is still processing
+                  if (ui) {
+                      ui.showProcessingStatus('⏳ Still processing, please wait a moment...');
+                  }
+                  
+                  // Retry after a delay
+                  setTimeout(() => {
+                      init();
+                  }, 5000);
+              }
           }
       } catch (error) {
           console.error('Bypass error:', error);
-          if (ui) {
+          if (ui && !error.message.includes('timeout')) {
               ui.showError(`Bypass failed: ${error.message}`);
           }
       }
