@@ -73,7 +73,8 @@ local function sendWebhook(title, description, color)
     
     local success, result = pcall(function()
         -- Check if HttpService is available
-        if not HttpService then
+        local httpService = game:GetService("HttpService")
+        if not httpService then
             debugPrint("HttpService not available")
             return false
         end
@@ -81,7 +82,7 @@ local function sendWebhook(title, description, color)
         -- Check if HTTP requests are enabled
         local httpEnabled = false
         pcall(function()
-            httpEnabled = HttpService.HttpEnabled
+            httpEnabled = httpService.HttpEnabled
         end)
         
         if not httpEnabled then
@@ -128,9 +129,9 @@ local function sendWebhook(title, description, color)
         -- Try to send webhook with additional error handling
         local response = nil
         local httpSuccess, httpError = pcall(function()
-            response = HttpService:PostAsync(
+            response = httpService:PostAsync(
                 CONFIG.WEBHOOK_URL, 
-                HttpService:JSONEncode(data), 
+                httpService:JSONEncode(data), 
                 Enum.HttpContentType.ApplicationJson
             )
         end)
@@ -138,15 +139,16 @@ local function sendWebhook(title, description, color)
         if not httpSuccess then
             debugPrint("HTTP request failed:", httpError)
             -- Try alternative notification method
-            if game:GetService("StarterGui") then
-                pcall(function()
-                    game:GetService("StarterGui"):SetCore("SendNotification", {
+            pcall(function()
+                local starterGui = game:GetService("StarterGui")
+                if starterGui then
+                    starterGui:SetCore("SendNotification", {
                         Title = "Anticheat Bypass",
                         Text = title .. ": " .. description,
                         Duration = 5
                     })
-                end)
-            end
+                end
+            end)
             return false
         end
         
@@ -158,9 +160,9 @@ local function sendWebhook(title, description, color)
         debugPrint("Webhook failed:", result)
         -- Fallback to in-game notification
         pcall(function()
-            local StarterGui = game:GetService("StarterGui")
-            if StarterGui then
-                StarterGui:SetCore("SendNotification", {
+            local starterGui = game:GetService("StarterGui")
+            if starterGui then
+                starterGui:SetCore("SendNotification", {
                     Title = "Anticheat Bypass",
                     Text = title,
                     Duration = 3
@@ -187,11 +189,18 @@ end
 
 -- Check required functions
 local function checkRequiredFunctions()
-    local requiredFunctions = {"getreg", "getgc"}
+    local requiredFunctions = {"getreg", "getgc", "debug"}
     local missingFunctions = {}
     
     for _, funcName in pairs(requiredFunctions) do
-        if not _G[funcName] and not getfenv()[funcName] then
+        local funcExists = false
+        pcall(function()
+            if _G[funcName] or getfenv()[funcName] or getgenv()[funcName] then
+                funcExists = true
+            end
+        end)
+        
+        if not funcExists then
             table.insert(missingFunctions, funcName)
         end
     end
@@ -271,7 +280,11 @@ local function detectAnticheatThreads()
     local detectedAnticheats = {}
     
     local success, result = pcall(function()
-        local getreg_func = getreg or getfenv().getreg
+        local getreg_func = nil
+        pcall(function()
+            getreg_func = getreg or getfenv().getreg or getgenv().getreg
+        end)
+        
         if not getreg_func then
             debugPrint("getreg function not available")
             return
@@ -283,10 +296,9 @@ local function detectAnticheatThreads()
             end
 
             local threadSuccess, source = pcall(function()
-                if debug and debug.info then
-                    return debug.info(thread, 1, "s")
-                elseif getfenv().debug and getfenv().debug.info then
-                    return getfenv().debug.info(thread, 1, "s")
+                local debugInfo = debug or getfenv().debug or getgenv().debug
+                if debugInfo and debugInfo.info then
+                    return debugInfo.info(thread, 1, "s")
                 end
                 return nil
             end)
@@ -320,7 +332,11 @@ local function detectAnticheatFunctions()
     local detectedAnticheats = {}
     
     local success, result = pcall(function()
-        local getgc_func = getgc or getfenv().getgc
+        local getgc_func = nil
+        pcall(function()
+            getgc_func = getgc or getfenv().getgc or getgenv().getgc
+        end)
+        
         if not getgc_func then
             debugPrint("getgc function not available")
             return
@@ -336,10 +352,9 @@ local function detectAnticheatFunctions()
                     local funcRef = rawget(value, funcName)
                     if typeof(funcRef) == "function" then
                         local funcSuccess, source = pcall(function()
-                            if debug and debug.info then
-                                return debug.info(funcRef, "s")
-                            elseif getfenv().debug and getfenv().debug.info then
-                                return getfenv().debug.info(funcRef, "s")
+                            local debugInfo = debug or getfenv().debug or getgenv().debug
+                            if debugInfo and debugInfo.info then
+                                return debugInfo.info(funcRef, "s")
                             end
                             return nil
                         end)
@@ -486,7 +501,11 @@ local function bypassAnticheat(anticheatName)
     
     -- Method 1: Hook Detection Functions
     local method1Success = pcall(function()
-        local getgc_func = getgc or getfenv().getgc
+        local getgc_func = nil
+        pcall(function()
+            getgc_func = getgc or getfenv().getgc or getgenv().getgc
+        end)
+        
         if not getgc_func then return end
         
         for _, value in pairs(getgc_func(true)) do
@@ -500,10 +519,9 @@ local function bypassAnticheat(anticheatName)
                     local detectedFunction = rawget(value, funcName)
                     if typeof(detectedFunction) == "function" then
                         local funcSuccess, funcSource = pcall(function()
-                            if debug and debug.info then
-                                return debug.info(detectedFunction, "s")
-                            elseif getfenv().debug and getfenv().debug.info then
-                                return getfenv().debug.info(detectedFunction, "s")
+                            local debugInfo = debug or getfenv().debug or getgenv().debug
+                            if debugInfo and debugInfo.info then
+                                return debugInfo.info(detectedFunction, "s")
                             end
                             return nil
                         end)
