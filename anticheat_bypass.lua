@@ -332,17 +332,62 @@ local function detectAnticheatFunctions()
     local detectedAnticheats = {}
     
     local success, result = pcall(function()
+        -- Safely get getgc function
         local getgc_func = nil
-        pcall(function()
-            getgc_func = getgc or getfenv().getgc or getgenv().getgc
+        
+        -- Try _G.getgc
+        local globalSuccess = pcall(function()
+            if _G.getgc then
+                getgc_func = _G.getgc
+            end
         end)
+        
+        -- Try getfenv().getgc
+        if not getgc_func then
+            local fenvSuccess = pcall(function()
+                local fenv = getfenv()
+                if fenv and fenv.getgc then
+                    getgc_func = fenv.getgc
+                end
+            end)
+        end
+        
+        -- Try getgenv().getgc
+        if not getgc_func then
+            local genvSuccess = pcall(function()
+                local genv = getgenv()
+                if genv and genv.getgc then
+                    getgc_func = genv.getgc
+                end
+            end)
+        end
+        
+        -- Try direct getgc
+        if not getgc_func then
+            local directSuccess = pcall(function()
+                if getgc then
+                    getgc_func = getgc
+                end
+            end)
+        end
         
         if not getgc_func then
             debugPrint("getgc function not available")
             return
         end
         
-        for _, value in pairs(getgc_func(true)) do
+        -- Get garbage collection safely
+        local gcData = nil
+        local gcSuccess = pcall(function()
+            gcData = getgc_func(true)
+        end)
+        
+        if not gcSuccess or not gcData then
+            debugPrint("Failed to get garbage collection data")
+            return
+        end
+        
+        for _, value in pairs(gcData) do
             if typeof(value) ~= "table" then
                 continue
             end
@@ -352,7 +397,45 @@ local function detectAnticheatFunctions()
                     local funcRef = rawget(value, funcName)
                     if typeof(funcRef) == "function" then
                         local funcSuccess, source = pcall(function()
-                            local debugInfo = debug or getfenv().debug or getgenv().debug
+                            -- Safely get debug function
+                            local debugInfo = nil
+                            
+                            -- Try _G.debug
+                            local globalDebugSuccess = pcall(function()
+                                if _G.debug then
+                                    debugInfo = _G.debug
+                                end
+                            end)
+                            
+                            -- Try getfenv().debug
+                            if not debugInfo then
+                                local fenvDebugSuccess = pcall(function()
+                                    local fenv = getfenv()
+                                    if fenv and fenv.debug then
+                                        debugInfo = fenv.debug
+                                    end
+                                end)
+                            end
+                            
+                            -- Try getgenv().debug
+                            if not debugInfo then
+                                local genvDebugSuccess = pcall(function()
+                                    local genv = getgenv()
+                                    if genv and genv.debug then
+                                        debugInfo = genv.debug
+                                    end
+                                end)
+                            end
+                            
+                            -- Try direct debug
+                            if not debugInfo then
+                                local directDebugSuccess = pcall(function()
+                                    if debug then
+                                        debugInfo = debug
+                                    end
+                                end)
+                            end
+                            
                             if debugInfo and debugInfo.info then
                                 return debugInfo.info(funcRef, "s")
                             end
