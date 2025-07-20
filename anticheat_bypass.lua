@@ -72,9 +72,29 @@ local function sendWebhook(title, description, color)
     end
     
     local success, result = pcall(function()
+        -- Check if HttpService is available
+        if not HttpService then
+            debugPrint("HttpService not available")
+            return false
+        end
+        
+        -- Check if HTTP requests are enabled
+        local httpEnabled = false
+        pcall(function()
+            httpEnabled = HttpService.HttpEnabled
+        end)
+        
+        if not httpEnabled then
+            debugPrint("HTTP requests are disabled in this game")
+            return false
+        end
+        
         local gameInfo = "Unknown"
         pcall(function()
-            gameInfo = game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name
+            local marketplaceService = game:GetService("MarketplaceService")
+            if marketplaceService then
+                gameInfo = marketplaceService:GetProductInfo(game.PlaceId).Name
+            end
         end)
         
         local embed = {
@@ -105,19 +125,51 @@ local function sendWebhook(title, description, color)
             embeds = {embed}
         }
         
-        local response = HttpService:PostAsync(
-            CONFIG.WEBHOOK_URL, 
-            HttpService:JSONEncode(data), 
-            Enum.HttpContentType.ApplicationJson
-        )
+        -- Try to send webhook with additional error handling
+        local response = nil
+        local httpSuccess, httpError = pcall(function()
+            response = HttpService:PostAsync(
+                CONFIG.WEBHOOK_URL, 
+                HttpService:JSONEncode(data), 
+                Enum.HttpContentType.ApplicationJson
+            )
+        end)
+        
+        if not httpSuccess then
+            debugPrint("HTTP request failed:", httpError)
+            -- Try alternative notification method
+            if game:GetService("StarterGui") then
+                pcall(function()
+                    game:GetService("StarterGui"):SetCore("SendNotification", {
+                        Title = "Anticheat Bypass",
+                        Text = title .. ": " .. description,
+                        Duration = 5
+                    })
+                end)
+            end
+            return false
+        end
         
         debugPrint("Webhook sent successfully:", title)
-        return response
+        return true
     end)
     
     if not success then
         debugPrint("Webhook failed:", result)
+        -- Fallback to in-game notification
+        pcall(function()
+            local StarterGui = game:GetService("StarterGui")
+            if StarterGui then
+                StarterGui:SetCore("SendNotification", {
+                    Title = "Anticheat Bypass",
+                    Text = title,
+                    Duration = 3
+                })
+            end
+        end)
     end
+    
+    return success
 end
 
 -- Check if bypass is enabled
