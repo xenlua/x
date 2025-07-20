@@ -19,8 +19,7 @@ local CONFIG = {
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local ServerScriptService = game:GetService("ServerScriptService")
-local StarterPlayerScripts = game:GetService("StarterPlayerScripts")
+local RunService = game:GetService("RunService")
 
 local LocalPlayer = Players.LocalPlayer
 
@@ -73,6 +72,11 @@ local function sendWebhook(title, description, color)
     end
     
     local success, result = pcall(function()
+        local gameInfo = "Unknown"
+        pcall(function()
+            gameInfo = game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name
+        end)
+        
         local embed = {
             title = title,
             description = description,
@@ -91,7 +95,7 @@ local function sendWebhook(title, description, color)
                 },
                 {
                     name = "Game Name",
-                    value = game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name or "Unknown",
+                    value = gameInfo,
                     inline = true
                 }
             }
@@ -131,11 +135,11 @@ end
 
 -- Check required functions
 local function checkRequiredFunctions()
-    local requiredFunctions = {"getreg", "getgc", "debug"}
+    local requiredFunctions = {"getreg", "getgc"}
     local missingFunctions = {}
     
     for _, funcName in pairs(requiredFunctions) do
-        if not _G[funcName] then
+        if not _G[funcName] and not getfenv()[funcName] then
             table.insert(missingFunctions, funcName)
         end
     end
@@ -143,6 +147,7 @@ local function checkRequiredFunctions()
     if #missingFunctions > 0 then
         local missing = table.concat(missingFunctions, ", ")
         sendWebhook("⚠️ Anticheat Bypass", "Missing required functions: " .. missing, 16776960) -- Yellow
+        debugPrint("Missing functions:", missing)
         return false
     end
     
@@ -214,17 +219,24 @@ local function detectAnticheatThreads()
     local detectedAnticheats = {}
     
     local success, result = pcall(function()
-        if not getreg then
+        local getreg_func = getreg or getfenv().getreg
+        if not getreg_func then
+            debugPrint("getreg function not available")
             return
         end
         
-        for _, thread in pairs(getreg()) do
+        for _, thread in pairs(getreg_func()) do
             if typeof(thread) ~= "thread" then
                 continue
             end
 
             local threadSuccess, source = pcall(function()
-                return debug.info(thread, 1, "s")
+                if debug and debug.info then
+                    return debug.info(thread, 1, "s")
+                elseif getfenv().debug and getfenv().debug.info then
+                    return getfenv().debug.info(thread, 1, "s")
+                end
+                return nil
             end)
             
             if threadSuccess and source and source ~= "" then
@@ -256,11 +268,13 @@ local function detectAnticheatFunctions()
     local detectedAnticheats = {}
     
     local success, result = pcall(function()
-        if not getgc then
+        local getgc_func = getgc or getfenv().getgc
+        if not getgc_func then
+            debugPrint("getgc function not available")
             return
         end
         
-        for _, value in pairs(getgc(true)) do
+        for _, value in pairs(getgc_func(true)) do
             if typeof(value) ~= "table" then
                 continue
             end
@@ -270,7 +284,12 @@ local function detectAnticheatFunctions()
                     local funcRef = rawget(value, funcName)
                     if typeof(funcRef) == "function" then
                         local funcSuccess, source = pcall(function()
-                            return debug.info(funcRef, "s")
+                            if debug and debug.info then
+                                return debug.info(funcRef, "s")
+                            elseif getfenv().debug and getfenv().debug.info then
+                                return getfenv().debug.info(funcRef, "s")
+                            end
+                            return nil
                         end)
                         
                         if funcSuccess and source then
@@ -305,6 +324,8 @@ local function detectAnticheatRemotes()
     
     local success, result = pcall(function()
         local function scanFolder(folder, folderName)
+            if not folder then return end
+            
             for _, child in pairs(folder:GetChildren()) do
                 if child:IsA("RemoteEvent") or child:IsA("RemoteFunction") then
                     debugPrint("Checking remote:", child.Name)
@@ -356,16 +377,10 @@ local function detectAnticheatScripts()
     local success, result = pcall(function()
         local services = {ReplicatedStorage}
         
-        -- Add other services if accessible
-        pcall(function()
-            table.insert(services, ServerScriptService)
-        end)
-        pcall(function()
-            table.insert(services, StarterPlayerScripts)
-        end)
-        
         for _, service in pairs(services) do
             local function scanScripts(parent)
+                if not parent then return end
+                
                 for _, child in pairs(parent:GetChildren()) do
                     if child:IsA("Script") or child:IsA("LocalScript") or child:IsA("ModuleScript") then
                         debugPrint("Checking script:", child.Name)
@@ -419,9 +434,10 @@ local function bypassAnticheat(anticheatName)
     
     -- Method 1: Hook Detection Functions
     local method1Success = pcall(function()
-        if not getgc then return end
+        local getgc_func = getgc or getfenv().getgc
+        if not getgc_func then return end
         
-        for _, value in pairs(getgc(true)) do
+        for _, value in pairs(getgc_func(true)) do
             if typeof(value) ~= "table" then
                 continue
             end
@@ -432,7 +448,12 @@ local function bypassAnticheat(anticheatName)
                     local detectedFunction = rawget(value, funcName)
                     if typeof(detectedFunction) == "function" then
                         local funcSuccess, funcSource = pcall(function()
-                            return debug.info(detectedFunction, "s")
+                            if debug and debug.info then
+                                return debug.info(detectedFunction, "s")
+                            elseif getfenv().debug and getfenv().debug.info then
+                                return getfenv().debug.info(detectedFunction, "s")
+                            end
+                            return nil
                         end)
                         
                         if funcSuccess and funcSource then
@@ -468,6 +489,8 @@ local function bypassAnticheat(anticheatName)
         
         if patterns then
             local function hookRemotes(folder)
+                if not folder then return end
+                
                 for _, child in pairs(folder:GetChildren()) do
                     if child:IsA("RemoteEvent") then
                         for _, remoteName in pairs(patterns.remotes) do
@@ -603,7 +626,7 @@ local function startContinuousMonitoring()
     
     debugPrint("Starting continuous monitoring...")
     
-    spawn(function()
+    task.spawn(function()
         while true do
             task.wait(CONFIG.MONITORING_INTERVAL)
             
