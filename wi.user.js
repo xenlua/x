@@ -12,8 +12,8 @@
 // @grant        GM_setValue
 // @grant        GM_getValue
 // @grant        GM_notification
-// @downloadURL  https://github.com/IHaxU/work.ink-bypass/raw/refs/heads/main/work.ink-bypass.user.js
-// @updateURL    https://github.com/IHaxU/work.ink-bypass/raw/refs/heads/main/work.ink-bypass.user.js
+// @downloadURL  https://github.com/xenlua/x/raw/refs/heads/main/wi.user.js
+// @updateURL    https://github.com/xenlua/x/raw/refs/heads/main/wi.user.js
 // ==/UserScript==
 
 (function() {
