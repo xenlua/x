@@ -3,6 +3,7 @@ local LocalPlayer = Players.LocalPlayer
 
 -- Daftar posisi teleport (edit sesuai koordinat yang kamu inginkan)
 local teleportPoints = {
+    CFrame.new(625, 1799, 3433),
     CFrame.new(791, 2151, 3914),
 }
 
@@ -16,7 +17,7 @@ local function teleportToPoints()
             hrp.CFrame = point
         end
 
-        task.wait(20) -- jeda antar teleport (ubah jika perlu)
+        task.wait() -- jeda antar teleport (ubah jika perlu)
     end
 end
 
