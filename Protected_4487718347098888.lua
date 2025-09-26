@@ -17,7 +17,7 @@ local function teleportToPoints()
             hrp.CFrame = point
         end
 
-        task.wait() -- jeda antar teleport (ubah jika perlu)
+        task.wait(3) -- jeda antar teleport (ubah jika perlu)
     end
 end
 
