@@ -1,7 +1,6 @@
 --[[
 Modification Made By - Xenon
 ]]
-  
 
 -- shuts down the previous instance of SimpleSpy
 if _G.SimpleSpyExecuted and type(_G.SimpleSpyShutdown) == "function" then
@@ -435,8 +434,20 @@ local remoteLogs = {}
 local remoteEvent = Instance.new("RemoteEvent")
 --- used for hookfunction
 local remoteFunction = Instance.new("RemoteFunction")
+--- used for hookfunction
+local bindableEvent = Instance.new("BindableEvent")
+--- used for hookfunction
+local bindableFunction = Instance.new("BindableFunction")
+--- used for hookfunction (UnreliableRemoteEvent if available)
+local unreliableRemoteEvent = pcall(function() return Instance.new("UnreliableRemoteEvent") end) and Instance.new("UnreliableRemoteEvent") or nil
 local originalEvent = remoteEvent.FireServer
 local originalFunction = remoteFunction.InvokeServer
+local originalBindableEvent = bindableEvent.Fire
+local originalBindableFunction = bindableFunction.Invoke
+local originalFireClient = remoteEvent.FireClient
+local originalFireAllClients = remoteEvent.FireAllClients
+local originalInvokeClient = remoteFunction.InvokeClient
+local originalUnreliableEvent = unreliableRemoteEvent and unreliableRemoteEvent.FireServer or nil
 --- the maximum amount of remotes allowed in logs
 _G.SIMPLESPYCONFIG_MaxRemotes = 500
 --- how many spaces to indent
@@ -522,15 +533,45 @@ function SimpleSpy:ValueToString(value)
 	return v2s(value)
 end
 
---- Generates the simplespy function info
---- @param func function
---- @return string
+--- Generates comprehensive information about a given function
+---
+--- This function extracts detailed metadata and internal structure of a function
+--- using debug library capabilities. It provides insights into function properties,
+--- constants used within the function, and other relevant debug information.
+---
+--- @param func function The target function to analyze and extract information from
+--- @return string A serialized string representation of the function information table
+---
+--- @usage
+---   local myFunction = function() print("test") end
+---   local info = SimpleSpy:GetFunctionInfo(myFunction)
+---
+--- @note Function info may be unavailable in some executors due to stability issues
+---
+--- Logic Flow:
+---   1. Validates that the input parameter is indeed a function type
+---   2. Logs a warning about potential unavailability in certain environments
+---   3. Collects function metadata using debug.getinfo()
+---   4. Retrieves function constants using debug.getconstants()
+---   5. Packages the information into a structured table
+---   6. Serializes and returns the result via v2v() conversion
+---
 function SimpleSpy:GetFunctionInfo(func)
-	assert(typeof(func) == "function", "Instance expected, got " .. typeof(func))
+	-- Step 1: Validate input parameter type
+	-- Ensures only function types are processed to prevent runtime errors
+	assert(typeof(func) == "function", "Function expected, got " .. typeof(func))
+
+	-- Step 2: Issue compatibility warning
+	-- Some executors (e.g., Synapse X) may experience crashes with this functionality
 	warn("Function info currently unavailable due to crashing in Synapse X")
+
+	-- Step 3-6: Collect, package, and return function information
+	-- Creates a structured table containing:
+	--   - info: Complete function metadata (name, source, line numbers, parameters, etc.)
+	--   - constants: Array of constant values used within the function
 	return v2v({ functionInfo = {
-		info = debug.getinfo(func),
-		constants = debug.getconstants(func),
+		info = debug.getinfo(func),           -- Function metadata from debug library
+		constants = debug.getconstants(func), -- Constants used in function bytecode
 	} })
 end
 
@@ -1267,12 +1308,24 @@ function genScript(remote, args)
 			gen = gen .. v2s(remote) .. ":FireServer(unpack(args))"
 		elseif remote:IsA("RemoteFunction") then
 			gen = gen .. v2s(remote) .. ":InvokeServer(unpack(args))"
+		elseif remote:IsA("BindableEvent") then
+			gen = gen .. v2s(remote) .. ":Fire(unpack(args))"
+		elseif remote:IsA("BindableFunction") then
+			gen = gen .. v2s(remote) .. ":Invoke(unpack(args))"
+		elseif remote:IsA("UnreliableRemoteEvent") then
+			gen = gen .. v2s(remote) .. ":FireServer(unpack(args))"
 		end
 	else
 		if remote:IsA("RemoteEvent") then
 			gen = gen .. v2s(remote) .. ":FireServer()"
 		elseif remote:IsA("RemoteFunction") then
 			gen = gen .. v2s(remote) .. ":InvokeServer()"
+		elseif remote:IsA("BindableEvent") then
+			gen = gen .. v2s(remote) .. ":Fire()"
+		elseif remote:IsA("BindableFunction") then
+			gen = gen .. v2s(remote) .. ":Invoke()"
+		elseif remote:IsA("UnreliableRemoteEvent") then
+			gen = gen .. v2s(remote) .. ":FireServer()"
 		end
 	end
 	gen = gen
@@ -2047,7 +2100,10 @@ local newnamecall = newcclosure(function(remote, ...)
 		end)
 		if
 			validInstance
-			and (methodName == "FireServer" or methodName == "fireServer" or methodName == "InvokeServer" or methodName == "invokeServer")
+			and (methodName == "FireServer" or methodName == "fireServer" or methodName == "InvokeServer" or methodName == "invokeServer"
+				or methodName == "Fire" or methodName == "fire" or methodName == "Invoke" or methodName == "invoke"
+				or methodName == "FireClient" or methodName == "fireClient" or methodName == "FireAllClients" or methodName == "fireAllClients"
+				or methodName == "InvokeClient" or methodName == "invokeClient")
 			and not (blacklist[remote] or blacklist[remoteName])
 		then
 			local funcInfo = {}
@@ -2056,7 +2112,7 @@ local newnamecall = newcclosure(function(remote, ...)
 				funcInfo = debug.getinfo(3) or funcInfo
 				calling = useGetCallingScript and getcallingscript() or nil
 			end
-			if recordReturnValues and (methodName == "InvokeServer" or methodName == "invokeServer") then
+			if recordReturnValues and (methodName == "InvokeServer" or methodName == "invokeServer" or methodName == "Invoke" or methodName == "invoke" or methodName == "InvokeClient" or methodName == "invokeClient") then
 				local namecallThread = coroutine.running()
 				local args = { ... }
 				task.defer(function()
@@ -2079,18 +2135,24 @@ local newnamecall = newcclosure(function(remote, ...)
 				end)()
 			end
 		end
-		if recordReturnValues and (methodName == "InvokeServer" or methodName == "invokeServer") then
+		if recordReturnValues and (methodName == "InvokeServer" or methodName == "invokeServer" or methodName == "Invoke" or methodName == "invoke" or methodName == "InvokeClient" or methodName == "invokeClient") then
 			return coroutine.yield()
 		elseif
 			validInstance
-			and (methodName == "FireServer" or methodName == "fireServer" or methodName == "InvokeServer" or methodName == "invokeServer")
+			and (methodName == "FireServer" or methodName == "fireServer" or methodName == "InvokeServer" or methodName == "invokeServer"
+				or methodName == "Fire" or methodName == "fire" or methodName == "Invoke" or methodName == "invoke"
+				or methodName == "FireClient" or methodName == "fireClient" or methodName == "FireAllClients" or methodName == "fireAllClients"
+				or methodName == "InvokeClient" or methodName == "invokeClient")
 			and (blocklist[remote] or blocklist[remoteName])
 		then
 			return nil
 		elseif
-			(not recordReturnValues or methodName ~= "InvokeServer" or methodName ~= "invokeServer")
+			(not recordReturnValues or (methodName ~= "InvokeServer" and methodName ~= "invokeServer" and methodName ~= "Invoke" and methodName ~= "invoke" and methodName ~= "InvokeClient" and methodName ~= "invokeClient"))
 			and validInstance
-			and (methodName == "FireServer" or methodName == "fireServer" or methodName == "InvokeServer" or methodName == "invokeServer")
+			and (methodName == "FireServer" or methodName == "fireServer" or methodName == "InvokeServer" or methodName == "invokeServer"
+				or methodName == "Fire" or methodName == "fire" or methodName == "Invoke" or methodName == "invoke"
+				or methodName == "FireClient" or methodName == "fireClient" or methodName == "FireAllClients" or methodName == "fireAllClients"
+				or methodName == "InvokeClient" or methodName == "invokeClient")
 			and remoteHooks[remote]
 		then
 			return original(remote, remoteHooks[remote](...))
@@ -2107,6 +2169,30 @@ end)
 
 local newInvokeServer = newcclosure(function(...)
 	return hookRemote("RemoteFunction", ...)
+end)
+
+local newFire = newcclosure(function(...)
+	return hookRemote("BindableEvent", ...)
+end)
+
+local newInvoke = newcclosure(function(...)
+	return hookRemote("BindableFunction", ...)
+end)
+
+local newFireClient = newcclosure(function(...)
+	return hookRemote("RemoteEvent", ...)
+end)
+
+local newFireAllClients = newcclosure(function(...)
+	return hookRemote("RemoteEvent", ...)
+end)
+
+local newInvokeClient = newcclosure(function(...)
+	return hookRemote("RemoteFunction", ...)
+end)
+
+local newUnreliableFireServer = newcclosure(function(...)
+	return hookRemote("UnreliableRemoteEvent", ...)
 end)
 
 --- Toggles on and off the remote spy
@@ -2134,6 +2220,14 @@ function toggleSpy()
 		end
 		originalEvent = hookfunction(remoteEvent.FireServer, newFireServer)
 		originalFunction = hookfunction(remoteFunction.InvokeServer, newInvokeServer)
+		originalBindableEvent = hookfunction(bindableEvent.Fire, newFire)
+		originalBindableFunction = hookfunction(bindableFunction.Invoke, newInvoke)
+		originalFireClient = hookfunction(remoteEvent.FireClient, newFireClient)
+		originalFireAllClients = hookfunction(remoteEvent.FireAllClients, newFireAllClients)
+		originalInvokeClient = hookfunction(remoteFunction.InvokeClient, newInvokeClient)
+		if unreliableRemoteEvent then
+			originalUnreliableEvent = hookfunction(unreliableRemoteEvent.FireServer, newUnreliableFireServer)
+		end
 	else
 		if hookmetamethod then
 			if original then
@@ -2147,6 +2241,14 @@ function toggleSpy()
 		end
 		hookfunction(remoteEvent.FireServer, originalEvent)
 		hookfunction(remoteFunction.InvokeServer, originalFunction)
+		hookfunction(bindableEvent.Fire, originalBindableEvent)
+		hookfunction(bindableFunction.Invoke, originalBindableFunction)
+		hookfunction(remoteEvent.FireClient, originalFireClient)
+		hookfunction(remoteEvent.FireAllClients, originalFireAllClients)
+		hookfunction(remoteFunction.InvokeClient, originalInvokeClient)
+		if unreliableRemoteEvent and originalUnreliableEvent then
+			hookfunction(unreliableRemoteEvent.FireServer, originalUnreliableEvent)
+		end
 	end
 end
 
@@ -2169,6 +2271,13 @@ function shutdown()
 	SimpleSpy2:Destroy()
 	hookfunction(remoteEvent.FireServer, originalEvent)
 	hookfunction(remoteFunction.InvokeServer, originalFunction)
+	hookfunction(bindableEvent.Fire, originalBindableEvent)
+	hookfunction(bindableFunction.Invoke, originalBindableFunction)
+	hookfunction(remoteEvent.FireClient, originalFireClient)
+	hookfunction(remoteEvent.FireAllClients, originalFireAllClients)
+	if unreliableRemoteEvent and originalUnreliableEvent then
+		hookfunction(unreliableRemoteEvent.FireServer, originalUnreliableEvent)
+	end
 	if hookmetamethod then
 		if original then
 			hookmetamethod(game, "__namecall", original)
@@ -2289,6 +2398,14 @@ if not _G.SimpleSpyExecuted then
 		SimpleSpy2:Destroy()
 		hookfunction(remoteEvent.FireServer, originalEvent)
 		hookfunction(remoteFunction.InvokeServer, originalFunction)
+		hookfunction(bindableEvent.Fire, originalBindableEvent)
+		hookfunction(bindableFunction.Invoke, originalBindableFunction)
+		hookfunction(remoteEvent.FireClient, originalFireClient)
+		hookfunction(remoteEvent.FireAllClients, originalFireAllClients)
+		hookfunction(remoteFunction.InvokeClient, originalInvokeClient)
+		if unreliableRemoteEvent and originalUnreliableEvent then
+			hookfunction(unreliableRemoteEvent.FireServer, originalUnreliableEvent)
+		end
 		if hookmetamethod then
 			if original then
 				hookmetamethod(game, "__namecall", original)
