@@ -14,7 +14,7 @@ local WindUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/XenonL
 WindUI.TransparencyValue = 0.2
 WindUI:SetTheme("Plant")
 
-local ScriptVersion = "v1.3"
+local ScriptVersion = "v1.4"
 
 -- Settings (Fresh every load, no save)
 local settings = {
@@ -31,6 +31,22 @@ local settings = {
 -- Auto Convert State
 local isConverting = false
 local savedPosition = nil
+
+-- Check Executor Capabilities
+local hasGetConnections = false
+local hasFireProximityPrompt = false
+
+pcall(function()
+    if getconnections then
+        hasGetConnections = true
+    end
+end)
+
+pcall(function()
+    if fireproximityprompt then
+        hasFireProximityPrompt = true
+    end
+end)
 
 -- Gradient Functions
 local function interpolate_color(color1, color2, t)
@@ -142,62 +158,49 @@ local function GetNestController()
     return success and result or nil
 end
 
--- Enhanced FireProximityPrompt Function
+-- Enhanced FireProximityPrompt Function with Continuous Retry
 local function FireProximityPromptEnhanced(proximityPrompt, options)
     options = options or {}
-    local maxAttempts = options.maxAttempts or 8
+    local maxAttempts = options.maxAttempts or 15
     local holdTime = options.holdTime or 0
-    local delay = options.delay or 0.15
+    local delay = options.delay or 0.1
+    local checkConverting = options.checkConverting or false
 
     local attempts = 0
-    local success = false
 
     for attempt = 1, maxAttempts do
         attempts = attempt
+        local methodSuccess = false
+
+        -- Check if conversion has started (if enabled)
+        if checkConverting then
+            local NestController = GetNestController()
+            if NestController and NestController.IsConverting == true then
+                return true, "Conversion started after " .. attempts .. " attempts"
+            end
+        end
 
         -- Method 1: Direct fireproximityprompt (Most Reliable)
-        if not success then
+        if hasFireProximityPrompt and not methodSuccess then
             pcall(function()
-                if fireproximityprompt then
-                    fireproximityprompt(proximityPrompt, holdTime)
-                    success = true
-                end
+                fireproximityprompt(proximityPrompt, holdTime)
+                methodSuccess = true
             end)
         end
 
-        -- Method 2: Via PromptTriggered event
-        if not success then
+        -- Method 2: Via getconnections on PromptTriggered
+        if hasGetConnections and not methodSuccess then
             pcall(function()
-                if proximityPrompt and proximityPrompt.PromptTriggered then
-                    proximityPrompt.PromptTriggered:Fire()
-                    success = true
-                end
-            end)
-        end
-
-        -- Method 3: Via Triggered signal
-        if not success then
-            pcall(function()
-                if proximityPrompt and proximityPrompt.Triggered then
-                    proximityPrompt.Triggered:Fire()
-                    success = true
-                end
-            end)
-        end
-
-        -- Method 4: Trigger via getconnections on PromptTriggered
-        if not success then
-            pcall(function()
-                if proximityPrompt and proximityPrompt.PromptTriggered and getconnections then
+                if proximityPrompt.PromptTriggered then
                     local connections = getconnections(proximityPrompt.PromptTriggered)
                     if connections and #connections > 0 then
                         for _, connection in pairs(connections) do
                             if connection and connection.Function then
                                 pcall(function()
                                     connection:Fire()
+                                    methodSuccess = true
                                 end)
-                                success = true
-                                break
+                                if methodSuccess then break end
                             end
                         end
                     end
@@ -205,19 +208,19 @@ local function FireProximityPromptEnhanced(proximityPrompt, options)
             end)
         end
 
-        -- Method 5: Via PromptButtonHoldBegan
-        if not success then
+        -- Method 3: Via getconnections on PromptButtonHoldBegan
+        if hasGetConnections and not methodSuccess then
             pcall(function()
-                if proximityPrompt and proximityPrompt.PromptButtonHoldBegan and getconnections then
+                if proximityPrompt.PromptButtonHoldBegan then
                     local connections = getconnections(proximityPrompt.PromptButtonHoldBegan)
                     if connections and #connections > 0 then
                         for _, connection in pairs(connections) do
                             if connection and connection.Function then
                                 pcall(function()
                                     connection:Fire()
+                                    methodSuccess = true
                                 end)
-                                success = true
-                                break
+                                if methodSuccess then break end
                             end
                         end
                     end
@@ -225,48 +228,58 @@ local function FireProximityPromptEnhanced(proximityPrompt, options)
             end)
         end
 
-        -- Method 6: Via InputBegan simulation
-        if not success then
+        -- Method 4: Via ProximityPromptService (Works without getconnections)
+        if not methodSuccess then
             pcall(function()
-                if proximityPrompt and proximityPrompt.Parent then
-                    local userInputService = game:GetService("UserInputService")
-                    if userInputService then
-                        userInputService.InputBegan:Fire({KeyCode = Enum.KeyCode.E}, false)
-                        task.wait(0.05)
-                        userInputService.InputEnded:Fire({KeyCode = Enum.KeyCode.E}, false)
-                        success = true
-                    end
+                local ProximityPromptService = game:GetService("ProximityPromptService")
+                if ProximityPromptService then
+                    ProximityPromptService:FirePrompt(proximityPrompt)
+                    methodSuccess = true
+                end
+            end)
+        end
+
+        -- Method 5: Direct PromptTriggered:Fire()
+        if not methodSuccess then
+            pcall(function()
+                if proximityPrompt.PromptTriggered then
+                    proximityPrompt.PromptTriggered:Fire()
+                    methodSuccess = true
+                end
+            end)
+        end
+
+        -- Method 6: Via Triggered signal
+        if not methodSuccess then
+            pcall(function()
+                if proximityPrompt.Triggered then
+                    proximityPrompt.Triggered:Fire()
+                    methodSuccess = true
                 end
             end)
         end
 
         -- Method 7: Direct function call if available
-        if not success then
+        if not methodSuccess then
             pcall(function()
-                if proximityPrompt and type(proximityPrompt.Trigger) == "function" then
+                if type(proximityPrompt.Trigger) == "function" then
                     proximityPrompt:Trigger()
-                    success = true
+                    methodSuccess = true
                 end
             end)
         end
 
-        -- Method 8: Via ProximityPromptService
-        if not success then
-            pcall(function()
-                local ProximityPromptService = game:GetService("ProximityPromptService")
-                if ProximityPromptService then
-                    ProximityPromptService:FirePrompt(proximityPrompt)
-                    success = true
-                end
-            end)
-        end
-
-        if success then
-            return true, "Success on attempt " .. attempts
-        end
-
-        if attempt < maxAttempts then
+        -- Check again if conversion started
+        if checkConverting then
             task.wait(delay)
+            local NestController = GetNestController()
+            if NestController and NestController.IsConverting == true then
+                return true, "Conversion started after " .. attempts .. " attempts"
+            end
+        else
+            if attempt < maxAttempts then
+                task.wait(delay)
+            end
         end
     end
 
@@ -343,18 +356,38 @@ local function TriggerConvert()
             return false, "Action is not 'Store Food' - Current: " .. tostring(proximityPrompt.ActionText)
         end
 
-        -- Use enhanced fireproximityprompt
-        local triggered, triggerMessage = FireProximityPromptEnhanced(proximityPrompt, {
-            maxAttempts = 8,
-            holdTime = 0,
-            delay = 0.15
-        })
-
-        if triggered then
-            return true, "Successfully triggered: " .. triggerMessage
-        else
-            return false, "Failed to trigger: " .. triggerMessage
+        -- Continuously trigger until conversion starts
+        local maxAttempts = 30
+        local triggered = false
+        
+        for attempt = 1, maxAttempts do
+            -- Check if conversion has started
+            if NestController.IsConverting == true then
+                return true, "Conversion started successfully after " .. attempt .. " attempts!"
+            end
+            
+            -- Try to trigger the prompt
+            local attemptSuccess = FireProximityPromptEnhanced(proximityPrompt, {
+                maxAttempts = 3,
+                holdTime = 0,
+                delay = 0.05,
+                checkConverting = false
+            })
+            
+            task.wait(0.2)
+            
+            -- Check again if conversion started
+            if NestController.IsConverting == true then
+                return true, "Conversion started successfully after " .. attempt .. " attempts!"
+            end
+            
+            -- Short delay between major attempts
+            if attempt < maxAttempts and attempt % 5 == 0 then
+                task.wait(0.5)
+            end
         end
+
+        return false, "Failed to start conversion after " .. maxAttempts .. " attempts"
     end)
 
     return success, message
@@ -800,13 +833,21 @@ local BackpackParagraph = Tabs.Information:Paragraph({
 
 Tabs.Information:Paragraph({
     Title = "Features",
-    Desc = [[<font color="rgb(255,255,255)">Available Features:</font>
+    Desc = string.format([[<font color="rgb(255,255,255)">Available Features:</font>
 [+] Auto Hit Resources
 [+] Auto Collect Orbs (Unlimited Range)
 [+] Auto Convert Food at Queen Ant
 [+] Anti AFK
 [+] Smart Backpack Check (UI Based)
-]],
+
+<font color="rgb(100,200,255)">Executor Capabilities:</font>
+%s fireproximityprompt: %s
+%s getconnections: %s]],
+        hasFireProximityPrompt and "✓" or "✗",
+        hasFireProximityPrompt and "Supported" or "Not Supported",
+        hasGetConnections and "✓" or "✗",
+        hasGetConnections and "Supported" or "Not Supported"
+    ),
 })
 
 Tabs.Information:Code({
