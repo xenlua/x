@@ -14,10 +14,11 @@ local WindUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/XenonL
 WindUI.TransparencyValue = 0.2
 WindUI:SetTheme("Plant")
 
-local ScriptVersion = "v1.4"
+local ScriptVersion = "v1.5"
 
--- Detect if getconnections is available
-local hasGetConnections = type(getconnections) == "function"
+-- Detect executor capabilities
+local hasFireProximityPrompt = type(fireproximityprompt) == "function"
+local hasVirtualInput = game:GetService("VirtualInputManager")
 
 -- Settings (Fresh every load, no save)
 local settings = {
@@ -145,163 +146,59 @@ local function GetNestController()
     return success and result or nil
 end
 
--- Enhanced FireProximityPrompt Function with getconnections support
-local function FireProximityPromptEnhanced(proximityPrompt, options)
-    options = options or {}
-    local holdTime = options.holdTime or 0
-    local useLoop = options.useLoop or false
-    local loopDuration = options.loopDuration or 5
-    local loopDelay = options.loopDelay or 0.1
-
-    local methodsUsed = {}
-    local successCount = 0
-
-    local function tryFireMethods()
-        local anySuccess = false
-
-        -- Method 1: Direct fireproximityprompt (Most Reliable for most executors)
-        pcall(function()
-            if fireproximityprompt then
-                fireproximityprompt(proximityPrompt, holdTime)
-                if not methodsUsed["fireproximityprompt"] then
-                    methodsUsed["fireproximityprompt"] = true
-                    successCount = successCount + 1
-                end
-                anySuccess = true
-            end
-        end)
-
-        -- Method 2: Via getconnections on PromptTriggered (Best for advanced executors)
-        if hasGetConnections then
-            pcall(function()
-                if proximityPrompt and proximityPrompt.PromptTriggered then
-                    local connections = getconnections(proximityPrompt.PromptTriggered)
-                    if connections and #connections > 0 then
-                        for _, connection in pairs(connections) do
-                            if connection and connection.Function then
-                                pcall(function()
-                                    connection:Fire()
-                                end)
-                                if not methodsUsed["getconnections_PromptTriggered"] then
-                                    methodsUsed["getconnections_PromptTriggered"] = true
-                                    successCount = successCount + 1
-                                end
-                                anySuccess = true
-                            end
-                        end
-                    end
-                end
-            end)
-        end
-
-        -- Method 3: Via getconnections on PromptButtonHoldBegan
-        if hasGetConnections then
-            pcall(function()
-                if proximityPrompt and proximityPrompt.PromptButtonHoldBegan then
-                    local connections = getconnections(proximityPrompt.PromptButtonHoldBegan)
-                    if connections and #connections > 0 then
-                        for _, connection in pairs(connections) do
-                            if connection and connection.Function then
-                                pcall(function()
-                                    connection:Fire()
-                                end)
-                                if not methodsUsed["getconnections_HoldBegan"] then
-                                    methodsUsed["getconnections_HoldBegan"] = true
-                                    successCount = successCount + 1
-                                end
-                                anySuccess = true
-                            end
-                        end
-                    end
-                end
-            end)
-        end
-
-        -- Method 4: Via PromptTriggered:Fire() (Fallback for basic executors)
-        pcall(function()
-            if proximityPrompt and proximityPrompt.PromptTriggered then
-                proximityPrompt.PromptTriggered:Fire()
-                if not methodsUsed["PromptTriggered_Fire"] then
-                    methodsUsed["PromptTriggered_Fire"] = true
-                    successCount = successCount + 1
-                end
-                anySuccess = true
-            end
-        end)
-
-        -- Method 5: Via Triggered signal (Alternative)
-        pcall(function()
-            if proximityPrompt and proximityPrompt.Triggered then
-                proximityPrompt.Triggered:Fire()
-                if not methodsUsed["Triggered_Fire"] then
-                    methodsUsed["Triggered_Fire"] = true
-                    successCount = successCount + 1
-                end
-                anySuccess = true
-            end
-        end)
-
-        -- Method 6: Via ProximityPromptService
-        pcall(function()
-            local ProximityPromptService = game:GetService("ProximityPromptService")
-            if ProximityPromptService and ProximityPromptService.PromptButtonHoldBegan then
-                ProximityPromptService.PromptButtonHoldBegan:Fire(proximityPrompt)
-                if not methodsUsed["ProximityPromptService"] then
-                    methodsUsed["ProximityPromptService"] = true
-                    successCount = successCount + 1
-                end
-                anySuccess = true
-            end
-        end)
-
-        -- Method 7: Direct ProximityPromptService:FirePrompt
-        pcall(function()
-            local ProximityPromptService = game:GetService("ProximityPromptService")
-            if ProximityPromptService then
-                ProximityPromptService:FirePrompt(proximityPrompt)
-                if not methodsUsed["FirePrompt"] then
-                    methodsUsed["FirePrompt"] = true
-                    successCount = successCount + 1
-                end
-                anySuccess = true
-            end
-        end)
-
-        return anySuccess
+-- Simple and Reliable ProximityPrompt Trigger
+local function TriggerProximityPrompt(proximityPrompt)
+    if not proximityPrompt or not proximityPrompt:IsA("ProximityPrompt") then
+        return false
     end
 
-    if useLoop then
-        local startTime = tick()
-        local loopCount = 0
+    local success = false
 
-        while tick() - startTime < loopDuration do
-            tryFireMethods()
-            loopCount = loopCount + 1
-            task.wait(loopDelay)
-        end
-
-        local methodsList = {}
-        for method, _ in pairs(methodsUsed) do
-            table.insert(methodsList, method)
-        end
-
-        return true, string.format("Looped %d times in %.1fs using %d methods: %s",
-            loopCount, loopDuration, successCount, table.concat(methodsList, ", "))
-    else
-        local success = tryFireMethods()
-
-        local methodsList = {}
-        for method, _ in pairs(methodsUsed) do
-            table.insert(methodsList, method)
-        end
-
-        if success then
-            return true, string.format("Triggered using %d methods: %s",
-                successCount, table.concat(methodsList, ", "))
-        else
-            return false, "All methods failed"
-        end
+    -- Method 1: Direct fireproximityprompt (Best for most executors)
+    if hasFireProximityPrompt then
+        pcall(function()
+            fireproximityprompt(proximityPrompt, 0)
+            success = true
+        end)
     end
+
+    -- Method 2: Simulate mouse click on ProximityPrompt
+    pcall(function()
+        local cam = workspace.CurrentCamera
+        local ppParent = proximityPrompt.Parent
+
+        if ppParent and cam then
+            local oldCFrame = cam.CFrame
+            local oldFocus = cam.Focus
+
+            -- Point camera at the prompt
+            cam.CFrame = CFrame.new(cam.CFrame.Position, ppParent.Position)
+            cam.Focus = CFrame.new(ppParent.Position)
+
+            -- Trigger the prompt using VirtualInputManager
+            if hasVirtualInput then
+                local vim = game:GetService("VirtualInputManager")
+                vim:SendKeyEvent(true, Enum.KeyCode.E, false, game)
+                task.wait(0.05)
+                vim:SendKeyEvent(false, Enum.KeyCode.E, false, game)
+            end
+
+            -- Restore camera
+            task.wait(0.05)
+            cam.CFrame = oldCFrame
+            cam.Focus = oldFocus
+
+            success = true
+        end
+    end)
+
+    -- Method 3: Direct signal fire (Simple fallback)
+    pcall(function()
+        proximityPrompt.PromptTriggered:Fire(lp)
+        success = true
+    end)
+
+    return success
 end
 
 local function TeleportToQueenAnt()
@@ -374,21 +271,19 @@ local function TriggerConvertWithLoop()
             return false, "Action is not 'Store Food' - Current: " .. tostring(proximityPrompt.ActionText)
         end
 
-        local maxLoopTime = 10
+        local maxLoopTime = 15
         local startTime = tick()
         local conversionStarted = false
         local loopCount = 0
+        local initialStorage = backpackData.Storage
 
         while tick() - startTime < maxLoopTime do
             loopCount = loopCount + 1
 
-            -- Fire proximity prompt using all available methods
-            FireProximityPromptEnhanced(proximityPrompt, {
-                holdTime = 0,
-                useLoop = false
-            })
+            -- Trigger proximity prompt
+            TriggerProximityPrompt(proximityPrompt)
 
-            task.wait(0.1)
+            task.wait(0.15)
 
             -- Check if conversion has started
             local currentNestController = GetNestController()
@@ -397,17 +292,23 @@ local function TriggerConvertWithLoop()
                 break
             end
 
-            -- Also check if backpack storage decreased (alternative detection)
+            -- Check if backpack storage decreased
             local currentBackpackData = GetBackpackDataFromUI()
-            if currentBackpackData and currentBackpackData.Storage < backpackData.Storage then
+            if currentBackpackData and currentBackpackData.Storage < initialStorage then
+                conversionStarted = true
+                break
+            end
+
+            -- Extra check: if storage is already 0, conversion might have completed instantly
+            if currentBackpackData and currentBackpackData.Storage == 0 then
                 conversionStarted = true
                 break
             end
         end
 
         if conversionStarted then
-            return true, string.format("Conversion started after %d attempts in %.1fs (getconnections: %s)",
-                loopCount, tick() - startTime, hasGetConnections and "Yes" or "No")
+            return true, string.format("Conversion started after %d attempts in %.1fs",
+                loopCount, tick() - startTime)
         else
             return false, string.format("Failed to start conversion after %d attempts in %.1fs",
                 loopCount, tick() - startTime)
@@ -865,10 +766,11 @@ local BackpackParagraph = Tabs.Information:Paragraph({
 })
 
 local executorInfo = string.format(
-    '<font color="%s">Executor: %s</font>\n<font color="rgb(200,200,200)">getconnections: %s</font>',
-    hasGetConnections and "rgb(0,255,0)" or "rgb(255,165,0)",
+    '<font color="%s">Executor: %s</font>\n<font color="rgb(200,200,200)">fireproximityprompt: %s</font>\n<font color="rgb(200,200,200)">VirtualInputManager: %s</font>',
+    hasFireProximityPrompt and "rgb(0,255,0)" or "rgb(255,165,0)",
     identifyexecutor and identifyexecutor() or "Unknown",
-    hasGetConnections and "Available" or "Not Available"
+    hasFireProximityPrompt and "Available" or "Not Available",
+    hasVirtualInput and "Available" or "Not Available"
 )
 
 Tabs.Information:Paragraph({
@@ -881,10 +783,10 @@ Tabs.Information:Paragraph({
     Desc = [[<font color="rgb(255,255,255)">Available Features:</font>
 [+] Auto Hit Resources
 [+] Auto Collect Orbs (Unlimited Range)
-[+] Auto Convert Food at Queen Ant (Loop firing until started)
+[+] Auto Convert Food at Queen Ant
 [+] Anti AFK
 [+] Smart Backpack Check (UI Based)
-[+] Multi-Method ProximityPrompt (7 methods)
+[+] Reliable ProximityPrompt System
 ]],
 })
 
