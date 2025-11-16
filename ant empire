@@ -145,9 +145,9 @@ end
 -- Enhanced FireProximityPrompt Function
 local function FireProximityPromptEnhanced(proximityPrompt, options)
     options = options or {}
-    local maxAttempts = options.maxAttempts or 5
+    local maxAttempts = options.maxAttempts or 8
     local holdTime = options.holdTime or 0
-    local delay = options.delay or 0.2
+    local delay = options.delay or 0.15
 
     local attempts = 0
     local success = false
@@ -158,15 +158,17 @@ local function FireProximityPromptEnhanced(proximityPrompt, options)
         -- Method 1: Direct fireproximityprompt (Most Reliable)
         if not success then
             pcall(function()
-                fireproximityprompt(proximityPrompt, holdTime)
-                success = true
+                if fireproximityprompt then
+                    fireproximityprompt(proximityPrompt, holdTime)
+                    success = true
+                end
             end)
         end
 
         -- Method 2: Via PromptTriggered event
         if not success then
             pcall(function()
-                if proximityPrompt.PromptTriggered then
+                if proximityPrompt and proximityPrompt.PromptTriggered then
                     proximityPrompt.PromptTriggered:Fire()
                     success = true
                 end
@@ -176,22 +178,24 @@ local function FireProximityPromptEnhanced(proximityPrompt, options)
         -- Method 3: Via Triggered signal
         if not success then
             pcall(function()
-                if proximityPrompt.Triggered then
+                if proximityPrompt and proximityPrompt.Triggered then
                     proximityPrompt.Triggered:Fire()
                     success = true
                 end
             end)
         end
 
-        -- Method 4: Trigger via getconnections
+        -- Method 4: Trigger via getconnections on PromptTriggered
         if not success then
             pcall(function()
-                if proximityPrompt.PromptTriggered and getconnections then
+                if proximityPrompt and proximityPrompt.PromptTriggered and getconnections then
                     local connections = getconnections(proximityPrompt.PromptTriggered)
                     if connections and #connections > 0 then
                         for _, connection in pairs(connections) do
-                            if connection.Function then
-                                connection:Fire()
+                            if connection and connection.Function then
+                                pcall(function()
+                                    connection:Fire()
+                                end)
                                 success = true
                                 break
                             end
@@ -204,12 +208,14 @@ local function FireProximityPromptEnhanced(proximityPrompt, options)
         -- Method 5: Via PromptButtonHoldBegan
         if not success then
             pcall(function()
-                if proximityPrompt.PromptButtonHoldBegan and getconnections then
+                if proximityPrompt and proximityPrompt.PromptButtonHoldBegan and getconnections then
                     local connections = getconnections(proximityPrompt.PromptButtonHoldBegan)
                     if connections and #connections > 0 then
                         for _, connection in pairs(connections) do
-                            if connection.Function then
-                                connection:Fire()
+                            if connection and connection.Function then
+                                pcall(function()
+                                    connection:Fire()
+                                end)
                                 success = true
                                 break
                             end
@@ -219,15 +225,38 @@ local function FireProximityPromptEnhanced(proximityPrompt, options)
             end)
         end
 
-        -- Method 6: Humanoid state trigger
+        -- Method 6: Via InputBegan simulation
         if not success then
             pcall(function()
-                local char = lp.Character
-                if char and char:FindFirstChild("Humanoid") then
-                    if proximityPrompt.PromptTriggered then
-                        proximityPrompt.PromptTriggered:Fire()
+                if proximityPrompt and proximityPrompt.Parent then
+                    local userInputService = game:GetService("UserInputService")
+                    if userInputService then
+                        userInputService.InputBegan:Fire({KeyCode = Enum.KeyCode.E}, false)
+                        task.wait(0.05)
+                        userInputService.InputEnded:Fire({KeyCode = Enum.KeyCode.E}, false)
                         success = true
                     end
+                end
+            end)
+        end
+
+        -- Method 7: Direct function call if available
+        if not success then
+            pcall(function()
+                if proximityPrompt and type(proximityPrompt.Trigger) == "function" then
+                    proximityPrompt:Trigger()
+                    success = true
+                end
+            end)
+        end
+
+        -- Method 8: Via ProximityPromptService
+        if not success then
+            pcall(function()
+                local ProximityPromptService = game:GetService("ProximityPromptService")
+                if ProximityPromptService then
+                    ProximityPromptService:FirePrompt(proximityPrompt)
+                    success = true
                 end
             end)
         end
@@ -357,44 +386,52 @@ end
 
 local function AutoConvertCycle()
     if isConverting then
-        WindUI:Notify({
-            Title = "Auto Convert",
-            Content = "Already converting! Please wait...",
-            Duration = 3,
-            Image = "info"
-        })
+        pcall(function()
+            WindUI:Notify({
+                Title = "Auto Convert",
+                Content = "Already converting! Please wait...",
+                Duration = 3,
+                Image = "info"
+            })
+        end)
         return
     end
 
     isConverting = true
 
-    WindUI:Notify({
-        Title = "Auto Convert",
-        Content = "Starting conversion process...",
-        Duration = 2,
-        Image = "loader"
-    })
+    pcall(function()
+        WindUI:Notify({
+            Title = "Auto Convert",
+            Content = "Starting conversion process...",
+            Duration = 2,
+            Image = "loader"
+        })
+    end)
 
     local backpackData = GetBackpackDataFromUI()
     if not backpackData or backpackData.Storage <= 0 then
-        WindUI:Notify({
-            Title = "Auto Convert",
-            Content = "No food to convert!",
-            Duration = 3,
-            Image = "x"
-        })
+        pcall(function()
+            WindUI:Notify({
+                Title = "Auto Convert",
+                Content = "No food to convert!",
+                Duration = 3,
+                Image = "x"
+            })
+        end)
         isConverting = false
         return
     end
 
     local char = lp.Character
     if not char or not char:FindFirstChild("HumanoidRootPart") then
-        WindUI:Notify({
-            Title = "Auto Convert",
-            Content = "Character not found!",
-            Duration = 3,
-            Image = "x"
-        })
+        pcall(function()
+            WindUI:Notify({
+                Title = "Auto Convert",
+                Content = "Character not found!",
+                Duration = 3,
+                Image = "x"
+            })
+        end)
         isConverting = false
         return
     end
@@ -403,12 +440,14 @@ local function AutoConvertCycle()
 
     local success, message = TeleportToQueenAnt()
     if not success then
-        WindUI:Notify({
-            Title = "Auto Convert",
-            Content = message or "Failed to teleport!",
-            Duration = 3,
-            Image = "x"
-        })
+        pcall(function()
+            WindUI:Notify({
+                Title = "Auto Convert",
+                Content = message or "Failed to teleport!",
+                Duration = 3,
+                Image = "x"
+            })
+        end)
         isConverting = false
         return
     end
@@ -417,12 +456,14 @@ local function AutoConvertCycle()
 
     success, message = TriggerConvert()
     if not success then
-        WindUI:Notify({
-            Title = "Auto Convert",
-            Content = message or "Failed to trigger convert!",
-            Duration = 3,
-            Image = "x"
-        })
+        pcall(function()
+            WindUI:Notify({
+                Title = "Auto Convert",
+                Content = message or "Failed to trigger convert!",
+                Duration = 3,
+                Image = "x"
+            })
+        end)
         task.wait(0.5)
         if savedPosition then
             char.HumanoidRootPart.CFrame = savedPosition
@@ -431,83 +472,117 @@ local function AutoConvertCycle()
         return
     end
 
-    WindUI:Notify({
-        Title = "Auto Convert",
-        Content = "Converting food... Please wait",
-        Duration = 3,
-        Image = "loader"
-    })
+    pcall(function()
+        WindUI:Notify({
+            Title = "Auto Convert",
+            Content = "Converting food... Please wait",
+            Duration = 3,
+            Image = "loader"
+        })
+    end)
 
     local startTime = tick()
     local maxWaitTime = 120
     local conversionComplete = false
     local initialStorage = backpackData.Storage
     local checkInterval = 0
+    local wasConverting = false
+    local noFoodToConvert = false
 
     while tick() - startTime < maxWaitTime do
-        task.wait(0.2)
-        checkInterval = checkInterval + 0.2
+        task.wait(0.3)
+        checkInterval = checkInterval + 0.3
+
+        local currentBackpackData = GetBackpackDataFromUI()
+        if currentBackpackData and currentBackpackData.Storage == 0 then
+            noFoodToConvert = true
+            break
+        end
 
         local NestController = GetNestController()
         if NestController then
             if NestController.IsConverting == true then
+                wasConverting = true
                 if checkInterval >= 5 then
-                    WindUI:Notify({
-                        Title = "Auto Convert",
-                        Content = "Converting in progress...",
-                        Duration = 2,
-                        Image = "loader"
-                    })
+                    pcall(function()
+                        WindUI:Notify({
+                            Title = "Auto Convert",
+                            Content = "Converting in progress...",
+                            Duration = 2,
+                            Image = "loader"
+                        })
+                    end)
                     checkInterval = 0
                 end
-            elseif NestController.IsConverting == false then
-                task.wait(1)
+            elseif NestController.IsConverting == false and wasConverting == true then
+                task.wait(0.5)
 
                 local newBackpackData = GetBackpackDataFromUI()
                 if newBackpackData and newBackpackData.Storage < initialStorage then
                     conversionComplete = true
                     break
                 else
-                    if tick() - startTime < 10 then
-                        continue
-                    else
+                    if newBackpackData and newBackpackData.Storage == 0 then
+                        noFoodToConvert = true
                         break
                     end
+                    task.wait(1)
                 end
             end
         end
+
+        if checkInterval >= 15 and wasConverting then
+            break
+        end
     end
 
-    if not conversionComplete then
-        WindUI:Notify({
-            Title = "Auto Convert",
-            Content = "Conversion timeout! Returning...",
-            Duration = 3,
-            Image = "alert-triangle"
-        })
+    if noFoodToConvert then
+        pcall(function()
+            WindUI:Notify({
+                Title = "Auto Convert",
+                Content = "All food converted! Returning to farm...",
+                Duration = 3,
+                Image = "check"
+            })
+        end)
+    elseif conversionComplete then
+        pcall(function()
+            WindUI:Notify({
+                Title = "Auto Convert",
+                Content = "Conversion complete! Returning to farm...",
+                Duration = 2,
+                Image = "check"
+            })
+        end)
     else
-        WindUI:Notify({
-            Title = "Auto Convert",
-            Content = "Conversion complete!",
-            Duration = 2,
-            Image = "check"
-        })
+        pcall(function()
+            WindUI:Notify({
+                Title = "Auto Convert",
+                Content = "Conversion finished! Returning to farm...",
+                Duration = 3,
+                Image = "check"
+            })
+        end)
     end
 
-    task.wait(1)
+    task.wait(0.5)
     if savedPosition and char and char:FindFirstChild("HumanoidRootPart") then
         char.HumanoidRootPart.CFrame = savedPosition
         savedPosition = nil
 
-        WindUI:Notify({
-            Title = "Auto Convert",
-            Content = "Returned to farming position!",
-            Duration = 2,
-            Image = "check"
-        })
+        task.wait(0.5)
+        pcall(function()
+            WindUI:Notify({
+                Title = "Auto Convert",
+                Content = "Returned to farming position! Resuming farm...",
+                Duration = 2,
+                Image = "check"
+            })
+        end)
     end
 
     isConverting = false
+    task.wait(1)
 end
 
 local function CollectOrb(orb)
