@@ -6,6 +6,7 @@ local Players = game:GetService("Players")
 local VirtualUser = game:GetService("VirtualUser")
 local rs = game:GetService("ReplicatedStorage")
 local runService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
 local lp = Players.LocalPlayer
 
 -- Load WindUI
@@ -13,7 +14,7 @@ local WindUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/XenonL
 WindUI.TransparencyValue = 0.2
 WindUI:SetTheme("Plant")
 
-local ScriptVersion = "v1.2"
+local ScriptVersion = "v1.3"
 
 -- Settings (Fresh every load, no save)
 local settings = {
@@ -85,27 +86,25 @@ local function GetBackpackDataFromUI()
     local success, result = pcall(function()
         local PlayerGui = lp:WaitForChild("PlayerGui")
         local Hud = PlayerGui:FindFirstChild("Hud")
-        
+
         if not Hud then
             return nil
         end
-        
+
         local StorageUI = Hud:FindFirstChild("Stats") and Hud.Stats:FindFirstChild("Storage")
         if not StorageUI then
             return nil
         end
-        
-        -- Get current and max storage from UI
+
         local currentText = StorageUI.Content.CurrentStorage.Text
         local maxText = StorageUI.Content.MaxStorage.Text
-        
-        -- Parse numbers (remove abbreviations like K, M, B)
+
         local function parseNumber(text)
             text = text:gsub(",", "")
-            text = text:gsub("^/", "") -- Remove leading /
+            text = text:gsub("^/", "")
             local num = tonumber(text:match("[%d%.]+"))
             if not num then return 0 end
-            
+
             if text:find("B") then
                 return num * 1000000000
             elseif text:find("M") then
@@ -116,28 +115,17 @@ local function GetBackpackDataFromUI()
                 return num
             end
         end
-        
+
         local current = parseNumber(currentText)
         local max = parseNumber(maxText)
-        
+
         return {Storage = current, Capacity = max}
     end)
     return success and result or nil
 end
 
 local function GetToolRange()
-    -- Default fixed range
     return settings.HitRange
-end
-
-local function GetResourceRadius(fieldName)
-    local success, resourceConfig = pcall(function()
-        return require(rs.GameContent.Resources[fieldName].Config)
-    end)
-    if success and resourceConfig and resourceConfig.Radius then
-        return resourceConfig.Radius
-    end
-    return 0
 end
 
 local function GetOrbsController()
@@ -154,138 +142,192 @@ local function GetNestController()
     return success and result or nil
 end
 
+-- Enhanced FireProximityPrompt Function
+local function FireProximityPromptEnhanced(proximityPrompt, options)
+    options = options or {}
+    local maxAttempts = options.maxAttempts or 5
+    local holdTime = options.holdTime or 0
+    local delay = options.delay or 0.2
+
+    local attempts = 0
+    local success = false
+
+    for attempt = 1, maxAttempts do
+        attempts = attempt
+
+        -- Method 1: Direct fireproximityprompt (Most Reliable)
+        if not success then
+            pcall(function()
+                fireproximityprompt(proximityPrompt, holdTime)
+                success = true
+            end)
+        end
+
+        -- Method 2: Via PromptTriggered event
+        if not success then
+            pcall(function()
+                if proximityPrompt.PromptTriggered then
+                    proximityPrompt.PromptTriggered:Fire()
+                    success = true
+                end
+            end)
+        end
+
+        -- Method 3: Via Triggered signal
+        if not success then
+            pcall(function()
+                if proximityPrompt.Triggered then
+                    proximityPrompt.Triggered:Fire()
+                    success = true
+                end
+            end)
+        end
+
+        -- Method 4: Trigger via getconnections
+        if not success then
+            pcall(function()
+                if proximityPrompt.PromptTriggered and getconnections then
+                    local connections = getconnections(proximityPrompt.PromptTriggered)
+                    if connections and #connections > 0 then
+                        for _, connection in pairs(connections) do
+                            if connection.Function then
+                                connection:Fire()
+                                success = true
+                                break
+                            end
+                        end
+                    end
+                end
+            end)
+        end
+
+        -- Method 5: Via PromptButtonHoldBegan
+        if not success then
+            pcall(function()
+                if proximityPrompt.PromptButtonHoldBegan and getconnections then
+                    local connections = getconnections(proximityPrompt.PromptButtonHoldBegan)
+                    if connections and #connections > 0 then
+                        for _, connection in pairs(connections) do
+                            if connection.Function then
+                                connection:Fire()
+                                success = true
+                                break
+                            end
+                        end
+                    end
+                end
+            end)
+        end
+
+        -- Method 6: Humanoid state trigger
+        if not success then
+            pcall(function()
+                local char = lp.Character
+                if char and char:FindFirstChild("Humanoid") then
+                    if proximityPrompt.PromptTriggered then
+                        proximityPrompt.PromptTriggered:Fire()
+                        success = true
+                    end
+                end
+            end)
+        end
+
+        if success then
+            return true, "Success on attempt " .. attempts
+        end
+
+        if attempt < maxAttempts then
+            task.wait(delay)
+        end
+    end
+
+    return false, "Failed after " .. attempts .. " attempts"
+end
+
 local function TeleportToQueenAnt()
     local success, message = pcall(function()
         local NestController = GetNestController()
-        if not NestController then 
+        if not NestController then
             return false, "NestController not found"
         end
-        
+
         local nestFolder = NestController.NestFolder
         if not nestFolder then
             return false, "Nest not found! You need a nest first."
         end
-        
+
         local queenPoint = nestFolder:WaitForChild("QueenPoint", 3)
         if not queenPoint then
             return false, "Queen Ant point not found!"
         end
-        
+
         local char = lp.Character
         if not char then
             return false, "Character not found"
         end
-        
+
         local hrp = char:FindFirstChild("HumanoidRootPart")
         if not hrp then
             return false, "HumanoidRootPart not found"
         end
-        
-        -- Save current position
+
         savedPosition = hrp.CFrame
-        
-        -- Teleport to Queen Ant
         hrp.CFrame = queenPoint.CFrame + Vector3.new(0, 3, 0)
         return true, "Teleported to Queen Ant!"
     end)
-    
+
     return success, message
 end
 
 local function TriggerConvert()
     local success, message = pcall(function()
         local NestController = GetNestController()
-        if not NestController then 
+        if not NestController then
             return false, "NestController not found"
         end
-        
+
         local nestFolder = NestController.NestFolder
         if not nestFolder then
             return false, "Nest not found!"
         end
-        
+
         local queenPoint = nestFolder:WaitForChild("QueenPoint", 5)
         if not queenPoint then
             return false, "Queen Ant point not found!"
         end
-        
+
         local proximityPrompt = queenPoint:FindFirstChild("ProximityPrompt")
         if not proximityPrompt then
             return false, "ProximityPrompt not found!"
         end
-        
-        -- Check if we have food to convert
+
         local backpackData = GetBackpackDataFromUI()
         if not backpackData or backpackData.Storage <= 0 then
             return false, "No food to convert!"
         end
-        
-        -- Check if prompt is enabled
+
         if not proximityPrompt.Enabled then
             return false, "Store Food is not available!"
         end
-        
-        -- Check action text to make sure it's "Store Food"
+
         if proximityPrompt.ActionText ~= "Store Food" then
             return false, "Action is not 'Store Food' - Current: " .. tostring(proximityPrompt.ActionText)
         end
-        
-        -- Method 1: Try triggering via connections (most reliable)
-        local triggered = false
-        pcall(function()
-            if proximityPrompt.Triggered then
-                for _, connection in pairs(getconnections(proximityPrompt.Triggered)) do
-                    if connection.Function then
-                        connection:Fire()
-                        triggered = true
-                    end
-                end
-            end
-        end)
-        
+
+        -- Use enhanced fireproximityprompt
+        local triggered, triggerMessage = FireProximityPromptEnhanced(proximityPrompt, {
+            maxAttempts = 8,
+            holdTime = 0,
+            delay = 0.15
+        })
+
         if triggered then
-            return true, "Triggered via connections"
+            return true, "Successfully triggered: " .. triggerMessage
+        else
+            return false, "Failed to trigger: " .. triggerMessage
         end
-        
-        -- Method 2: Try PromptButtonHoldBegan event
-        pcall(function()
-            if proximityPrompt.PromptButtonHoldBegan then
-                for _, connection in pairs(getconnections(proximityPrompt.PromptButtonHoldBegan)) do
-                    if connection.Function then
-                        connection:Fire()
-                        triggered = true
-                    end
-                end
-            end
-        end)
-        
-        if triggered then
-            return true, "Triggered via PromptButtonHoldBegan"
-        end
-        
-        -- Method 3: fireproximityprompt with 0 hold time
-        local success1 = pcall(function()
-            fireproximityprompt(proximityPrompt, 0)
-            triggered = true
-        end)
-        
-        if success1 and triggered then
-            return true, "Triggered via fireproximityprompt"
-        end
-        
-        -- Method 4: Alternative syntax
-        local success2 = pcall(function()
-            fireproximityprompt(proximityPrompt)
-            triggered = true
-        end)
-        
-        if success2 and triggered then
-            return true, "Triggered via fireproximityprompt alt"
-        end
-        
-        return false, "Failed to trigger proximity prompt with all methods"
     end)
-    
+
     return success, message
 end
 
@@ -293,24 +335,23 @@ local function ReturnToSavedPosition()
     if not savedPosition then
         return false, "No saved position"
     end
-    
+
     local success, message = pcall(function()
         local char = lp.Character
         if not char then
             return false, "Character not found"
         end
-        
+
         local hrp = char:FindFirstChild("HumanoidRootPart")
         if not hrp then
             return false, "HumanoidRootPart not found"
         end
-        
-        -- Return to saved position
+
         hrp.CFrame = savedPosition
         savedPosition = nil
         return true, "Returned to original position!"
     end)
-    
+
     return success, message
 end
 
@@ -324,17 +365,16 @@ local function AutoConvertCycle()
         })
         return
     end
-    
+
     isConverting = true
-    
+
     WindUI:Notify({
         Title = "Auto Convert",
         Content = "Starting conversion process...",
         Duration = 2,
         Image = "loader"
     })
-    
-    -- Step 1: Check if we have food
+
     local backpackData = GetBackpackDataFromUI()
     if not backpackData or backpackData.Storage <= 0 then
         WindUI:Notify({
@@ -346,8 +386,7 @@ local function AutoConvertCycle()
         isConverting = false
         return
     end
-    
-    -- Step 2: Save current position
+
     local char = lp.Character
     if not char or not char:FindFirstChild("HumanoidRootPart") then
         WindUI:Notify({
@@ -359,10 +398,9 @@ local function AutoConvertCycle()
         isConverting = false
         return
     end
-    
+
     savedPosition = char.HumanoidRootPart.CFrame
-    
-    -- Step 3: Teleport to Queen Ant
+
     local success, message = TeleportToQueenAnt()
     if not success then
         WindUI:Notify({
@@ -374,10 +412,9 @@ local function AutoConvertCycle()
         isConverting = false
         return
     end
-    
-    task.wait(1.5) -- Wait for teleport to complete
-    
-    -- Step 4: Trigger convert
+
+    task.wait(1.5)
+
     success, message = TriggerConvert()
     if not success then
         WindUI:Notify({
@@ -386,7 +423,6 @@ local function AutoConvertCycle()
             Duration = 3,
             Image = "x"
         })
-        -- Try to return anyway
         task.wait(0.5)
         if savedPosition then
             char.HumanoidRootPart.CFrame = savedPosition
@@ -394,32 +430,27 @@ local function AutoConvertCycle()
         isConverting = false
         return
     end
-    
+
     WindUI:Notify({
         Title = "Auto Convert",
         Content = "Converting food... Please wait",
         Duration = 3,
         Image = "loader"
     })
-    
-    -- Step 5: Wait for conversion to complete
+
     local startTime = tick()
-    local maxWaitTime = 120 -- Increase to 2 minutes
+    local maxWaitTime = 120
     local conversionComplete = false
     local initialStorage = backpackData.Storage
-    
-    -- Monitor conversion status by checking NestController.IsConverting
     local checkInterval = 0
+
     while tick() - startTime < maxWaitTime do
         task.wait(0.2)
         checkInterval = checkInterval + 0.2
-        
-        -- Check NestController IsConverting status (primary check)
+
         local NestController = GetNestController()
         if NestController then
-            -- If IsConverting is true, conversion is in progress
             if NestController.IsConverting == true then
-                -- Conversion is happening, keep waiting
                 if checkInterval >= 5 then
                     WindUI:Notify({
                         Title = "Auto Convert",
@@ -430,28 +461,23 @@ local function AutoConvertCycle()
                     checkInterval = 0
                 end
             elseif NestController.IsConverting == false then
-                -- Conversion finished, wait a bit then verify
                 task.wait(1)
-                
-                -- Verify storage decreased
+
                 local newBackpackData = GetBackpackDataFromUI()
                 if newBackpackData and newBackpackData.Storage < initialStorage then
                     conversionComplete = true
                     break
                 else
-                    -- If storage didn't decrease, conversion might not have started
-                    -- Wait a bit more
                     if tick() - startTime < 10 then
                         continue
                     else
-                        -- After 10 seconds, assume it failed
                         break
                     end
                 end
             end
         end
     end
-    
+
     if not conversionComplete then
         WindUI:Notify({
             Title = "Auto Convert",
@@ -467,13 +493,12 @@ local function AutoConvertCycle()
             Image = "check"
         })
     end
-    
-    -- Step 6: Return to original position
+
     task.wait(1)
     if savedPosition and char and char:FindFirstChild("HumanoidRootPart") then
         char.HumanoidRootPart.CFrame = savedPosition
         savedPosition = nil
-        
+
         WindUI:Notify({
             Title = "Auto Convert",
             Content = "Returned to farming position!",
@@ -481,7 +506,7 @@ local function AutoConvertCycle()
             Image = "check"
         })
     end
-    
+
     isConverting = false
 end
 
@@ -490,82 +515,74 @@ local function CollectOrb(orb)
     if orb.Type == "Food" and not settings.CollectFood then return false end
     if orb.Type == "Item" and not settings.CollectItems then return false end
     if not settings.InstantCollect and orb.SpawnElapsed < 1 then return false end
-    
+
     local success = pcall(function()
         local OrbsController = GetOrbsController()
         if OrbsController and OrbsController.CollectOrb then
-            -- Call the CollectOrb function directly
             OrbsController.CollectOrb(orb)
         end
     end)
-    
+
     return success
 end
 
 -- Auto Hit Resources Loop
 local autoHitRunning = false
 local lastConvertAttempt = 0
-local convertCooldown = 10 -- Cooldown 10 detik setelah convert
+local convertCooldown = 10
 
 task.spawn(function()
-    task.wait(2) -- Wait for game to load
+    task.wait(2)
     autoHitRunning = true
-    
+
     while true do
-        task.wait(0.1) -- Check interval
-        
+        task.wait(0.1)
+
         if not settings.AutoHit then continue end
-        
-        -- Get player character
+
         local char = lp.Character
         if not char then continue end
-        
+
         local hrp = char:FindFirstChild("HumanoidRootPart")
         if not hrp then continue end
-        
-        -- Get fields
+
         local fields = workspace:FindFirstChild("Fields")
         if not fields then continue end
-        
-        -- Check backpack using UI data
+
         if settings.CheckBackpack then
             local backpackData = GetBackpackDataFromUI()
-            
+
             if backpackData then
                 local current = backpackData.Storage
                 local capacity = backpackData.Capacity
-                
-                -- Auto convert when 95% full or more
+
                 if current >= (capacity * 0.95) then
-                    -- Check if auto convert enabled and not in cooldown
                     if settings.AutoConvert and not isConverting then
                         local currentTime = tick()
                         if currentTime - lastConvertAttempt >= convertCooldown then
                             lastConvertAttempt = currentTime
-                            
+
                             WindUI:Notify({
                                 Title = "Auto Convert",
                                 Content = "Backpack 95% full! Starting auto convert...",
                                 Duration = 3,
                                 Image = "alert-triangle"
                             })
-                            
+
                             task.spawn(AutoConvertCycle)
                         end
                     end
                     continue
                 end
-                
-                -- Stop if backpack full but auto convert disabled
+
                 if current >= capacity then
                     continue
                 end
             end
         end
-        
-        -- Collect all resources in range
+
         local resourcesToHit = {}
-        
+
         for _, field in pairs(fields:GetChildren()) do
             local resourcesFolder = field:FindFirstChild("Resources")
             if resourcesFolder then
@@ -573,12 +590,10 @@ task.spawn(function()
                     if res and res.Parent then
                         local root = res:FindFirstChild("Root")
                         if root then
-                            -- Calculate distance from player to resource
                             local playerPos = hrp.Position
                             local resourcePos = root.Position
                             local distance = (playerPos - resourcePos).Magnitude
-                            
-                            -- Add to hit list if in range
+
                             if distance <= settings.HitRange then
                                 table.insert(resourcesToHit, res)
                             end
@@ -587,15 +602,13 @@ task.spawn(function()
                 end
             end
         end
-        
-        -- Hit all resources at once
+
         for _, res in ipairs(resourcesToHit) do
             pcall(function()
                 rs.Remotes.Tool.Hit:FireServer(res)
             end)
         end
-        
-        -- Small delay if we hit something
+
         if #resourcesToHit > 0 then
             task.wait(0.05)
         end
@@ -606,23 +619,21 @@ end)
 local lastCollectCheck = 0
 runService.Heartbeat:Connect(function(deltaTime)
     if not settings.AutoCollect then return end
-    
+
     lastCollectCheck = lastCollectCheck + deltaTime
     if lastCollectCheck < 0.1 then return end
     lastCollectCheck = 0
-    
+
     local OrbsController = GetOrbsController()
     if not OrbsController then return end
-    
-    -- Get active orbs array
+
     local activeOrbs = OrbsController.GetActiveOrbs and OrbsController.GetActiveOrbs()
     if not activeOrbs or type(activeOrbs) ~= "table" or #activeOrbs == 0 then return end
-    
+
     local char = lp.Character
     if not char or not char:FindFirstChild("HumanoidRootPart") then return end
-    
-    -- Collect all orbs
-    for i = #activeOrbs, 1, -1 do -- Loop backwards to avoid issues with table.remove
+
+    for i = #activeOrbs, 1, -1 do
         local orb = activeOrbs[i]
         if orb and orb.Model and orb.Model.Parent then
             pcall(function()
@@ -707,7 +718,6 @@ Tabs.Information:Section({
     TextSize = 18,
 })
 
--- Backpack Status Paragraph (will be updated)
 local BackpackParagraph = Tabs.Information:Paragraph({
     Title = "Backpack Status",
     Desc = "Loading backpack data...",
@@ -867,38 +877,35 @@ Window:SelectTab(1)
 
 -- Update Backpack Status in Real-time
 task.spawn(function()
-    task.wait(5) -- Wait for game UI to load
-    
+    task.wait(5)
+
     while true do
-        task.wait(1) -- Update every 1 second
-        
+        task.wait(1)
+
         local success, err = pcall(function()
-            -- Get data directly from game UI
             local backpackData = GetBackpackDataFromUI()
-            
+
             if not backpackData then
                 BackpackParagraph:SetDesc("Waiting for game UI to load...")
                 return
             end
-            
+
             local current = backpackData.Storage
             local max = backpackData.Capacity
-            
-            if max == 0 then max = 1 end -- Prevent division by zero
-            
+
+            if max == 0 then max = 1 end
+
             local percentage = math.floor((current / max) * 100)
-            
-            -- Color based on fullness
-            local color = "rgb(0,255,0)" -- Green
+
+            local color = "rgb(0,255,0)"
             if percentage >= 90 then
-                color = "rgb(255,0,0)" -- Red
+                color = "rgb(255,0,0)"
             elseif percentage >= 70 then
-                color = "rgb(255,165,0)" -- Orange
+                color = "rgb(255,165,0)"
             elseif percentage >= 50 then
-                color = "rgb(255,255,0)" -- Yellow
+                color = "rgb(255,255,0)"
             end
-            
-            -- Format numbers
+
             local function formatNumber(num)
                 if num >= 1000000000 then
                     return string.format("%.2fB", num / 1000000000)
@@ -910,7 +917,7 @@ task.spawn(function()
                     return tostring(math.floor(num))
                 end
             end
-            
+
             local statusText = string.format(
                 '<font color="%s">Current: %s / %s (%d%%)</font>\n' ..
                 '<font color="rgb(200,200,200)">Available Space: %s</font>\n' ..
@@ -922,13 +929,12 @@ task.spawn(function()
                 formatNumber(max - current),
                 percentage >= 100 and "FULL!" or (percentage >= 90 and "Almost Full" or (percentage >= 70 and "High" or (percentage >= 50 and "Medium" or "Low")))
             )
-            
-            -- Update the paragraph
+
             if BackpackParagraph then
                 BackpackParagraph:SetDesc(statusText)
             end
         end)
-        
+
         if not success then
             pcall(function()
                 BackpackParagraph:SetDesc('<font color="rgb(255,100,100)">Error: ' .. tostring(err) .. '</font>')
