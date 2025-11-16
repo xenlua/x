@@ -1,0 +1,938 @@
+-- Auto Farm Hub with WindUI Library
+-- Auto Hit Resources & Auto Collect Orbs & Auto Convert
+
+local HttpService = game:GetService("HttpService")
+local Players = game:GetService("Players")
+local VirtualUser = game:GetService("VirtualUser")
+local rs = game:GetService("ReplicatedStorage")
+local runService = game:GetService("RunService")
+local lp = Players.LocalPlayer
+
+-- Load WindUI
+local WindUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/XenonLoader/WindUI/refs/heads/main/dist/main.lua"))()
+WindUI.TransparencyValue = 0.2
+WindUI:SetTheme("Plant")
+
+local ScriptVersion = "v1.2"
+
+-- Settings (Fresh every load, no save)
+local settings = {
+    AutoHit = false,
+    AutoCollect = false,
+    AutoConvert = false,
+    HitRange = 50,
+    CheckBackpack = true,
+    CollectFood = true,
+    CollectItems = true,
+    InstantCollect = true,
+}
+
+-- Auto Convert State
+local isConverting = false
+local savedPosition = nil
+
+-- Gradient Functions
+local function interpolate_color(color1, color2, t)
+    local r = math.floor((1 - t) * color1[1] + t * color2[1])
+    local g = math.floor((1 - t) * color1[2] + t * color2[2])
+    local b = math.floor((1 - t) * color1[3] + t * color2[3])
+    return string.format("#%02x%02x%02x", r, g, b)
+end
+
+local function hex_to_rgb(hex)
+    if hex:sub(1, 1) == "#" then
+        hex = hex:sub(2)
+    end
+    return {
+        tonumber(hex:sub(1, 2), 16),
+        tonumber(hex:sub(3, 4), 16),
+        tonumber(hex:sub(5, 6), 16)
+    }
+end
+
+local function gradient(word)
+    if not word or #word == 0 then
+        return "Error"
+    end
+    local start_color = hex_to_rgb("ea00ff")
+    local end_color = hex_to_rgb("5700ff")
+    local gradient_word = ""
+    local word_len = #word
+    local step = 1.0 / math.max(word_len - 1, 1)
+    for i = 1, word_len do
+        local t = step * (i - 1)
+        local color = interpolate_color(start_color, end_color, t)
+        gradient_word = gradient_word .. string.format('<font color="%s">%s</font>', color, word:sub(i, i))
+    end
+    return gradient_word
+end
+
+local function formatVersion(version)
+    local formattedVersion = "  v" .. version:sub(2):gsub(".", "%0.")
+    return formattedVersion:sub(1, #formattedVersion - 1)
+end
+
+-- Helper Functions
+local function GetPlayerData()
+    local success, result = pcall(function()
+        local DataController = require(rs.Modules.Framework).GetController("DataController")
+        return DataController.GetData()
+    end)
+    return success and result or nil
+end
+
+local function GetBackpackDataFromUI()
+    local success, result = pcall(function()
+        local PlayerGui = lp:WaitForChild("PlayerGui")
+        local Hud = PlayerGui:FindFirstChild("Hud")
+        
+        if not Hud then
+            return nil
+        end
+        
+        local StorageUI = Hud:FindFirstChild("Stats") and Hud.Stats:FindFirstChild("Storage")
+        if not StorageUI then
+            return nil
+        end
+        
+        -- Get current and max storage from UI
+        local currentText = StorageUI.Content.CurrentStorage.Text
+        local maxText = StorageUI.Content.MaxStorage.Text
+        
+        -- Parse numbers (remove abbreviations like K, M, B)
+        local function parseNumber(text)
+            text = text:gsub(",", "")
+            text = text:gsub("^/", "") -- Remove leading /
+            local num = tonumber(text:match("[%d%.]+"))
+            if not num then return 0 end
+            
+            if text:find("B") then
+                return num * 1000000000
+            elseif text:find("M") then
+                return num * 1000000
+            elseif text:find("K") then
+                return num * 1000
+            else
+                return num
+            end
+        end
+        
+        local current = parseNumber(currentText)
+        local max = parseNumber(maxText)
+        
+        return {Storage = current, Capacity = max}
+    end)
+    return success and result or nil
+end
+
+local function GetToolRange()
+    -- Default fixed range
+    return settings.HitRange
+end
+
+local function GetResourceRadius(fieldName)
+    local success, resourceConfig = pcall(function()
+        return require(rs.GameContent.Resources[fieldName].Config)
+    end)
+    if success and resourceConfig and resourceConfig.Radius then
+        return resourceConfig.Radius
+    end
+    return 0
+end
+
+local function GetOrbsController()
+    local success, result = pcall(function()
+        return require(rs.Modules.Framework).GetController("OrbsController")
+    end)
+    return success and result or nil
+end
+
+local function GetNestController()
+    local success, result = pcall(function()
+        return require(rs.Modules.Framework).GetController("NestController")
+    end)
+    return success and result or nil
+end
+
+local function TeleportToQueenAnt()
+    local success, message = pcall(function()
+        local NestController = GetNestController()
+        if not NestController then 
+            return false, "NestController not found"
+        end
+        
+        local nestFolder = NestController.NestFolder
+        if not nestFolder then
+            return false, "Nest not found! You need a nest first."
+        end
+        
+        local queenPoint = nestFolder:WaitForChild("QueenPoint", 3)
+        if not queenPoint then
+            return false, "Queen Ant point not found!"
+        end
+        
+        local char = lp.Character
+        if not char then
+            return false, "Character not found"
+        end
+        
+        local hrp = char:FindFirstChild("HumanoidRootPart")
+        if not hrp then
+            return false, "HumanoidRootPart not found"
+        end
+        
+        -- Save current position
+        savedPosition = hrp.CFrame
+        
+        -- Teleport to Queen Ant
+        hrp.CFrame = queenPoint.CFrame + Vector3.new(0, 3, 0)
+        return true, "Teleported to Queen Ant!"
+    end)
+    
+    return success, message
+end
+
+local function TriggerConvert()
+    local success, message = pcall(function()
+        local NestController = GetNestController()
+        if not NestController then 
+            return false, "NestController not found"
+        end
+        
+        local nestFolder = NestController.NestFolder
+        if not nestFolder then
+            return false, "Nest not found!"
+        end
+        
+        local queenPoint = nestFolder:WaitForChild("QueenPoint", 5)
+        if not queenPoint then
+            return false, "Queen Ant point not found!"
+        end
+        
+        local proximityPrompt = queenPoint:FindFirstChild("ProximityPrompt")
+        if not proximityPrompt then
+            return false, "ProximityPrompt not found!"
+        end
+        
+        -- Check if we have food to convert
+        local backpackData = GetBackpackDataFromUI()
+        if not backpackData or backpackData.Storage <= 0 then
+            return false, "No food to convert!"
+        end
+        
+        -- Check if prompt is enabled
+        if not proximityPrompt.Enabled then
+            return false, "Store Food is not available!"
+        end
+        
+        -- Check action text to make sure it's "Store Food"
+        if proximityPrompt.ActionText ~= "Store Food" then
+            return false, "Action is not 'Store Food' - Current: " .. tostring(proximityPrompt.ActionText)
+        end
+        
+        -- Method 1: Try triggering via connections (most reliable)
+        local triggered = false
+        pcall(function()
+            if proximityPrompt.Triggered then
+                for _, connection in pairs(getconnections(proximityPrompt.Triggered)) do
+                    if connection.Function then
+                        connection:Fire()
+                        triggered = true
+                    end
+                end
+            end
+        end)
+        
+        if triggered then
+            return true, "Triggered via connections"
+        end
+        
+        -- Method 2: Try PromptButtonHoldBegan event
+        pcall(function()
+            if proximityPrompt.PromptButtonHoldBegan then
+                for _, connection in pairs(getconnections(proximityPrompt.PromptButtonHoldBegan)) do
+                    if connection.Function then
+                        connection:Fire()
+                        triggered = true
+                    end
+                end
+            end
+        end)
+        
+        if triggered then
+            return true, "Triggered via PromptButtonHoldBegan"
+        end
+        
+        -- Method 3: fireproximityprompt with 0 hold time
+        local success1 = pcall(function()
+            fireproximityprompt(proximityPrompt, 0)
+            triggered = true
+        end)
+        
+        if success1 and triggered then
+            return true, "Triggered via fireproximityprompt"
+        end
+        
+        -- Method 4: Alternative syntax
+        local success2 = pcall(function()
+            fireproximityprompt(proximityPrompt)
+            triggered = true
+        end)
+        
+        if success2 and triggered then
+            return true, "Triggered via fireproximityprompt alt"
+        end
+        
+        return false, "Failed to trigger proximity prompt with all methods"
+    end)
+    
+    return success, message
+end
+
+local function ReturnToSavedPosition()
+    if not savedPosition then
+        return false, "No saved position"
+    end
+    
+    local success, message = pcall(function()
+        local char = lp.Character
+        if not char then
+            return false, "Character not found"
+        end
+        
+        local hrp = char:FindFirstChild("HumanoidRootPart")
+        if not hrp then
+            return false, "HumanoidRootPart not found"
+        end
+        
+        -- Return to saved position
+        hrp.CFrame = savedPosition
+        savedPosition = nil
+        return true, "Returned to original position!"
+    end)
+    
+    return success, message
+end
+
+local function AutoConvertCycle()
+    if isConverting then
+        WindUI:Notify({
+            Title = "Auto Convert",
+            Content = "Already converting! Please wait...",
+            Duration = 3,
+            Image = "info"
+        })
+        return
+    end
+    
+    isConverting = true
+    
+    WindUI:Notify({
+        Title = "Auto Convert",
+        Content = "Starting conversion process...",
+        Duration = 2,
+        Image = "loader"
+    })
+    
+    -- Step 1: Check if we have food
+    local backpackData = GetBackpackDataFromUI()
+    if not backpackData or backpackData.Storage <= 0 then
+        WindUI:Notify({
+            Title = "Auto Convert",
+            Content = "No food to convert!",
+            Duration = 3,
+            Image = "x"
+        })
+        isConverting = false
+        return
+    end
+    
+    -- Step 2: Save current position
+    local char = lp.Character
+    if not char or not char:FindFirstChild("HumanoidRootPart") then
+        WindUI:Notify({
+            Title = "Auto Convert",
+            Content = "Character not found!",
+            Duration = 3,
+            Image = "x"
+        })
+        isConverting = false
+        return
+    end
+    
+    savedPosition = char.HumanoidRootPart.CFrame
+    
+    -- Step 3: Teleport to Queen Ant
+    local success, message = TeleportToQueenAnt()
+    if not success then
+        WindUI:Notify({
+            Title = "Auto Convert",
+            Content = message or "Failed to teleport!",
+            Duration = 3,
+            Image = "x"
+        })
+        isConverting = false
+        return
+    end
+    
+    task.wait(1.5) -- Wait for teleport to complete
+    
+    -- Step 4: Trigger convert
+    success, message = TriggerConvert()
+    if not success then
+        WindUI:Notify({
+            Title = "Auto Convert",
+            Content = message or "Failed to trigger convert!",
+            Duration = 3,
+            Image = "x"
+        })
+        -- Try to return anyway
+        task.wait(0.5)
+        if savedPosition then
+            char.HumanoidRootPart.CFrame = savedPosition
+        end
+        isConverting = false
+        return
+    end
+    
+    WindUI:Notify({
+        Title = "Auto Convert",
+        Content = "Converting food... Please wait",
+        Duration = 3,
+        Image = "loader"
+    })
+    
+    -- Step 5: Wait for conversion to complete
+    local startTime = tick()
+    local maxWaitTime = 120 -- Increase to 2 minutes
+    local conversionComplete = false
+    local initialStorage = backpackData.Storage
+    
+    -- Monitor conversion status by checking NestController.IsConverting
+    local checkInterval = 0
+    while tick() - startTime < maxWaitTime do
+        task.wait(0.2)
+        checkInterval = checkInterval + 0.2
+        
+        -- Check NestController IsConverting status (primary check)
+        local NestController = GetNestController()
+        if NestController then
+            -- If IsConverting is true, conversion is in progress
+            if NestController.IsConverting == true then
+                -- Conversion is happening, keep waiting
+                if checkInterval >= 5 then
+                    WindUI:Notify({
+                        Title = "Auto Convert",
+                        Content = "Converting in progress...",
+                        Duration = 2,
+                        Image = "loader"
+                    })
+                    checkInterval = 0
+                end
+            elseif NestController.IsConverting == false then
+                -- Conversion finished, wait a bit then verify
+                task.wait(1)
+                
+                -- Verify storage decreased
+                local newBackpackData = GetBackpackDataFromUI()
+                if newBackpackData and newBackpackData.Storage < initialStorage then
+                    conversionComplete = true
+                    break
+                else
+                    -- If storage didn't decrease, conversion might not have started
+                    -- Wait a bit more
+                    if tick() - startTime < 10 then
+                        continue
+                    else
+                        -- After 10 seconds, assume it failed
+                        break
+                    end
+                end
+            end
+        end
+    end
+    
+    if not conversionComplete then
+        WindUI:Notify({
+            Title = "Auto Convert",
+            Content = "Conversion timeout! Returning...",
+            Duration = 3,
+            Image = "alert-triangle"
+        })
+    else
+        WindUI:Notify({
+            Title = "Auto Convert",
+            Content = "Conversion complete!",
+            Duration = 2,
+            Image = "check"
+        })
+    end
+    
+    -- Step 6: Return to original position
+    task.wait(1)
+    if savedPosition and char and char:FindFirstChild("HumanoidRootPart") then
+        char.HumanoidRootPart.CFrame = savedPosition
+        savedPosition = nil
+        
+        WindUI:Notify({
+            Title = "Auto Convert",
+            Content = "Returned to farming position!",
+            Duration = 2,
+            Image = "check"
+        })
+    end
+    
+    isConverting = false
+end
+
+local function CollectOrb(orb)
+    if not orb or not orb.Model or orb.Model.Parent == nil then return false end
+    if orb.Type == "Food" and not settings.CollectFood then return false end
+    if orb.Type == "Item" and not settings.CollectItems then return false end
+    if not settings.InstantCollect and orb.SpawnElapsed < 1 then return false end
+    
+    local success = pcall(function()
+        local OrbsController = GetOrbsController()
+        if OrbsController and OrbsController.CollectOrb then
+            -- Call the CollectOrb function directly
+            OrbsController.CollectOrb(orb)
+        end
+    end)
+    
+    return success
+end
+
+-- Auto Hit Resources Loop
+local autoHitRunning = false
+local lastConvertAttempt = 0
+local convertCooldown = 10 -- Cooldown 10 detik setelah convert
+
+task.spawn(function()
+    task.wait(2) -- Wait for game to load
+    autoHitRunning = true
+    
+    while true do
+        task.wait(0.1) -- Check interval
+        
+        if not settings.AutoHit then continue end
+        
+        -- Get player character
+        local char = lp.Character
+        if not char then continue end
+        
+        local hrp = char:FindFirstChild("HumanoidRootPart")
+        if not hrp then continue end
+        
+        -- Get fields
+        local fields = workspace:FindFirstChild("Fields")
+        if not fields then continue end
+        
+        -- Check backpack using UI data
+        if settings.CheckBackpack then
+            local backpackData = GetBackpackDataFromUI()
+            
+            if backpackData then
+                local current = backpackData.Storage
+                local capacity = backpackData.Capacity
+                
+                -- Auto convert when 95% full or more
+                if current >= (capacity * 0.95) then
+                    -- Check if auto convert enabled and not in cooldown
+                    if settings.AutoConvert and not isConverting then
+                        local currentTime = tick()
+                        if currentTime - lastConvertAttempt >= convertCooldown then
+                            lastConvertAttempt = currentTime
+                            
+                            WindUI:Notify({
+                                Title = "Auto Convert",
+                                Content = "Backpack 95% full! Starting auto convert...",
+                                Duration = 3,
+                                Image = "alert-triangle"
+                            })
+                            
+                            task.spawn(AutoConvertCycle)
+                        end
+                    end
+                    continue
+                end
+                
+                -- Stop if backpack full but auto convert disabled
+                if current >= capacity then
+                    continue
+                end
+            end
+        end
+        
+        -- Collect all resources in range
+        local resourcesToHit = {}
+        
+        for _, field in pairs(fields:GetChildren()) do
+            local resourcesFolder = field:FindFirstChild("Resources")
+            if resourcesFolder then
+                for _, res in pairs(resourcesFolder:GetChildren()) do
+                    if res and res.Parent then
+                        local root = res:FindFirstChild("Root")
+                        if root then
+                            -- Calculate distance from player to resource
+                            local playerPos = hrp.Position
+                            local resourcePos = root.Position
+                            local distance = (playerPos - resourcePos).Magnitude
+                            
+                            -- Add to hit list if in range
+                            if distance <= settings.HitRange then
+                                table.insert(resourcesToHit, res)
+                            end
+                        end
+                    end
+                end
+            end
+        end
+        
+        -- Hit all resources at once
+        for _, res in ipairs(resourcesToHit) do
+            pcall(function()
+                rs.Remotes.Tool.Hit:FireServer(res)
+            end)
+        end
+        
+        -- Small delay if we hit something
+        if #resourcesToHit > 0 then
+            task.wait(0.05)
+        end
+    end
+end)
+
+-- Auto Collect Orbs Loop
+local lastCollectCheck = 0
+runService.Heartbeat:Connect(function(deltaTime)
+    if not settings.AutoCollect then return end
+    
+    lastCollectCheck = lastCollectCheck + deltaTime
+    if lastCollectCheck < 0.1 then return end
+    lastCollectCheck = 0
+    
+    local OrbsController = GetOrbsController()
+    if not OrbsController then return end
+    
+    -- Get active orbs array
+    local activeOrbs = OrbsController.GetActiveOrbs and OrbsController.GetActiveOrbs()
+    if not activeOrbs or type(activeOrbs) ~= "table" or #activeOrbs == 0 then return end
+    
+    local char = lp.Character
+    if not char or not char:FindFirstChild("HumanoidRootPart") then return end
+    
+    -- Collect all orbs
+    for i = #activeOrbs, 1, -1 do -- Loop backwards to avoid issues with table.remove
+        local orb = activeOrbs[i]
+        if orb and orb.Model and orb.Model.Parent then
+            pcall(function()
+                CollectOrb(orb)
+            end)
+        end
+    end
+end)
+
+-- Anti AFK
+lp.Idled:Connect(function()
+    pcall(function()
+        VirtualUser:CaptureController()
+        VirtualUser:ClickButton2(Vector2.new(0,0))
+    end)
+end)
+
+-- Create WindUI Window
+local Window = WindUI:CreateWindow({
+    Title = 'Auto Farm Hub',
+    Icon = "zap",
+    Author = gradient("Avantrix"),
+    Folder = "AutoFarmHub",
+    Size = UDim2.fromOffset(580, 490),
+    Theme = "Plant",
+    HideSearchBar = false,
+    SideBarWidth = 200,
+    Acrylic = false,
+})
+
+Window:EditOpenButton({
+    Title = "Open Auto Farm",
+    Icon = "monitor",
+    CornerRadius = UDim.new(0,16),
+    StrokeThickness = 2,
+    Color = ColorSequence.new(
+        Color3.fromHex("FF0F7B"),
+        Color3.fromHex("F89B29")
+    ),
+    OnlyMobile = false,
+    Enabled = true,
+    Draggable = true,
+})
+
+Window:DisableTopbarButtons({
+    "Fullscreen",
+})
+
+Window:Tag({
+    Title = formatVersion(ScriptVersion),
+    Color = Color3.fromHex("#30ff6a")
+})
+
+WindUI:Notify({
+    Title = "Auto Farm Hub",
+    Content = "Successfully loaded!",
+    Duration = 5,
+    Image = "square-check-big"
+})
+
+-- Create Sections and Tabs
+local Sections = {
+    Main = Window:Section({ Title = "Features", Opened = true }),
+}
+
+local Tabs = {
+    Information = Sections.Main:Tab({
+        Title = "Information",
+        Icon = "info",
+        Desc = "Information about the script"
+    }),
+    Main = Sections.Main:Tab({
+        Title = "Main",
+        Icon = "house",
+        Desc = "Main features and settings"
+    }),
+}
+
+-- INFORMATION TAB
+Tabs.Information:Section({
+    Title = gradient("AUTO FARM HUB"),
+    TextSize = 18,
+})
+
+-- Backpack Status Paragraph (will be updated)
+local BackpackParagraph = Tabs.Information:Paragraph({
+    Title = "Backpack Status",
+    Desc = "Loading backpack data...",
+})
+
+Tabs.Information:Paragraph({
+    Title = "Features",
+    Desc = [[<font color="rgb(255,255,255)">Available Features:</font>
+[+] Auto Hit Resources
+[+] Auto Collect Orbs (Unlimited Range)
+[+] Auto Convert Food at Queen Ant
+[+] Anti AFK
+[+] Smart Backpack Check (UI Based)
+]],
+})
+
+Tabs.Information:Code({
+    Title = "Discord",
+    Code = [[https://discord.gg/cF8YeDPt2G]],
+    OnCopy = function()
+        setclipboard("https://discord.gg/cF8YeDPt2G")
+        WindUI:Notify({
+            Title = "Copied!",
+            Content = "Discord link copied to clipboard",
+            Duration = 2
+        })
+    end
+})
+
+-- AUTO HIT SECTION
+Tabs.Main:Section({
+    Title = "Auto Hit Settings",
+    TextSize = 18,
+})
+
+local AutoHitToggle = Tabs.Main:Toggle({
+    Title = "Enable Auto Hit",
+    Desc = "Automatically hit nearby resources",
+    Value = false,
+    Callback = function(value)
+        settings.AutoHit = value
+        WindUI:Notify({
+            Title = "Auto Hit",
+            Content = value and "Enabled ✓" or "Disabled ✗",
+            Duration = 2,
+            Image = value and "check" or "x"
+        })
+    end
+})
+
+local AutoConvertToggle = Tabs.Main:Toggle({
+    Title = "Auto Convert",
+    Desc = "Auto convert food when backpack is 95% full",
+    Value = false,
+    Callback = function(value)
+        settings.AutoConvert = value
+        if value then
+            WindUI:Notify({
+                Title = "Auto Convert",
+                Content = "Enabled ✓ - Will auto convert at 95% backpack",
+                Duration = 3,
+                Image = "check"
+            })
+        else
+            WindUI:Notify({
+                Title = "Auto Convert",
+                Content = "Disabled ✗",
+                Duration = 2,
+                Image = "x"
+            })
+        end
+    end
+})
+
+-- AUTO COLLECT SECTION
+Tabs.Main:Section({
+    Title = "Auto Collect Settings",
+    TextSize = 18,
+})
+
+local AutoCollectToggle = Tabs.Main:Toggle({
+    Title = "Enable Auto Collect",
+    Desc = "Automatically collect all orbs (unlimited range)",
+    Value = false,
+    Callback = function(value)
+        settings.AutoCollect = value
+        WindUI:Notify({
+            Title = "Auto Collect",
+            Content = value and "Enabled ✓" or "Disabled ✗",
+            Duration = 2,
+            Image = value and "check" or "x"
+        })
+    end
+})
+
+local CollectFoodToggle = Tabs.Main:Toggle({
+    Title = "Collect Food Orbs",
+    Desc = "Enable collecting food orbs",
+    Value = true,
+    Callback = function(value)
+        settings.CollectFood = value
+    end
+})
+
+local CollectItemsToggle = Tabs.Main:Toggle({
+    Title = "Collect Item Orbs",
+    Desc = "Enable collecting item orbs",
+    Value = true,
+    Callback = function(value)
+        settings.CollectItems = value
+    end
+})
+
+local InstantCollectToggle = Tabs.Main:Toggle({
+    Title = "Instant Collect",
+    Desc = "Collect orbs instantly (bypass 1s spawn delay)",
+    Value = true,
+    Callback = function(value)
+        settings.InstantCollect = value
+    end
+})
+
+-- TELEPORT SECTION
+Tabs.Main:Section({
+    Title = "Teleport & Convert",
+    TextSize = 18,
+})
+
+local TeleportButton = Tabs.Main:Button({
+    Title = "Teleport to Queen Ant",
+    Desc = "Teleport to your nest's Queen Ant",
+    Locked = false,
+    Callback = function()
+        local success, message = TeleportToQueenAnt()
+        WindUI:Notify({
+            Title = "Teleport to Queen Ant",
+            Content = message or (success and "Teleported successfully!" or "Failed to teleport."),
+            Duration = 3,
+            Image = success and "square-check-big" or "square-x-big"
+        })
+    end
+})
+
+local ConvertButton = Tabs.Main:Button({
+    Title = "Teleport & Auto Convert",
+    Desc = "Teleport to Queen, convert food, and return",
+    Locked = false,
+    Callback = function()
+        task.spawn(AutoConvertCycle)
+    end
+})
+
+-- Set Toggle Key and Settings
+Window:SetToggleKey(Enum.KeyCode.RightShift)
+WindUI:SetNotificationLower(true)
+Window:SelectTab(1)
+
+-- Update Backpack Status in Real-time
+task.spawn(function()
+    task.wait(5) -- Wait for game UI to load
+    
+    while true do
+        task.wait(1) -- Update every 1 second
+        
+        local success, err = pcall(function()
+            -- Get data directly from game UI
+            local backpackData = GetBackpackDataFromUI()
+            
+            if not backpackData then
+                BackpackParagraph:SetDesc("Waiting for game UI to load...")
+                return
+            end
+            
+            local current = backpackData.Storage
+            local max = backpackData.Capacity
+            
+            if max == 0 then max = 1 end -- Prevent division by zero
+            
+            local percentage = math.floor((current / max) * 100)
+            
+            -- Color based on fullness
+            local color = "rgb(0,255,0)" -- Green
+            if percentage >= 90 then
+                color = "rgb(255,0,0)" -- Red
+            elseif percentage >= 70 then
+                color = "rgb(255,165,0)" -- Orange
+            elseif percentage >= 50 then
+                color = "rgb(255,255,0)" -- Yellow
+            end
+            
+            -- Format numbers
+            local function formatNumber(num)
+                if num >= 1000000000 then
+                    return string.format("%.2fB", num / 1000000000)
+                elseif num >= 1000000 then
+                    return string.format("%.2fM", num / 1000000)
+                elseif num >= 1000 then
+                    return string.format("%.2fK", num / 1000)
+                else
+                    return tostring(math.floor(num))
+                end
+            end
+            
+            local statusText = string.format(
+                '<font color="%s">Current: %s / %s (%d%%)</font>\n' ..
+                '<font color="rgb(200,200,200)">Available Space: %s</font>\n' ..
+                '<font color="rgb(150,150,150)">Status: %s</font>',
+                color,
+                formatNumber(current),
+                formatNumber(max),
+                percentage,
+                formatNumber(max - current),
+                percentage >= 100 and "FULL!" or (percentage >= 90 and "Almost Full" or (percentage >= 70 and "High" or (percentage >= 50 and "Medium" or "Low")))
+            )
+            
+            -- Update the paragraph
+            if BackpackParagraph then
+                BackpackParagraph:SetDesc(statusText)
+            end
+        end)
+        
+        if not success then
+            pcall(function()
+                BackpackParagraph:SetDesc('<font color="rgb(255,100,100)">Error: ' .. tostring(err) .. '</font>')
+            end)
+        end
+    end
+end)
