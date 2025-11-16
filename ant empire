@@ -14,7 +14,7 @@ local WindUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/XenonL
 WindUI.TransparencyValue = 0.2
 WindUI:SetTheme("Plant")
 
-local ScriptVersion = "v1.5"
+local ScriptVersion = "v1.4"
 
 -- Detect if getconnections is available
 local hasGetConnections = type(getconnections) == "function"
@@ -35,8 +35,56 @@ local settings = {
 local isConverting = false
 local savedPosition = nil
 
+-- Gradient Functions
+local function interpolate_color(color1, color2, t)
+    local r = math.floor((1 - t) * color1[1] + t * color2[1])
+    local g = math.floor((1 - t) * color1[2] + t * color2[2])
+    local b = math.floor((1 - t) * color1[3] + t * color2[3])
+    return string.format("#%02x%02x%02x", r, g, b)
+end
+
+local function hex_to_rgb(hex)
+    if hex:sub(1, 1) == "#" then
+        hex = hex:sub(2)
+    end
+    return {
+        tonumber(hex:sub(1, 2), 16),
+        tonumber(hex:sub(3, 4), 16),
+        tonumber(hex:sub(5, 6), 16)
+    }
+end
+
+local function gradient(word)
+    if not word or #word == 0 then
+        return "Error"
+    end
+    local start_color = hex_to_rgb("ea00ff")
+    local end_color = hex_to_rgb("5700ff")
+    local gradient_word = ""
+    local word_len = #word
+    local step = 1.0 / math.max(word_len - 1, 1)
+    for i = 1, word_len do
+        local t = step * (i - 1)
+        local color = interpolate_color(start_color, end_color, t)
+        gradient_word = gradient_word .. string.format('<font color="%s">%s</font>', color, word:sub(i, i))
+    end
+    return gradient_word
+end
+
+local function formatVersion(version)
+    local formattedVersion = "  v" .. version:sub(2):gsub(".", "%0.")
+    return formattedVersion:sub(1, #formattedVersion - 1)
+end
 
 -- Helper Functions
+local function GetPlayerData()
+    local success, result = pcall(function()
+        local DataController = require(rs.Modules.Framework).GetController("DataController")
+        return DataController.GetData()
+    end)
+    return success and result or nil
+end
+
 local function GetBackpackDataFromUI()
     local success, result = pcall(function()
         local PlayerGui = lp:WaitForChild("PlayerGui")
@@ -79,6 +127,10 @@ local function GetBackpackDataFromUI()
     return success and result or nil
 end
 
+local function GetToolRange()
+    return settings.HitRange
+end
+
 local function GetOrbsController()
     local success, result = pcall(function()
         return require(rs.Modules.Framework).GetController("OrbsController")
@@ -93,50 +145,163 @@ local function GetNestController()
     return success and result or nil
 end
 
-local function FireProximityPrompt(proximityPrompt, holdTime)
-    holdTime = holdTime or 0.5
-    local success = false
+-- Enhanced FireProximityPrompt Function with getconnections support
+local function FireProximityPromptEnhanced(proximityPrompt, options)
+    options = options or {}
+    local holdTime = options.holdTime or 0
+    local useLoop = options.useLoop or false
+    local loopDuration = options.loopDuration or 5
+    local loopDelay = options.loopDelay or 0.1
 
-    pcall(function()
-        if fireproximityprompt then
-            fireproximityprompt(proximityPrompt, holdTime)
-            success = true
-            return
-        end
-    end)
+    local methodsUsed = {}
+    local successCount = 0
 
-    if success then return true end
+    local function tryFireMethods()
+        local anySuccess = false
 
-    if hasGetConnections then
+        -- Method 1: Direct fireproximityprompt (Most Reliable for most executors)
         pcall(function()
-            if proximityPrompt.PromptButtonHoldBegan then
-                local connections = getconnections(proximityPrompt.PromptButtonHoldBegan)
-                if connections and #connections > 0 then
-                    connections[1]:Fire()
-                    task.wait(holdTime)
-                    if proximityPrompt.PromptButtonHoldEnded then
-                        local endConnections = getconnections(proximityPrompt.PromptButtonHoldEnded)
-                        if endConnections and #endConnections > 0 then
-                            endConnections[1]:Fire()
-                        end
-                    end
-                    success = true
-                    return
+            if fireproximityprompt then
+                fireproximityprompt(proximityPrompt, holdTime)
+                if not methodsUsed["fireproximityprompt"] then
+                    methodsUsed["fireproximityprompt"] = true
+                    successCount = successCount + 1
                 end
+                anySuccess = true
             end
         end)
+
+        -- Method 2: Via getconnections on PromptTriggered (Best for advanced executors)
+        if hasGetConnections then
+            pcall(function()
+                if proximityPrompt and proximityPrompt.PromptTriggered then
+                    local connections = getconnections(proximityPrompt.PromptTriggered)
+                    if connections and #connections > 0 then
+                        for _, connection in pairs(connections) do
+                            if connection and connection.Function then
+                                pcall(function()
+                                    connection:Fire()
+                                end)
+                                if not methodsUsed["getconnections_PromptTriggered"] then
+                                    methodsUsed["getconnections_PromptTriggered"] = true
+                                    successCount = successCount + 1
+                                end
+                                anySuccess = true
+                            end
+                        end
+                    end
+                end
+            end)
+        end
+
+        -- Method 3: Via getconnections on PromptButtonHoldBegan
+        if hasGetConnections then
+            pcall(function()
+                if proximityPrompt and proximityPrompt.PromptButtonHoldBegan then
+                    local connections = getconnections(proximityPrompt.PromptButtonHoldBegan)
+                    if connections and #connections > 0 then
+                        for _, connection in pairs(connections) do
+                            if connection and connection.Function then
+                                pcall(function()
+                                    connection:Fire()
+                                end)
+                                if not methodsUsed["getconnections_HoldBegan"] then
+                                    methodsUsed["getconnections_HoldBegan"] = true
+                                    successCount = successCount + 1
+                                end
+                                anySuccess = true
+                            end
+                        end
+                    end
+                end
+            end)
+        end
+
+        -- Method 4: Via PromptTriggered:Fire() (Fallback for basic executors)
+        pcall(function()
+            if proximityPrompt and proximityPrompt.PromptTriggered then
+                proximityPrompt.PromptTriggered:Fire()
+                if not methodsUsed["PromptTriggered_Fire"] then
+                    methodsUsed["PromptTriggered_Fire"] = true
+                    successCount = successCount + 1
+                end
+                anySuccess = true
+            end
+        end)
+
+        -- Method 5: Via Triggered signal (Alternative)
+        pcall(function()
+            if proximityPrompt and proximityPrompt.Triggered then
+                proximityPrompt.Triggered:Fire()
+                if not methodsUsed["Triggered_Fire"] then
+                    methodsUsed["Triggered_Fire"] = true
+                    successCount = successCount + 1
+                end
+                anySuccess = true
+            end
+        end)
+
+        -- Method 6: Via ProximityPromptService
+        pcall(function()
+            local ProximityPromptService = game:GetService("ProximityPromptService")
+            if ProximityPromptService and ProximityPromptService.PromptButtonHoldBegan then
+                ProximityPromptService.PromptButtonHoldBegan:Fire(proximityPrompt)
+                if not methodsUsed["ProximityPromptService"] then
+                    methodsUsed["ProximityPromptService"] = true
+                    successCount = successCount + 1
+                end
+                anySuccess = true
+            end
+        end)
+
+        -- Method 7: Direct ProximityPromptService:FirePrompt
+        pcall(function()
+            local ProximityPromptService = game:GetService("ProximityPromptService")
+            if ProximityPromptService then
+                ProximityPromptService:FirePrompt(proximityPrompt)
+                if not methodsUsed["FirePrompt"] then
+                    methodsUsed["FirePrompt"] = true
+                    successCount = successCount + 1
+                end
+                anySuccess = true
+            end
+        end)
+
+        return anySuccess
     end
 
-    if success then return true end
+    if useLoop then
+        local startTime = tick()
+        local loopCount = 0
 
-    pcall(function()
-        if proximityPrompt.PromptTriggered then
-            proximityPrompt.PromptTriggered:Fire()
-            success = true
+        while tick() - startTime < loopDuration do
+            tryFireMethods()
+            loopCount = loopCount + 1
+            task.wait(loopDelay)
         end
-    end)
 
-    return success
+        local methodsList = {}
+        for method, _ in pairs(methodsUsed) do
+            table.insert(methodsList, method)
+        end
+
+        return true, string.format("Looped %d times in %.1fs using %d methods: %s",
+            loopCount, loopDuration, successCount, table.concat(methodsList, ", "))
+    else
+        local success = tryFireMethods()
+
+        local methodsList = {}
+        for method, _ in pairs(methodsUsed) do
+            table.insert(methodsList, method)
+        end
+
+        if success then
+            return true, string.format("Triggered using %d methods: %s",
+                successCount, table.concat(methodsList, ", "))
+        else
+            return false, "All methods failed"
+        end
+    end
 end
 
 local function TeleportToQueenAnt()
@@ -175,67 +340,81 @@ local function TeleportToQueenAnt()
 end
 
 local function TriggerConvertWithLoop()
-    local NestController = GetNestController()
-    if not NestController then
-        return false, "NestController not found"
-    end
-
-    local nestFolder = NestController.NestFolder
-    if not nestFolder then
-        return false, "Nest not found!"
-    end
-
-    local queenPoint = nestFolder:WaitForChild("QueenPoint", 5)
-    if not queenPoint then
-        return false, "Queen Ant point not found!"
-    end
-
-    local proximityPrompt = queenPoint:FindFirstChild("ProximityPrompt")
-    if not proximityPrompt then
-        return false, "ProximityPrompt not found!"
-    end
-
-    local backpackData = GetBackpackDataFromUI()
-    if not backpackData or backpackData.Storage <= 0 then
-        return false, "No food to convert!"
-    end
-
-    if not proximityPrompt.Enabled then
-        return false, "Store Food is not available!"
-    end
-
-    if proximityPrompt.ActionText ~= "Store Food" then
-        return false, "Action is not 'Store Food' - Current: " .. tostring(proximityPrompt.ActionText)
-    end
-
-    local maxLoopTime = 15
-    local startTime = tick()
-    local conversionStarted = false
-    local loopCount = 0
-
-    while tick() - startTime < maxLoopTime do
-        loopCount = loopCount + 1
-        FireProximityPrompt(proximityPrompt, 0.5)
-        task.wait(0.2)
-
-        local currentNestController = GetNestController()
-        if currentNestController and currentNestController.IsConverting == true then
-            conversionStarted = true
-            break
+    local success, message = pcall(function()
+        local NestController = GetNestController()
+        if not NestController then
+            return false, "NestController not found"
         end
 
-        local currentBackpackData = GetBackpackDataFromUI()
-        if currentBackpackData and currentBackpackData.Storage < backpackData.Storage then
-            conversionStarted = true
-            break
+        local nestFolder = NestController.NestFolder
+        if not nestFolder then
+            return false, "Nest not found!"
         end
-    end
 
-    if conversionStarted then
-        return true, string.format("✓ Started after %d attempts", loopCount)
-    else
-        return false, string.format("✗ Failed after %d attempts", loopCount)
-    end
+        local queenPoint = nestFolder:WaitForChild("QueenPoint", 5)
+        if not queenPoint then
+            return false, "Queen Ant point not found!"
+        end
+
+        local proximityPrompt = queenPoint:FindFirstChild("ProximityPrompt")
+        if not proximityPrompt then
+            return false, "ProximityPrompt not found!"
+        end
+
+        local backpackData = GetBackpackDataFromUI()
+        if not backpackData or backpackData.Storage <= 0 then
+            return false, "No food to convert!"
+        end
+
+        if not proximityPrompt.Enabled then
+            return false, "Store Food is not available!"
+        end
+
+        if proximityPrompt.ActionText ~= "Store Food" then
+            return false, "Action is not 'Store Food' - Current: " .. tostring(proximityPrompt.ActionText)
+        end
+
+        local maxLoopTime = 10
+        local startTime = tick()
+        local conversionStarted = false
+        local loopCount = 0
+
+        while tick() - startTime < maxLoopTime do
+            loopCount = loopCount + 1
+
+            -- Fire proximity prompt using all available methods
+            FireProximityPromptEnhanced(proximityPrompt, {
+                holdTime = 0,
+                useLoop = false
+            })
+
+            task.wait(0.1)
+
+            -- Check if conversion has started
+            local currentNestController = GetNestController()
+            if currentNestController and currentNestController.IsConverting == true then
+                conversionStarted = true
+                break
+            end
+
+            -- Also check if backpack storage decreased (alternative detection)
+            local currentBackpackData = GetBackpackDataFromUI()
+            if currentBackpackData and currentBackpackData.Storage < backpackData.Storage then
+                conversionStarted = true
+                break
+            end
+        end
+
+        if conversionStarted then
+            return true, string.format("Conversion started after %d attempts in %.1fs (getconnections: %s)",
+                loopCount, tick() - startTime, hasGetConnections and "Yes" or "No")
+        else
+            return false, string.format("Failed to start conversion after %d attempts in %.1fs",
+                loopCount, tick() - startTime)
+        end
+    end)
+
+    return success, message
 end
 
 local function ReturnToSavedPosition()
@@ -617,7 +796,7 @@ end)
 local Window = WindUI:CreateWindow({
     Title = 'Auto Farm Hub',
     Icon = "zap",
-    Author = "Avantrix",
+    Author = gradient("Avantrix"),
     Folder = "AutoFarmHub",
     Size = UDim2.fromOffset(580, 490),
     Theme = "Plant",
@@ -640,10 +819,12 @@ Window:EditOpenButton({
     Draggable = true,
 })
 
-Window:DisableTopbarButtons({"Fullscreen"})
+Window:DisableTopbarButtons({
+    "Fullscreen",
+})
 
 Window:Tag({
-    Title = ScriptVersion,
+    Title = formatVersion(ScriptVersion),
     Color = Color3.fromHex("#30ff6a")
 })
 
@@ -674,7 +855,7 @@ local Tabs = {
 
 -- INFORMATION TAB
 Tabs.Information:Section({
-    Title = "AUTO FARM HUB",
+    Title = gradient("AUTO FARM HUB"),
     TextSize = 18,
 })
 
@@ -683,22 +864,28 @@ local BackpackParagraph = Tabs.Information:Paragraph({
     Desc = "Loading backpack data...",
 })
 
+local executorInfo = string.format(
+    '<font color="%s">Executor: %s</font>\n<font color="rgb(200,200,200)">getconnections: %s</font>',
+    hasGetConnections and "rgb(0,255,0)" or "rgb(255,165,0)",
+    identifyexecutor and identifyexecutor() or "Unknown",
+    hasGetConnections and "Available" or "Not Available"
+)
+
 Tabs.Information:Paragraph({
     Title = "Executor Info",
-    Desc = string.format('<font color="%s">%s • getconnections: %s</font>',
-        hasGetConnections and "rgb(0,255,0)" or "rgb(255,165,0)",
-        identifyexecutor and identifyexecutor() or "Unknown Executor",
-        hasGetConnections and "✓" or "✗"
-    ),
+    Desc = executorInfo,
 })
 
 Tabs.Information:Paragraph({
     Title = "Features",
-    Desc = [[<font color="rgb(255,255,255)">[+] Auto Hit Resources
-[+] Auto Collect Orbs
-[+] Auto Convert (Loop)
+    Desc = [[<font color="rgb(255,255,255)">Available Features:</font>
+[+] Auto Hit Resources
+[+] Auto Collect Orbs (Unlimited Range)
+[+] Auto Convert Food at Queen Ant (Loop firing until started)
 [+] Anti AFK
-[+] Smart Backpack</font>]],
+[+] Smart Backpack Check (UI Based)
+[+] Multi-Method ProximityPrompt (7 methods)
+]],
 })
 
 Tabs.Information:Code({
