@@ -803,17 +803,59 @@ local function startBlat()
         end
 
         local rodNotEquipped = false
+        local lastCastTime = 0
+        local avgPing = 0
+        local pingHistory = {}
+        local maxPingHistory = 10
+        
+        -- Function untuk menghitung rata-rata ping
+        local function updatePing()
+            local ping = game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValue()
+            
+            table.insert(pingHistory, ping)
+            if #pingHistory > maxPingHistory then
+                table.remove(pingHistory, 1)
+            end
+            
+            local total = 0
+            for _, p in ipairs(pingHistory) do
+                total = total + p
+            end
+            avgPing = total / #pingHistory
+            
+            return avgPing
+        end
+        
+        -- Update ping setiap detik
+        task.spawn(function()
+            while blActive and getgenv().AutoFish do
+                updatePing()
+                task.wait(1)
+            end
+        end)
 
         local function cast()
             if rodNotEquipped then return end
+            
+            local currentTime = tick()
+            local timeSinceLastCast = currentTime - lastCastTime
+            
+            -- Konversi ping dari ms ke seconds, lalu kompensasi
+            local pingCompensation = avgPing / 1000
+            local effectiveDelay = math.max(0.1, getgenv().DelayCast - pingCompensation)
+            
+            -- Pastikan tidak cast terlalu cepat
+            if timeSinceLastCast < effectiveDelay then
+                return
+            end
+            
+            lastCastTime = currentTime
             
             task.spawn(function()
                 pcall(function()
                     rfCancel:InvokeServer()
                     reEquip:FireServer(1)
-                    task.wait(0.02)
                     rfCharge:InvokeServer(tick())
-                    task.wait(0.02)
                     rfStart:InvokeServer(-1.25, 100)
                 end)
             end)
@@ -825,11 +867,12 @@ local function startBlat()
             
             local hd = plr.Character and plr.Character:FindFirstChild("Head")
             if hd and d.Container == hd then
-                task.wait(getgenv().DelayComplete)
+                -- Kompensasi ping untuk delay complete
+                local pingCompensation = avgPing / 1000
+                local adjustedDelay = math.max(0, getgenv().DelayComplete - (pingCompensation * 0.5))
                 
-                for i = 1, 15 do
-                    reFish:FireServer()
-                end
+                task.wait(adjustedDelay)
+                reFish:FireServer()
             end
         end)
 
@@ -847,18 +890,24 @@ local function startBlat()
             end
         end)
 
-        -- MAIN AUTO CAST LOOP
+        -- MAIN AUTO CAST LOOP dengan adaptive timing
         while blActive and getgenv().AutoFish do
             if not rodNotEquipped then
                 cast()
             end
             
-            task.wait(getgenv().DelayCast)
+            -- Gunakan delay yang sudah dikompensasi dengan ping
+            local pingCompensation = avgPing / 1000
+            local adaptiveDelay = math.max(0.1, getgenv().DelayCast - pingCompensation)
+            
+            task.wait(adaptiveDelay)
         end
         
         stopFish()
     end)
 end
+
+
 -- WEBHOOK TAB
 local WebhookSection = Tabs.Webhook:Section({
     Title = "Discord Webhook",
