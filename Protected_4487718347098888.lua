@@ -854,9 +854,9 @@ local function startBlat()
             task.spawn(function()
                 pcall(function()
                     rfCancel:InvokeServer()
-                    reEquip:FireServer(1)
+                    -- reEquip:FireServer(1)
                     rfCharge:InvokeServer(tick())
-                    rfStart:InvokeServer(-1.25, 100)
+                    rfStart:InvokeServer(-1.25, 0.1)
                 end)
             end)
         end
@@ -872,7 +872,9 @@ local function startBlat()
                 local adjustedDelay = math.max(0, getgenv().DelayComplete - (pingCompensation * 0.5))
                 
                 task.wait(adjustedDelay)
-                reFish:FireServer()
+                for i = 1, 3 do
+                    reFish:FireServer()
+                end
             end
         end)
 
