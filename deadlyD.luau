@@ -1,138 +1,180 @@
--- ts file was generated at discord.gg/25ms
+-- Deadly Delivery Script (Cleaned Version)
+-- Original from discord.gg/25ms
 
-
+-- Remove existing GUI if present
 if game:GetService("CoreGui"):FindFirstChild("ToraScript") then
     game:GetService("CoreGui").ToraScript:Destroy()
 end
-local v1 = loadstring(game:HttpGet("https://raw.githubusercontent.com/liebertsx/Tora-Library/main/src/librarynew", true))()
-local v2 = v1:CreateWindow("Deadly Delivery")
-v2:AddToggle({
+
+-- Load library
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/liebertsx/Tora-Library/main/src/librarynew", true))()
+local Window = Library:CreateWindow("Deadly Delivery")
+
+-- Services
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+-- Variables
+local LocalPlayer = Players.LocalPlayer
+local CurrentTween = nil
+
+-- Find Items Toggle
+Window:AddToggle({
     text = "Find Items",
     flag = "toggle",
     state = false,
-    callback = function(p3)
-        _G.Find = p3
-        print("Find: ", p3)
-        if p3 then
+    callback = function(state)
+        _G.Find = state
+        print("Find:", state)
+        if state then
             Find()
         end
     end
 })
+
+-- Check if all 4 slots are filled
+local function AllSlotsFilled()
+    local mainGui = LocalPlayer.PlayerGui.Main.HomePage
+    local bottomSection = mainGui.Bottom
+    
+    for slot = 1, 4 do
+        local slotUid = bottomSection[tostring(slot)]:GetAttribute("uid")
+        if slotUid == nil or slotUid == "" then
+            return false
+        end
+    end
+    return true
+end
+
+-- Collect items from world
+local function CollectItems()
+    local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+    local rootPart = character:WaitForChild("HumanoidRootPart")
+    
+    -- Check interactive items (boxes, containers, etc.)
+    for _, descendant in pairs(workspace.GameSystem.InteractiveItem:GetDescendants()) do
+        if descendant:GetAttribute("Open") == false and 
+           descendant:FindFirstChild("Root") and 
+           not string.find(descendant.Name, "Cabinet") then
+            
+            -- Teleport to item
+            rootPart.CFrame = CFrame.new(descendant.Interactable.Position)
+            wait()
+            
+            -- Open container
+            ReplicatedStorage:WaitForChild("Remote_Event"):FireServer(unpack({
+                "\r\239\191\189\239\191\189\1",
+                {descendant}
+            }))
+            wait()
+            
+            -- Interact with container
+            ReplicatedStorage:WaitForChild("Remote_Event"):FireServer(unpack({
+                "\7\239\191\189\239\191\189\1",
+                {descendant}
+            }))
+            return
+        end
+    end
+    
+    -- Check loose items in world
+    for _, descendant in pairs(workspace.GameSystem.Loots.World:GetDescendants()) do
+        if (descendant.Name == "Interactable" or descendant.Name == "Handle") and 
+           descendant.Parent:GetAttribute("uid") then
+            
+            -- Teleport to item
+            rootPart.CFrame = CFrame.new(descendant.Position)
+            wait()
+            
+            -- Pick up item
+            local args1 = {
+                "\r\239\191\189\239\191\189\1",
+                {descendant.Parent}
+            }
+            ReplicatedStorage:WaitForChild("Remote_Event"):FireServer(unpack(args1))
+            wait()
+            
+            -- Confirm pickup
+            local args2 = {
+                "\7\239\191\189\239\191\189\1",
+                {descendant.Parent}
+            }
+            ReplicatedStorage:WaitForChild("Remote_Event"):FireServer(unpack(args2))
+            return
+        end
+    end
+end
+
+-- Move to elevator smoothly
+local function MoveToElevator()
+    local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+    local rootPart = character:WaitForChild("HumanoidRootPart")
+    local elevatorCheck = workspace["\239\191\189\239\191\189\230\162\175"].Left4.Check
+    
+    local targetPosition = elevatorCheck.Position
+    local distance = (rootPart.Position - targetPosition).Magnitude
+    local tweenTime = math.clamp(distance / 45, 0.25, 2)
+    
+    -- Cancel previous tween if exists
+    if CurrentTween then
+        CurrentTween:Cancel()
+    end
+    
+    -- Create and play tween
+    CurrentTween = TweenService:Create(
+        rootPart,
+        TweenInfo.new(tweenTime, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+        {CFrame = CFrame.new(targetPosition)}
+    )
+    CurrentTween:Play()
+    wait(3)
+end
+
+-- Main Find function
 function Find()
     _G.Find = true
     task.spawn(function()
         while task.wait(0.2) and _G.Find do
             pcall(function()
-                local v4 = game:GetService("Players")
-                local vu5 = game:GetService("TweenService")
-                local v6 = v4.LocalPlayer
-                local vu7 = (v6.Character or v6.CharacterAdded:Wait()):WaitForChild("HumanoidRootPart")
-                local v8 = v6.PlayerGui.Main.HomePage
-                local vu9 = v8.Bottom
-                local vu10 = workspace["\239\191\189\239\191\189\230\162\175"].Left4.Check
-                local vu11 = nil
-                local function v14()
-                    for v12 = 1, 4 do
-                        local v13 = vu9[tostring(v12)]:GetAttribute("uid")
-                        if v13 == nil or v13 == "" then
-                            return false
-                        end
-                    end
-                    return true
-                end
-                local function v25()
-                    local v15, v16, v17 = pairs(workspace.GameSystem.InteractiveItem:GetDescendants())
-                    while true do
-                        local v18
-                        v17, v18 = v15(v16, v17)
-                        if v17 == nil then
-                            break
-                        end
-                        if v18:GetAttribute("Open") == false and (v18:FindFirstChild("Root") and not string.find(v18.Name, "Cabinet")) then
-                            vu7.CFrame = CFrame.new(v18.Interactable.Position)
-                            wait()
-                            game:GetService("ReplicatedStorage"):WaitForChild("Remote_Event"):FireServer(unpack({
-                                "\r\239\191\189\239\191\189\1",
-                                {
-                                    v18
-                                }
-                            }))
-                            wait()
-                            game:GetService("ReplicatedStorage"):WaitForChild("Remote_Event"):FireServer(unpack({
-                                "\7\239\191\189\239\191\189\1",
-                                {
-                                    v18
-                                }
-                            }))
-                            return
-                        end
-                    end
-                    local v19, v20, v21 = pairs(workspace.GameSystem.Loots.World:GetDescendants())
-                    while true do
-                        local v22
-                        v21, v22 = v19(v20, v21)
-                        if v21 == nil then
-                            break
-                        end
-                        if (v22.Name == "Interactable" or v22.Name == "Handle") and v22.Parent:GetAttribute("uid") then
-                            vu7.CFrame = CFrame.new(v22.Position)
-                            wait()
-                            local v23 = {
-                                "\r\239\191\189\239\191\189\1",
-                                {
-                                    v22.Parent
-                                }
-                            }
-                            game:GetService("ReplicatedStorage"):WaitForChild("Remote_Event"):FireServer(unpack(v23))
-                            wait()
-                            local v24 = {
-                                "\7\239\191\189\239\191\189\1",
-                                {
-                                    v22.Parent
-                                }
-                            }
-                            game:GetService("ReplicatedStorage"):WaitForChild("Remote_Event"):FireServer(unpack(v24))
-                            return
-                        end
-                    end
-                end
-                local function v29()
-                    local v26 = vu10.Position
-                    local v27 = (vu7.Position - v26).Magnitude
-                    local v28 = math.clamp(v27 / 45, 0.25, 2)
-                    if vu11 then
-                        vu11:Cancel()
-                    end
-                    vu11 = vu5:Create(vu7, TweenInfo.new(v28, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-                        CFrame = CFrame.new(v26)
-                    })
-                    vu11:Play()
-                    wait(3)
-                end
-                local v30 = v8.HandsFull.Visible
-                local v31 = v14()
-                if v30 then
-                    v29()
+                local mainGui = LocalPlayer.PlayerGui.Main.HomePage
+                local handsFull = mainGui.HandsFull.Visible
+                local slotsFilled = AllSlotsFilled()
+                
+                -- If hands full or all slots filled, go to elevator
+                if handsFull then
+                    MoveToElevator()
                     return
-                elseif v31 then
-                    v29()
+                elseif slotsFilled then
+                    MoveToElevator()
                 else
-                    if vu11 then
-                        local v32 = vu11
-                        vu11.Cancel(v32)
-                        vu11 = nil
+                    -- Cancel tween if running
+                    if CurrentTween then
+                        CurrentTween:Cancel()
+                        CurrentTween = nil
                     end
-                    v25()
+                    -- Collect items
+                    CollectItems()
                 end
             end)
         end
     end)
 end
-v2:AddButton({
+
+-- Go to Elevator Button
+Window:AddButton({
     text = "Go to Elevator",
     flag = "button",
     callback = function()
-        game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["\239\191\189\239\191\189\230\162\175"].Left4.Check.CFrame * CFrame.new(0, 0, 10)
+        local character = game.Players.LocalPlayer.Character
+        local rootPart = character and character:FindFirstChild("HumanoidRootPart")
+        
+        if rootPart then
+            local elevatorCheck = workspace["\239\191\189\239\191\189\230\162\175"].Left4.Check
+            rootPart.CFrame = elevatorCheck.CFrame * CFrame.new(0, 0, 10)
+        end
     end
 })
-v1:Init()
+
+-- Initialize GUI
+Library:Init()
