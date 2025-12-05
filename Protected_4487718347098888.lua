@@ -727,7 +727,7 @@ if _G.httpRequest then
     local v162 = loadstring(game:HttpGet("https://raw.githubusercontent.com/xenlua/x/refs/heads/main/Protected_1406458423315859.lua"))():Window({
         Title = "Xenon |",
         Footer = "Version 1.0.8",
-        Image = "132435516080103",
+        Image = "100227182680708",
         Color = Color3.fromRGB(0, 208, 255),
         Theme = 9542022979,
         Version = 4
