@@ -1,918 +1,717 @@
 // ==UserScript==
-// @name         Enhanced work.ink Bypass
-// @namespace    http://tampermonkey.net/
-// @version      2025-01-15-v2
-// @description  Ultra-fast enhanced bypass for work.ink shortened links with premium UI
-// @author       Enhanced by AI
-// @match        https://work.ink/*
-// @match        https://*.work.ink/*
+// @name         kxBypass LootLabs Enhanced
+// @namespace    https://discord.gg/pqEBSTqdxV
+// @version      v2.0
+// @description  Ultra-Fast Enhanced Bypass for Lootlinks - Premium UI & Lightning Speed
+// @author       awaitlol.
+// @match        https://lootlinks.co/*
+// @match        https://loot-links.com/*
+// @match        https://loot-link.com/*
+// @match        https://linksloot.net/*
+// @match        https://lootdest.com/*
+// @match        https://lootlink.org/*
+// @match        https://lootdest.info/*
+// @match        https://lootdest.org/*
+// @match        https://links-loot.com/*
+// @icon         https://i.pinimg.com/736x/aa/2a/e5/aa2ae567da2c40ac6834a44abbb9e9ff.jpg
+// @grant        none
 // @run-at       document-start
-// @icon         https://www.google.com/s2/favicons?sz=64&domain=work.ink
-// @grant        GM_addStyle
-// @grant        GM_setValue
-// @grant        GM_getValue
-// @grant        GM_notification
-// @downloadURL  https://github.com/xenlua/x/raw/refs/heads/main/wi.user.js
-// @updateURL    https://github.com/xenlua/x/raw/refs/heads/main/wi.user.js
 // ==/UserScript==
 
-(function() {
+(function () {
     "use strict";
 
-    const DEBUG = GM_getValue('debug_mode', false);
-    const FAST_MODE = true;
-    const MIN_WAIT_TIME = 3; // Reduced from 15 seconds
-    const MAX_WAIT_TIME = 8; // Reduced from 45 seconds
-
-    // Enhanced logging with timestamps and better formatting
-    const oldLog = unsafeWindow.console.log;
-    const oldWarn = unsafeWindow.console.warn;
-    const oldError = unsafeWindow.console.error;
-
-    function log(...args) {
-        if (DEBUG) oldLog(`[${new Date().toLocaleTimeString()}] [UnShortener]`, ...args);
-    }
-    function warn(...args) {
-        if (DEBUG) oldWarn(`[${new Date().toLocaleTimeString()}] [UnShortener]`, ...args);
-    }
-    function error(...args) {
-        if (DEBUG) oldError(`[${new Date().toLocaleTimeString()}] [UnShortener]`, ...args);
-    }
-
-    // Prevent console clearing in debug mode
-    if (DEBUG) unsafeWindow.console.clear = function() {};
-
-    // Enhanced UI Styles
-    GM_addStyle(`
-        .bypass-container {
-            position: fixed !important;
-            top: 20px !important;
-            right: 20px !important;
-            z-index: 999999 !important;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
-            max-width: 350px !important;
-            min-width: 280px !important;
-        }
-
-        .bypass-card {
-            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%) !important;
-            border-radius: 12px !important;
-            padding: 16px 20px !important;
-            box-shadow: 0 12px 40px rgba(255, 107, 107, 0.4) !important;
-            backdrop-filter: blur(10px) !important;
-            border: 1px solid rgba(255, 255, 255, 0.2) !important;
-            color: white !important;
-            font-size: 14px !important;
-            line-height: 1.4 !important;
-            animation: slideIn 0.3s ease-out !important;
-        }
-
-        @keyframes slideIn {
-            from {
-                transform: translateX(100%) !important;
-                opacity: 0 !important;
-            }
-            to {
-                transform: translateX(0) !important;
-                opacity: 1 !important;
-            }
-        }
-
-        .bypass-header {
-            display: flex !important;
-            align-items: center !important;
-            margin-bottom: 12px !important;
-            font-weight: 600 !important;
-            font-size: 16px !important;
-        }
-
-        .bypass-icon {
-            margin-right: 8px !important;
-            font-size: 18px !important;
-        }
-
-        .bypass-status {
-            margin-bottom: 8px !important;
-            opacity: 0.9 !important;
-        }
-
-        .bypass-progress {
-            width: 100% !important;
-            height: 4px !important;
-            background: rgba(255, 255, 255, 0.2) !important;
-            border-radius: 2px !important;
-            overflow: hidden !important;
-            margin-top: 8px !important;
-        }
-
-        .bypass-progress-bar {
-            height: 100% !important;
-            background: linear-gradient(90deg, #00ff88, #00cc6a) !important;
-            border-radius: 2px !important;
-            transition: width 0.3s ease !important;
-            width: 0% !important;
-        }
-
-        .bypass-countdown {
-            text-align: center !important;
-            font-size: 18px !important;
-            font-weight: bold !important;
-            margin: 8px 0 !important;
-            color: #00ff88 !important;
-            text-shadow: 0 0 10px rgba(0, 255, 136, 0.5) !important;
-        }
-
-        .bypass-url {
-            background: rgba(0, 0, 0, 0.2) !important;
-            padding: 8px 12px !important;
-            border-radius: 6px !important;
-            font-family: 'Courier New', monospace !important;
-            font-size: 12px !important;
-            word-break: break-all !important;
-            margin-top: 8px !important;
-            border-left: 3px solid #00ff88 !important;
-        }
-
-        .bypass-speed-indicator {
-            display: inline-block !important;
-            background: rgba(0, 255, 136, 0.2) !important;
-            color: #00ff88 !important;
-            padding: 2px 6px !important;
-            border-radius: 4px !important;
-            font-size: 10px !important;
-            font-weight: bold !important;
-            margin-left: 8px !important;
-            animation: pulse 1.5s infinite !important;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.6; }
-        }
-
-        .bypass-close {
-            position: absolute !important;
-            top: 8px !important;
-            right: 12px !important;
-            background: none !important;
-            border: none !important;
-            color: rgba(255, 255, 255, 0.7) !important;
-            font-size: 18px !important;
-            cursor: pointer !important;
-            padding: 0 !important;
-            width: 20px !important;
-            height: 20px !important;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-        }
-
-        .bypass-close:hover {
-            color: white !important;
-            background: rgba(255, 255, 255, 0.1) !important;
-            border-radius: 50% !important;
-        }
-
-        .bypass-debug {
-            position: fixed !important;
-            bottom: 20px !important;
-            left: 20px !important;
-            background: rgba(0, 0, 0, 0.8) !important;
-            color: #00ff00 !important;
-            padding: 8px 12px !important;
-            border-radius: 6px !important;
-            font-family: 'Courier New', monospace !important;
-            font-size: 11px !important;
-            z-index: 999998 !important;
-            max-width: 300px !important;
-            word-break: break-word !important;
-        }
-    `);
-
-    // Enhanced UI Manager
-    class BypassUI {
-        constructor() {
-            this.container = null;
-            this.card = null;
-            this.statusElement = null;
-            this.progressBar = null;
-            this.countdownElement = null;
-            this.urlElement = null;
-            this.debugElement = null;
-            this.isVisible = false;
-            this.init();
-        }
-
-        init() {
-            // Create main container
-            this.container = document.createElement("div");
-            this.container.className = "bypass-container";
-
-            // Create card
-            this.card = document.createElement("div");
-            this.card.className = "bypass-card";
-
-            // Header
-            const header = document.createElement("div");
-            header.className = "bypass-header";
-            header.innerHTML = `
-                <span class="bypass-icon">⚡</span>
-                work.ink Ultra Bypass
-                <span class="bypass-speed-indicator">FAST MODE</span>
-                <button class="bypass-close" onclick="this.closest('.bypass-container').style.display='none'">×</button>
-            `;
-
-            // Status
-            this.statusElement = document.createElement("div");
-            this.statusElement.className = "bypass-status";
-
-            // Progress bar
-            const progressContainer = document.createElement("div");
-            progressContainer.className = "bypass-progress";
-            this.progressBar = document.createElement("div");
-            this.progressBar.className = "bypass-progress-bar";
-            progressContainer.appendChild(this.progressBar);
-
-            // Countdown
-            this.countdownElement = document.createElement("div");
-            this.countdownElement.className = "bypass-countdown";
-            this.countdownElement.style.display = "none";
-
-            // URL display
-            this.urlElement = document.createElement("div");
-            this.urlElement.className = "bypass-url";
-            this.urlElement.style.display = "none";
-
-            // Assemble card
-            this.card.appendChild(header);
-            this.card.appendChild(this.statusElement);
-            this.card.appendChild(progressContainer);
-            this.card.appendChild(this.countdownElement);
-            this.card.appendChild(this.urlElement);
-
-            this.container.appendChild(this.card);
-
-            // Debug panel
-            if (DEBUG) {
-                this.debugElement = document.createElement("div");
-                this.debugElement.className = "bypass-debug";
-                document.documentElement.appendChild(this.debugElement);
-            }
-
-            // Attach to shadow DOM for better isolation
-            const shadow = this.container.attachShadow({ mode: "closed" });
-            shadow.appendChild(this.card);
-
-            document.documentElement.appendChild(this.container);
-            this.isVisible = true;
-        }
-
-        updateStatus(message, icon = "🔄", progress = 0) {
-            if (!this.statusElement) return;
-
-            this.statusElement.innerHTML = `<span class="bypass-icon">${icon}</span> ${message}`;
-            this.progressBar.style.width = `${Math.min(100, Math.max(0, progress))}%`;
-
-            // Add speed indicator for fast operations
-            if (progress > 50) {
-                this.statusElement.innerHTML += ` <span class="bypass-speed-indicator">TURBO</span>`;
-            }
-
-            log("Status updated:", message, `${progress}%`);
-        }
-
-        showCountdown(seconds, url = null) {
-            if (!this.countdownElement) return;
-
-            this.countdownElement.style.display = "block";
-            this.countdownElement.textContent = `${seconds}s`;
-
-            if (url && this.urlElement) {
-                this.urlElement.style.display = "block";
-                this.urlElement.textContent = `Destination: ${url}`;
-            }
-        }
-
-        hideCountdown() {
-            if (this.countdownElement) this.countdownElement.style.display = "none";
-            if (this.urlElement) this.urlElement.style.display = "none";
-        }
-
-        updateDebug(message) {
-            if (DEBUG && this.debugElement) {
-                this.debugElement.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
-            }
-        }
-
-        hide() {
-            if (this.container) {
-                this.container.style.display = "none";
-                this.isVisible = false;
-            }
-        }
-
-        show() {
-            if (this.container) {
-                this.container.style.display = "block";
-                this.isVisible = true;
-            }
-        }
-    }
-
-    // Initialize UI
-    const ui = new BypassUI();
-    ui.updateStatus("Initializing ultra-fast bypass...", "⚡", 10);
-
-    // Enhanced name mapping with more variations
-    const NAME_MAP = {
-        sendMessage: ["sendMessage", "sendMsg", "writeMessage", "writeMsg", "send", "emit"],
-        onLinkInfo: ["onLinkInfo", "linkInfo", "handleLinkInfo"],
-        onLinkDestination: ["onLinkDestination", "linkDestination", "handleDestination", "onDestination"]
+    // Ultra-fast performance optimizations
+    const CONFIG = {
+        WEBSOCKET_TIMEOUT: 8000,      // Reduced from 25000
+        HEARTBEAT_INTERVAL: 300,      // Reduced from 750
+        UI_DELAY: 500,                // Reduced from 1500
+        MAX_RETRIES: 3,
+        ANIMATION_SPEED: 0.3          // Faster animations
     };
 
-    function resolveName(obj, candidates) {
-        for (let i = 0; i < candidates.length; i++) {
-            const name = candidates[i];
-            if (typeof obj[name] === "function") {
-                return { fn: obj[name], index: i, name };
+    let bypassState = {
+        isActive: false,
+        startTime: Date.now(),
+        retryCount: 0,
+        progress: 0
+    };
+
+    // Progress simulation for better UX
+    function simulateProgress() {
+        const progressInterval = setInterval(() => {
+            if (bypassState.progress < 90) {
+                bypassState.progress += Math.random() * 15;
+                updateProgressBar();
+            } else {
+                clearInterval(progressInterval);
             }
-        }
-        return { fn: null, index: -1, name: null };
+        }, 200);
     }
 
-    // Enhanced global state management
-    let _sessionController = undefined;
-    let _sendMessage = undefined;
-    let _onLinkInfo = undefined;
-    let _onLinkDestination = undefined;
-    let _bypassStartTime = Date.now();
-    let _captchaSolved = false;
-    let _linkReceived = false;
-    let _fastModeEnabled = FAST_MODE;
-
-    // Enhanced packet types with more comprehensive coverage
-    function getClientPacketTypes() {
-        return {
-            ANNOUNCE: "c_announce",
-            MONETIZATION: "c_monetization",
-            SOCIAL_STARTED: "c_social_started",
-            RECAPTCHA_RESPONSE: "c_recaptcha_response",
-            HCAPTCHA_RESPONSE: "c_hcaptcha_response",
-            TURNSTILE_RESPONSE: "c_turnstile_response",
-            ADBLOCKER_DETECTED: "c_adblocker_detected",
-            FOCUS_LOST: "c_focus_lost",
-            OFFERS_SKIPPED: "c_offers_skipped",
-            FOCUS: "c_focus",
-            WORKINK_PASS_AVAILABLE: "c_workink_pass_available",
-            WORKINK_PASS_USE: "c_workink_pass_use",
-            PING: "c_ping",
-            HEARTBEAT: "c_heartbeat",
-            USER_ACTIVITY: "c_user_activity"
-        };
-    }
-
-    // Enhanced monetization handler with better coverage
-    function handleMonetization(monetizationType, clientPacketTypes) {
-        const handlers = {
-            22: () => { // readArticles2
-                _sendMessage.call(_sessionController, clientPacketTypes.MONETIZATION, {
-                    type: "readArticles2",
-                    payload: { event: "read" }
-                });
-                ui.updateDebug("Handled readArticles2 monetization");
-            },
-            25: () => { // operaGX
-                _sendMessage.call(_sessionController, clientPacketTypes.MONETIZATION, {
-                    type: "operaGX",
-                    payload: { event: "start" }
-                });
-                _sendMessage.call(_sessionController, clientPacketTypes.MONETIZATION, {
-                    type: "operaGX",
-                    payload: { event: "installClicked" }
-                });
-
-                // Enhanced callback with better error handling
-                fetch('https://work.ink/_api/v2/callback/operaGX', {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 'noteligible': true })
-                }).catch(() => {}); // Silent fail
-
-                ui.updateDebug("Handled operaGX monetization");
-            },
-            34: () => { // norton
-                _sendMessage.call(_sessionController, clientPacketTypes.MONETIZATION, {
-                    type: "norton",
-                    payload: { event: "start" }
-                });
-                _sendMessage.call(_sessionController, clientPacketTypes.MONETIZATION, {
-                    type: "norton",
-                    payload: { event: "installClicked" }
-                });
-                ui.updateDebug("Handled norton monetization");
-            },
-            71: () => { // externalArticles
-                _sendMessage.call(_sessionController, clientPacketTypes.MONETIZATION, {
-                    type: "externalArticles",
-                    payload: { event: "start" }
-                });
-                _sendMessage.call(_sessionController, clientPacketTypes.MONETIZATION, {
-                    type: "externalArticles",
-                    payload: { event: "installClicked" }
-                });
-                ui.updateDebug("Handled externalArticles monetization");
-            },
-            45: () => { // pdfeditor
-                _sendMessage.call(_sessionController, clientPacketTypes.MONETIZATION, {
-                    type: "pdfeditor",
-                    payload: { event: "installed" }
-                });
-                ui.updateDebug("Handled pdfeditor monetization");
-            },
-            57: () => { // betterdeals
-                _sendMessage.call(_sessionController, clientPacketTypes.MONETIZATION, {
-                    type: "betterdeals",
-                    payload: { event: "installed" }
-                });
-                ui.updateDebug("Handled betterdeals monetization");
-            }
-        };
-
-        const handler = handlers[monetizationType];
-        if (handler) {
-            handler();
-            return true;
-        } else {
-            log("Unknown monetization type:", monetizationType);
-            ui.updateDebug(`Unknown monetization: ${monetizationType}`);
-            return false;
+    function updateProgressBar() {
+        const progressBar = document.querySelector('.progress-fill');
+        const progressText = document.querySelector('.progress-text');
+        if (progressBar && progressText) {
+            progressBar.style.width = `${Math.min(bypassState.progress, 100)}%`;
+            progressText.textContent = `${Math.round(bypassState.progress)}%`;
         }
     }
 
-    // Enhanced sendMessage proxy with better error handling
-    function createSendMessageProxy() {
-        const clientPacketTypes = getClientPacketTypes();
+    function handleLootlinks() {
+        if (bypassState.isActive) return;
+        bypassState.isActive = true;
+        bypassState.startTime = Date.now();
 
-        return function(...args) {
-            const packet_type = args[0];
-            const packet_data = args[1];
+        // Enhanced fetch interceptor with faster processing
+        const originalFetch = window.fetch;
+        window.fetch = async function (...args) {
+            const [resource] = args;
+            const url = typeof resource === "string" ? resource : resource.url;
 
-            // Don't log ping packets to reduce noise
-            if (packet_type !== clientPacketTypes.PING && packet_type !== clientPacketTypes.HEARTBEAT) {
-                log("Sent message:", packet_type, packet_data);
+            if (url.includes("/tc")) {
+                return handleTcRequest(originalFetch, args);
             }
 
-            // Block adblocker detection
-            if (packet_type === clientPacketTypes.ADBLOCKER_DETECTED) {
-                warn("Blocked adblocker detected message");
-                ui.updateDebug("Blocked adblocker detection");
+            return originalFetch(...args);
+        };
+
+        // Block popups and redirects more aggressively
+        window.open = () => null;
+        window.location.replace = function(url) {
+            console.log('[kxBypass] Blocked redirect:', url);
+        };
+
+        // Initialize ultra-fast UI
+        setTimeout(() => {
+            clearPageAndCreateUI();
+            simulateProgress();
+        }, CONFIG.UI_DELAY);
+    }
+
+    async function handleTcRequest(originalFetch, args) {
+        try {
+            const response = await originalFetch(...args);
+            const data = await response.clone().json();
+
+            if (Array.isArray(data) && data.length > 0) {
+                await processBypassData(data[0]);
+            } else {
+                throw new Error('Invalid response data');
+            }
+
+            return response;
+        } catch (err) {
+            console.error("Bypass error:", err);
+
+            if (bypassState.retryCount < CONFIG.MAX_RETRIES) {
+                bypassState.retryCount++;
+                updateRetryUI();
+                await new Promise(resolve => setTimeout(resolve, 500)); // Faster retry
+                return originalFetch(...args);
+            } else {
+                showErrorUI("Multiple bypass attempts failed");
+                throw err;
+            }
+        }
+    }
+
+    async function processBypassData(data) {
+        const { urid, task_id, action_pixel_url, session_id } = data;
+
+        if (!urid || !task_id) {
+            throw new Error('Missing required parameters');
+        }
+
+        const shard = parseInt(urid.slice(-5)) % 3;
+
+        return new Promise((resolve, reject) => {
+            const ws = new WebSocket(
+                `wss://${shard}.${INCENTIVE_SERVER_DOMAIN}/c?uid=${urid}&cat=${task_id}&key=${KEY}&session_id=${session_id}&is_loot=1&tid=${TID}`
+            );
+
+            let heartbeatInterval;
+            let wsTimeout = setTimeout(() => {
+                ws.close();
+                reject(new Error('WebSocket timeout'));
+            }, CONFIG.WEBSOCKET_TIMEOUT);
+
+            ws.onopen = () => {
+                clearTimeout(wsTimeout);
+                bypassState.progress = 60;
+                updateProgressBar();
+
+                heartbeatInterval = setInterval(() => {
+                    if (ws.readyState === WebSocket.OPEN) {
+                        ws.send("0");
+                    }
+                }, CONFIG.HEARTBEAT_INTERVAL);
+            };
+
+            ws.onmessage = (e) => {
+                if (e.data.startsWith("r:")) {
+                    clearInterval(heartbeatInterval);
+                    bypassState.progress = 100;
+                    updateProgressBar();
+
+                    const encodedString = e.data.slice(2);
+                    try {
+                        const destinationUrl = decodeURI(encodedString);
+                        setTimeout(() => showBypassResult(destinationUrl), 300);
+                        resolve(destinationUrl);
+                    } catch (err) {
+                        console.error("Decryption error:", err);
+                        reject(err);
+                    }
+                }
+            };
+
+            ws.onerror = (error) => {
+                clearInterval(heartbeatInterval);
+                clearTimeout(wsTimeout);
+                reject(error);
+            };
+
+            // Parallel tracking requests for maximum speed
+            Promise.all([
+                navigator.sendBeacon(`https://${shard}.${INCENTIVE_SERVER_DOMAIN}/st?uid=${urid}&cat=${task_id}`),
+                fetch(`https:${action_pixel_url}`).catch(() => {}),
+                fetch(`https://${INCENTIVE_SYNCER_DOMAIN}/td?ac=auto_complete&urid=${urid}&cat=${task_id}&tid=${TID}`).catch(() => {})
+            ]);
+        });
+    }
+
+    function clearPageAndCreateUI() {
+        // Ultra-aggressive page clearing
+        document.documentElement.innerHTML = '';
+        document.head.innerHTML = '';
+        document.body.innerHTML = '';
+
+        // Inject premium fonts
+        const font = document.createElement("link");
+        font.rel = "stylesheet";
+        font.href = "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap";
+        document.head.appendChild(font);
+
+        createPremiumUI();
+    }
+
+    function createPremiumUI() {
+        const overlay = document.createElement("div");
+        overlay.id = "kxBypass-overlay";
+        overlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 8s ease infinite;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 2147483647;
+            color: white;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            overflow: hidden;
+        `;
+
+        const elapsedTime = Math.round((Date.now() - bypassState.startTime) / 1000);
+
+        overlay.innerHTML = `
+            <!-- Animated background particles -->
+            <div class="particles">
+                ${Array.from({length: 50}, (_, i) => `<div class="particle" style="--delay: ${i * 0.1}s"></div>`).join('')}
+            </div>
+
+            <!-- Main content -->
+            <div class="main-container">
+                <div class="logo-container">
+                    <div class="logo-icon">🚀</div>
+                    <div class="logo-text">kxBypass</div>
+                    <div class="version-badge">v2.0 Enhanced</div>
+                </div>
+
+                <div class="status-text">
+                    Bypassing with <span class="highlight">lightning speed</span>...
+                </div>
+
+                <!-- Enhanced progress bar -->
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div class="progress-fill"></div>
+                        <div class="progress-glow"></div>
+                    </div>
+                    <div class="progress-text">0%</div>
+                </div>
+
+                <!-- Stats container -->
+                <div class="stats-container">
+                    <div class="stat-item">
+                        <div class="stat-label">Time</div>
+                        <div class="stat-value" id="elapsed-time">${elapsedTime}s</div>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat-item">
+                        <div class="stat-label">Attempt</div>
+                        <div class="stat-value">${bypassState.retryCount + 1}/${CONFIG.MAX_RETRIES + 1}</div>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat-item">
+                        <div class="stat-label">Speed</div>
+                        <div class="stat-value">Ultra</div>
+                    </div>
+                </div>
+
+                <!-- Loading animation -->
+                <div class="loading-container">
+                    <div class="spinner-modern"></div>
+                </div>
+
+                <div class="footer-text">
+                    Enhanced for maximum performance & reliability
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(overlay);
+
+        const style = document.createElement("style");
+        style.textContent = `
+            @keyframes gradientShift {
+                0% { background-position: 0% 50%; }
+                50% { background-position: 100% 50%; }
+                100% { background-position: 0% 50%; }
+            }
+
+            @keyframes float {
+                0%, 100% { transform: translateY(0px) rotate(0deg); }
+                50% { transform: translateY(-20px) rotate(180deg); }
+            }
+
+            @keyframes pulse {
+                0%, 100% { opacity: 0.3; transform: scale(1); }
+                50% { opacity: 1; transform: scale(1.1); }
+            }
+
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+
+            @keyframes progressGlow {
+                0%, 100% { opacity: 0.5; }
+                50% { opacity: 1; }
+            }
+
+            .particles {
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                overflow: hidden;
+                z-index: 1;
+            }
+
+            .particle {
+                position: absolute;
+                width: 4px;
+                height: 4px;
+                background: rgba(255, 255, 255, 0.6);
+                border-radius: 50%;
+                animation: float 6s ease-in-out infinite;
+                animation-delay: var(--delay);
+                left: ${Math.random() * 100}%;
+                top: ${Math.random() * 100}%;
+            }
+
+            .main-container {
+                text-align: center;
+                max-width: 500px;
+                padding: 50px 30px;
+                background: rgba(255, 255, 255, 0.1);
+                backdrop-filter: blur(20px);
+                border-radius: 24px;
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+                z-index: 2;
+                position: relative;
+                animation: slideUp 0.6s ease-out;
+            }
+
+            @keyframes slideUp {
+                from { opacity: 0; transform: translateY(30px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+
+            .logo-container {
+                margin-bottom: 32px;
+                position: relative;
+            }
+
+            .logo-icon {
+                font-size: 48px;
+                margin-bottom: 16px;
+                animation: pulse 2s ease-in-out infinite;
+            }
+
+            .logo-text {
+                font-size: 32px;
+                font-weight: 800;
+                background: linear-gradient(45deg, #fff, #f0f0f0);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+                margin-bottom: 8px;
+            }
+
+            .version-badge {
+                display: inline-block;
+                padding: 4px 12px;
+                background: linear-gradient(45deg, #4ade80, #22c55e);
+                border-radius: 20px;
+                font-size: 12px;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+
+            .status-text {
+                font-size: 18px;
+                margin-bottom: 32px;
+                opacity: 0.9;
+                font-weight: 500;
+            }
+
+            .highlight {
+                background: linear-gradient(45deg, #fbbf24, #f59e0b);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+                font-weight: 700;
+            }
+
+            .progress-container {
+                margin-bottom: 32px;
+                position: relative;
+            }
+
+            .progress-bar {
+                width: 100%;
+                height: 8px;
+                background: rgba(255, 255, 255, 0.2);
+                border-radius: 10px;
+                overflow: hidden;
+                position: relative;
+                margin-bottom: 12px;
+            }
+
+            .progress-fill {
+                height: 100%;
+                background: linear-gradient(90deg, #4ade80, #22c55e, #16a34a);
+                border-radius: 10px;
+                width: 0%;
+                transition: width 0.3s ease;
+                position: relative;
+            }
+
+            .progress-glow {
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+                animation: progressGlow 2s ease-in-out infinite;
+            }
+
+            .progress-text {
+                font-size: 14px;
+                font-weight: 600;
+                font-family: 'JetBrains Mono', monospace;
+                opacity: 0.8;
+            }
+
+            .stats-container {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                margin-bottom: 32px;
+                padding: 16px;
+                background: rgba(255, 255, 255, 0.1);
+                border-radius: 16px;
+                backdrop-filter: blur(10px);
+            }
+
+            .stat-item {
+                text-align: center;
+                flex: 1;
+            }
+
+            .stat-label {
+                font-size: 12px;
+                opacity: 0.7;
+                margin-bottom: 4px;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+
+            .stat-value {
+                font-size: 16px;
+                font-weight: 700;
+                font-family: 'JetBrains Mono', monospace;
+            }
+
+            .stat-divider {
+                width: 1px;
+                height: 30px;
+                background: rgba(255, 255, 255, 0.3);
+                margin: 0 16px;
+            }
+
+            .loading-container {
+                margin-bottom: 24px;
+            }
+
+            .spinner-modern {
+                width: 40px;
+                height: 40px;
+                border: 3px solid rgba(255, 255, 255, 0.2);
+                border-top: 3px solid #4ade80;
+                border-radius: 50%;
+                animation: spin 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+                margin: 0 auto;
+            }
+
+            .footer-text {
+                font-size: 13px;
+                opacity: 0.6;
+                font-weight: 400;
+            }
+
+            .success-container {
+                animation: successPulse 0.6s ease-out;
+            }
+
+            @keyframes successPulse {
+                0% { transform: scale(0.9); opacity: 0; }
+                50% { transform: scale(1.05); }
+                100% { transform: scale(1); opacity: 1; }
+            }
+
+            .success-icon {
+                font-size: 64px;
+                margin-bottom: 24px;
+                animation: bounce 0.6s ease-out;
+            }
+
+            @keyframes bounce {
+                0%, 20%, 53%, 80%, 100% { transform: translate3d(0,0,0); }
+                40%, 43% { transform: translate3d(0,-30px,0); }
+                70% { transform: translate3d(0,-15px,0); }
+                90% { transform: translate3d(0,-4px,0); }
+            }
+
+            .continue-btn {
+                padding: 16px 32px;
+                background: linear-gradient(45deg, #4ade80, #22c55e);
+                color: white;
+                border: none;
+                border-radius: 12px;
+                font-size: 16px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                font-family: 'Inter', sans-serif;
+                box-shadow: 0 10px 25px rgba(74, 222, 128, 0.3);
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+
+            .continue-btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 15px 35px rgba(74, 222, 128, 0.4);
+            }
+
+            .url-display {
+                background: rgba(0, 0, 0, 0.3);
+                padding: 16px;
+                border-radius: 12px;
+                margin: 24px 0;
+                word-break: break-all;
+                font-family: 'JetBrains Mono', monospace;
+                font-size: 13px;
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                max-height: 100px;
+                overflow-y: auto;
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Update timer every 100ms for smoother updates
+        const timer = setInterval(() => {
+            if (!document.getElementById("kxBypass-overlay")) {
+                clearInterval(timer);
                 return;
             }
-
-            // Enhanced captcha response handling
-            if (_sessionController.linkInfo &&
-                (packet_type === clientPacketTypes.TURNSTILE_RESPONSE ||
-                 packet_type === clientPacketTypes.RECAPTCHA_RESPONSE ||
-                 packet_type === clientPacketTypes.HCAPTCHA_RESPONSE)) {
-
-                _captchaSolved = true;
-                ui.updateStatus("Captcha solved! Turbo processing...", "🚀", 60);
-
-                const ret = _sendMessage.apply(this, args);
-
-                // Ultra-fast bypass sequence with minimal delay
-                setTimeout(() => {
-                    let processedCount = 0;
-                    const totalTasks = (_sessionController.linkInfo.socials?.length || 0) +
-                                     (_sessionController.linkInfo.monetizations?.length || 0);
-
-                    // Process social requirements
-                    if (_sessionController.linkInfo.socials) {
-                        for (const social of _sessionController.linkInfo.socials) {
-                            _sendMessage.call(this, clientPacketTypes.SOCIAL_STARTED, {
-                                url: social.url
-                            });
-                            processedCount++;
-                            ui.updateStatus("Turbo social processing...", "📱", 60 + (processedCount / totalTasks) * 25);
-                        }
-                    }
-
-                    // Process monetization requirements
-                    if (_sessionController.linkInfo.monetizations) {
-                        for (const monetization of _sessionController.linkInfo.monetizations) {
-                            if (handleMonetization(monetization, clientPacketTypes)) {
-                                processedCount++;
-                                ui.updateStatus("Turbo monetization...", "💰", 60 + (processedCount / totalTasks) * 25);
-                            }
-                        }
-                    }
-
-                    ui.updateStatus("Ultra bypass complete! Getting destination...", "🎯", 85);
-                }, 200); // Reduced from 500ms to 200ms
-
-                return ret;
+            const elapsed = Math.round((Date.now() - bypassState.startTime) / 1000);
+            const timeElement = document.getElementById('elapsed-time');
+            if (timeElement) {
+                timeElement.textContent = `${elapsed}s`;
             }
-
-            return _sendMessage.apply(this, args);
-        };
+        }, 100);
     }
 
-    // Enhanced link info handler
-    function createOnLinkInfoProxy() {
-        return function(...args) {
-            const linkInfo = args[0];
-            log("Link info received:", linkInfo);
-            ui.updateDebug(`Link info: ${JSON.stringify(linkInfo).substring(0, 100)}...`);
-
-            // Enhanced adblocker bypass
-            Object.defineProperty(linkInfo, "isAdblockEnabled", {
-                get() { return false },
-                set(newValue) {
-                    log("Attempted to set isAdblockEnabled to:", newValue);
-                    ui.updateDebug(`Blocked adblock flag: ${newValue}`);
-                },
-                configurable: false,
-                enumerable: true
-            });
-
-            ui.updateStatus("Link info received - analyzing...", "📋", 35);
-            return _onLinkInfo.apply(this, args);
-        };
-    }
-
-    // Enhanced destination handler with ultra-fast countdown
-    function createOnLinkDestinationProxy() {
-        return function (...args) {
-            const payload = args[0];
-            log("Link destination received:", payload);
-            _linkReceived = true;
-
-            ui.updateStatus("Destination locked! Preparing turbo redirect...", "🎯", 95);
-
-            // Ultra-fast wait time calculation
-            const minWaitTime = MIN_WAIT_TIME;
-            const maxWaitTime = MAX_WAIT_TIME;
-            const elapsedTime = (Date.now() - _bypassStartTime) / 1000;
-
-            let waitTime = Math.max(minWaitTime, maxWaitTime - elapsedTime);
-            waitTime = Math.ceil(waitTime);
-
-            // If fast mode is enabled, reduce wait time further
-            if (_fastModeEnabled) {
-                waitTime = Math.max(1, Math.ceil(waitTime * 0.3)); // Reduce to 30% of original time
-            }
-
-            if (waitTime <= 0) {
-                redirect(payload.url);
-            } else {
-                startUltraFastCountdown(payload.url, waitTime);
-            }
-
-            return _onLinkDestination.apply(this, args);
-        };
-    }
-
-    // Ultra-fast countdown with premium UX
-    function startUltraFastCountdown(url, waitLeft) {
-        ui.updateStatus("Turbo redirect initiating...", "🚀", 98);
-        ui.showCountdown(waitLeft, url);
-
-        const interval = setInterval(() => {
-            waitLeft -= 1;
-            ui.showCountdown(waitLeft, url);
-
-            if (waitLeft <= 0) {
-                clearInterval(interval);
-                redirect(url);
-            }
-        }, 1000);
-
-        // Show notification
-        if (typeof GM_notification !== 'undefined') {
-            GM_notification({
-                text: `🚀 Ultra-fast redirect in ${waitLeft}s`,
-                title: "work.ink Ultra Bypass",
-                timeout: 3000
-            });
+    function updateRetryUI() {
+        const statValue = document.querySelector('.stat-item:nth-child(3) .stat-value');
+        if (statValue) {
+            statValue.textContent = `${bypassState.retryCount + 1}/${CONFIG.MAX_RETRIES + 1}`;
         }
     }
 
-    // Ultra-fast redirect function
-    function redirect(url) {
-        ui.updateStatus("🚀 TURBO REDIRECT ACTIVATED!", "⚡", 100);
-        ui.hideCountdown();
-
-        log("Redirecting to:", url);
-
-        // Show final notification
-        if (typeof GM_notification !== 'undefined') {
-            GM_notification({
-                text: "⚡ Ultra bypass complete! Redirecting...",
-                title: "work.ink Ultra Bypass",
-                timeout: 2000
-            });
+    function showBypassResult(destinationUrl) {
+        let overlay = document.getElementById("kxBypass-overlay");
+        if (!overlay) {
+            createPremiumUI();
+            overlay = document.getElementById("kxBypass-overlay");
         }
 
-        setTimeout(() => {
-            window.location.href = url;
-        }, 300); // Reduced from 1000ms to 300ms
+        const totalTime = Math.round((Date.now() - bypassState.startTime) / 1000);
+
+        overlay.innerHTML = `
+            <div class="particles">
+                ${Array.from({length: 30}, (_, i) => `<div class="particle" style="--delay: ${i * 0.1}s"></div>`).join('')}
+            </div>
+
+            <div class="main-container success-container">
+                <div class="success-icon">✅</div>
+
+                <div class="logo-text" style="color: #4ade80; margin-bottom: 16px;">
+                    Bypass Successful!
+                </div>
+
+                <div class="status-text">
+                    Completed in <span class="highlight">${totalTime} seconds</span>
+                </div>
+
+                <div class="stats-container">
+                    <div class="stat-item">
+                        <div class="stat-label">Speed</div>
+                        <div class="stat-value" style="color: #4ade80;">Ultra Fast</div>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat-item">
+                        <div class="stat-label">Status</div>
+                        <div class="stat-value" style="color: #4ade80;">Success</div>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat-item">
+                        <div class="stat-label">Time</div>
+                        <div class="stat-value">${totalTime}s</div>
+                    </div>
+                </div>
+
+                <div class="url-display">
+                    ${destinationUrl}
+                </div>
+
+                <button class="continue-btn" onclick="window.location.href='${destinationUrl}'">
+                    Continue to Destination →
+                </button>
+
+                <div class="footer-text" style="margin-top: 20px;">
+                    🚀 Enhanced bypass completed successfully
+                </div>
+            </div>
+        `;
     }
 
-    // Enhanced session controller setup
-    function setupSessionControllerProxy() {
-        const sendMessage = resolveName(_sessionController, NAME_MAP.sendMessage);
-        const onLinkInfo = resolveName(_sessionController, NAME_MAP.onLinkInfo);
-        const onLinkDestination = resolveName(_sessionController, NAME_MAP.onLinkDestination);
-
-        if (!sendMessage.fn || !onLinkInfo.fn || !onLinkDestination.fn) {
-            error("Failed to resolve all required methods");
-            ui.updateStatus("Setup failed - missing methods", "❌", 0);
-            return false;
+    function showErrorUI(message) {
+        let overlay = document.getElementById("kxBypass-overlay");
+        if (!overlay) {
+            createPremiumUI();
+            overlay = document.getElementById("kxBypass-overlay");
         }
 
-        _sendMessage = sendMessage.fn;
-        _onLinkInfo = onLinkInfo.fn;
-        _onLinkDestination = onLinkDestination.fn;
+        const totalTime = Math.round((Date.now() - bypassState.startTime) / 1000);
 
-        const sendMessageProxy = createSendMessageProxy();
-        const onLinkInfoProxy = createOnLinkInfoProxy();
-        const onLinkDestinationProxy = createOnLinkDestinationProxy();
+        overlay.innerHTML = `
+            <div class="particles">
+                ${Array.from({length: 20}, (_, i) => `<div class="particle" style="--delay: ${i * 0.1}s"></div>`).join('')}
+            </div>
 
-        // Enhanced property patching with better error handling
+            <div class="main-container">
+                <div class="success-icon" style="color: #ef4444;">❌</div>
+
+                <div class="logo-text" style="color: #ef4444; margin-bottom: 16px;">
+                    Bypass Failed
+                </div>
+
+                <div class="status-text">
+                    ${message}
+                </div>
+
+                <div class="stats-container" style="background: rgba(239, 68, 68, 0.1);">
+                    <div class="stat-item">
+                        <div class="stat-label">Time</div>
+                        <div class="stat-value">${totalTime}s</div>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat-item">
+                        <div class="stat-label">Attempts</div>
+                        <div class="stat-value">${bypassState.retryCount}/${CONFIG.MAX_RETRIES}</div>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat-item">
+                        <div class="stat-label">Status</div>
+                        <div class="stat-value" style="color: #ef4444;">Failed</div>
+                    </div>
+                </div>
+
+                <button class="continue-btn" onclick="window.location.reload()"
+                        style="background: linear-gradient(45deg, #ef4444, #dc2626);">
+                    🔄 Refresh & Retry
+                </button>
+
+                <div class="footer-text" style="margin-top: 20px;">
+                    Please try refreshing the page
+                </div>
+            </div>
+        `;
+    }
+
+    function decodeURI(encodedString, prefixLength = 5) {
         try {
-            Object.defineProperty(_sessionController, sendMessage.name, {
-                get() { return sendMessageProxy },
-                set(newValue) { _sendMessage = newValue },
-                configurable: false,
-                enumerable: true
-            });
+            let decodedString = "";
+            const base64Decoded = atob(encodedString);
+            const prefix = base64Decoded.substring(0, prefixLength);
+            const encodedPortion = base64Decoded.substring(prefixLength);
 
-            Object.defineProperty(_sessionController, onLinkInfo.name, {
-                get() { return onLinkInfoProxy },
-                set(newValue) { _onLinkInfo = newValue },
-                configurable: false,
-                enumerable: true
-            });
+            for (let i = 0; i < encodedPortion.length; i++) {
+                const encodedChar = encodedPortion.charCodeAt(i);
+                const prefixChar = prefix.charCodeAt(i % prefix.length);
+                const decodedChar = encodedChar ^ prefixChar;
+                decodedString += String.fromCharCode(decodedChar);
+            }
 
-            Object.defineProperty(_sessionController, onLinkDestination.name, {
-                get() { return onLinkDestinationProxy },
-                set(newValue) { _onLinkDestination = newValue },
-                configurable: false,
-                enumerable: true
-            });
-
-            log(`SessionController proxies installed: ${sendMessage.name}, ${onLinkInfo.name}, ${onLinkDestination.name}`);
-            ui.updateStatus("Ultra bypass system armed!", "⚡", 50);
-            ui.updateDebug("All proxies installed successfully");
-            return true;
-        } catch (e) {
-            error("Failed to install proxies:", e);
-            ui.updateStatus("Proxy installation failed", "❌", 0);
-            return false;
+            return decodedString;
+        } catch (error) {
+            console.error('Decoding error:', error);
+            throw new Error('Failed to decode destination URL');
         }
     }
 
-    // Enhanced session controller detection
-    function checkForSessionController(target, prop, value, receiver) {
-        if (DEBUG) log("Checking property set:", prop, typeof value);
-
-        if (value && typeof value === "object" && !_sessionController) {
-            const sendMessage = resolveName(value, NAME_MAP.sendMessage);
-            const onLinkInfo = resolveName(value, NAME_MAP.onLinkInfo);
-            const onLinkDestination = resolveName(value, NAME_MAP.onLinkDestination);
-
-            if (sendMessage.fn && onLinkInfo.fn && onLinkDestination.fn) {
-                _sessionController = value;
-                log("Intercepted session controller:", _sessionController);
-                ui.updateStatus("Target acquired! Preparing ultra bypass...", "🎯", 40);
-
-                setTimeout(() => {
-                    setupSessionControllerProxy();
-                }, 50); // Reduced from 100ms to 50ms
+    // Ultra-fast initialization
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.location.href.includes("loot")) {
+                handleLootlinks();
             }
+        });
+    } else {
+        if (window.location.href.includes("loot")) {
+            handleLootlinks();
         }
-
-        return Reflect.set(target, prop, value, receiver);
     }
-
-    // Enhanced component proxy with better detection
-    function createComponentProxy(component) {
-        return new Proxy(component, {
-            construct(target, args) {
-                const result = Reflect.construct(target, args);
-                log("Intercepted SvelteKit component construction:", target.name || "Unknown");
-
-                if (result.$$ && result.$$.ctx) {
-                    result.$$.ctx = new Proxy(result.$$.ctx, {
-                        set: checkForSessionController
-                    });
-                }
-
-                return result;
-            }
-        });
-    }
-
-    // Enhanced node result proxy
-    function createNodeResultProxy(result) {
-        return new Proxy(result, {
-            get(target, prop, receiver) {
-                if (prop === "component" && target.component) {
-                    return createComponentProxy(target.component);
-                }
-                return Reflect.get(target, prop, receiver);
-            }
-        });
-    }
-
-    // Enhanced node proxy
-    function createNodeProxy(oldNode) {
-        return async (...args) => {
-            const result = await oldNode(...args);
-            log("Intercepted SvelteKit node result");
-            return createNodeResultProxy(result);
-        };
-    }
-
-    // Enhanced kit proxy with better error handling
-    function createKitProxy(kit) {
-        if (typeof kit !== "object" || !kit) return [false, kit];
-
-        const originalStart = kit.start;
-        if (typeof originalStart !== "function") return [false, kit];
-
-        const kitProxy = new Proxy(kit, {
-            get(target, prop, receiver) {
-                if (prop === "start") {
-                    return function(...args) {
-                        try {
-                            const appModule = args[0];
-                            const options = args[2];
-
-                            if (appModule?.nodes && options?.node_ids && options.node_ids[1]) {
-                                const oldNode = appModule.nodes[options.node_ids[1]];
-                                if (oldNode) {
-                                    appModule.nodes[options.node_ids[1]] = createNodeProxy(oldNode);
-                                    ui.updateStatus("SvelteKit hijacked! Ultra mode active!", "⚡", 25);
-                                }
-                            }
-
-                            log("kit.start intercepted successfully");
-                            return originalStart.apply(this, args);
-                        } catch (e) {
-                            error("Error in kit.start interception:", e);
-                            ui.updateStatus("Interception error", "⚠️", 0);
-                            return originalStart.apply(this, args);
-                        }
-                    };
-                }
-                return Reflect.get(target, prop, receiver);
-            }
-        });
-
-        return [true, kitProxy];
-    }
-
-    // Enhanced SvelteKit interception with better timing
-    function setupSvelteKitInterception() {
-        const originalPromiseAll = unsafeWindow.Promise.all;
-        let intercepted = false;
-
-        unsafeWindow.Promise.all = async function(promises) {
-            const result = originalPromiseAll.call(this, promises);
-
-            if (!intercepted) {
-                intercepted = true;
-
-                return await new Promise((resolve) => {
-                    result.then(([kit, app, ...args]) => {
-                        log("SvelteKit modules loaded");
-                        ui.updateDebug("SvelteKit modules detected");
-
-                        const [success, wrappedKit] = createKitProxy(kit);
-                        if (success) {
-                            unsafeWindow.Promise.all = originalPromiseAll;
-                            log("Kit proxy installed successfully");
-                        } else {
-                            warn("Failed to create kit proxy");
-                            ui.updateStatus("Kit proxy failed", "⚠️", 0);
-                        }
-
-                        resolve([wrappedKit, app, ...args]);
-                    }).catch((e) => {
-                        error("Error in Promise.all interception:", e);
-                        ui.updateStatus("Module loading error", "❌", 0);
-                        resolve([kit, app, ...args]);
-                    });
-                });
-            }
-
-            return await result;
-        };
-    }
-
-    // Enhanced ad removal with better detection
-    function setupAdRemoval() {
-        const observer = new MutationObserver((mutations) => {
-            for (const m of mutations) {
-                for (const node of m.addedNodes) {
-                    if (node.nodeType === 1) {
-                        // Enhanced ad detection patterns
-                        const adSelectors = [
-                            ".adsbygoogle",
-                            "[data-ad-client]",
-                            ".ad-container",
-                            ".advertisement",
-                            "[id*='google_ads']",
-                            "[class*='google-ad']"
-                        ];
-
-                        // Direct match
-                        for (const selector of adSelectors) {
-                            if (node.matches && node.matches(selector)) {
-                                node.remove();
-                                log("Removed injected ad:", node);
-                                ui.updateDebug("Ad blocked");
-                                break;
-                            }
-                        }
-
-                        // Children match
-                        for (const selector of adSelectors) {
-                            node.querySelectorAll?.(selector).forEach((el) => {
-                                el.remove();
-                                log("Removed nested ad:", el);
-                                ui.updateDebug("Nested ad blocked");
-                            });
-                        }
-                    }
-                }
-            }
-        });
-
-        observer.observe(document.documentElement, {
-            childList: true,
-            subtree: true,
-            attributes: true,
-            attributeFilter: ['class', 'id']
-        });
-
-        log("Enhanced ad removal system initialized");
-    }
-
-    // Enhanced initialization
-    function initialize() {
-        log("Ultra-fast work.ink bypass initializing...");
-
-        // Setup captcha detection
-        ui.updateStatus("Solve captcha to activate turbo mode", "🔒", 5);
-
-        // Initialize systems
-        setupSvelteKitInterception();
-        setupAdRemoval();
-
-        // Monitor for captcha completion
-        const captchaMonitor = setInterval(() => {
-            if (_captchaSolved && !_linkReceived) {
-                ui.updateStatus("Captcha solved! Turbo engaged...", "🚀", 75);
-            }
-        }, 1000);
-
-        // Cleanup monitor after 5 minutes
-        setTimeout(() => clearInterval(captchaMonitor), 300000);
-
-        log("Ultra-fast bypass system initialized");
-    }
-
-    // Start the ultra-fast bypass
-    initialize();
-
-    // Ultra keyboard shortcuts for debugging
-    if (DEBUG) {
-        document.addEventListener('keydown', (e) => {
-            if (e.ctrlKey && e.shiftKey) {
-                switch(e.key) {
-                    case 'D':
-                        e.preventDefault();
-                        ui.isVisible ? ui.hide() : ui.show();
-                        break;
-                    case 'R':
-                        e.preventDefault();
-                        location.reload();
-                        break;
-                    case 'L':
-                        e.preventDefault();
-                        console.log('Session Controller:', _sessionController);
-                        break;
-                    case 'F':
-                        e.preventDefault();
-                        _fastModeEnabled = !_fastModeEnabled;
-                        ui.updateDebug(`Fast mode: ${_fastModeEnabled ? 'ON' : 'OFF'}`);
-                        break;
-                }
-            }
-        });
-    }
-
 })();
