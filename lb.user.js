@@ -1,8 +1,8 @@
 // ==UserScript==
-// @name         kxBypass LootLabs Enhanced
+// @name         kxBypass LootLabs Enhanced - Mobile Optimized
 // @namespace    https://discord.gg/pqEBSTqdxV
-// @version      v2.0
-// @description  Ultra-Fast Enhanced Bypass for Lootlinks - Premium UI & Lightning Speed
+// @version      v2.1
+// @description  Ultra-Fast Enhanced Bypass for Lootlinks - Premium UI & Lightning Speed (Mobile & Desktop)
 // @author       awaitlol.
 // @match        https://lootlinks.co/*
 // @match        https://loot-links.com/*
@@ -25,12 +25,16 @@
 
     // Ultra-fast performance optimizations
     const CONFIG = {
-        WEBSOCKET_TIMEOUT: 8000,      // Reduced from 25000
-        HEARTBEAT_INTERVAL: 300,      // Reduced from 750
-        UI_DELAY: 500,                // Reduced from 1500
+        WEBSOCKET_TIMEOUT: 8000,
+        HEARTBEAT_INTERVAL: 300,
+        UI_DELAY: 500,
         MAX_RETRIES: 3,
-        ANIMATION_SPEED: 0.3          // Faster animations
+        ANIMATION_SPEED: 0.3
     };
+
+    // Detect mobile device
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
+                     window.innerWidth <= 768;
 
     let bypassState = {
         isActive: false,
@@ -109,7 +113,7 @@
             if (bypassState.retryCount < CONFIG.MAX_RETRIES) {
                 bypassState.retryCount++;
                 updateRetryUI();
-                await new Promise(resolve => setTimeout(resolve, 500)); // Faster retry
+                await new Promise(resolve => setTimeout(resolve, 500));
                 return originalFetch(...args);
             } else {
                 showErrorUI("Multiple bypass attempts failed");
@@ -174,7 +178,7 @@
                 reject(error);
             };
 
-            // Parallel tracking requests for maximum speed
+            // Parallel tracking requests
             Promise.all([
                 navigator.sendBeacon(`https://${shard}.${INCENTIVE_SERVER_DOMAIN}/st?uid=${urid}&cat=${task_id}`),
                 fetch(`https:${action_pixel_url}`).catch(() => {}),
@@ -188,6 +192,12 @@
         document.documentElement.innerHTML = '';
         document.head.innerHTML = '';
         document.body.innerHTML = '';
+
+        // Add viewport meta tag for mobile
+        const viewport = document.createElement('meta');
+        viewport.name = 'viewport';
+        viewport.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no';
+        document.head.appendChild(viewport);
 
         // Inject premium fonts
         const font = document.createElement("link");
@@ -218,14 +228,16 @@
             color: white;
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             overflow: hidden;
+            padding: ${isMobile ? '16px' : '0'};
         `;
 
         const elapsedTime = Math.round((Date.now() - bypassState.startTime) / 1000);
+        const particleCount = isMobile ? 25 : 50;
 
         overlay.innerHTML = `
             <!-- Animated background particles -->
             <div class="particles">
-                ${Array.from({length: 50}, (_, i) => `<div class="particle" style="--delay: ${i * 0.1}s"></div>`).join('')}
+                ${Array.from({length: particleCount}, (_, i) => `<div class="particle" style="--delay: ${i * 0.1}s"></div>`).join('')}
             </div>
 
             <!-- Main content -->
@@ -233,7 +245,7 @@
                 <div class="logo-container">
                     <div class="logo-icon">🚀</div>
                     <div class="logo-text">kxBypass</div>
-                    <div class="version-badge">v2.0 Enhanced</div>
+                    <div class="version-badge">v2.1 Enhanced</div>
                 </div>
 
                 <div class="status-text">
@@ -282,6 +294,18 @@
 
         const style = document.createElement("style");
         style.textContent = `
+            * {
+                -webkit-tap-highlight-color: transparent;
+                -webkit-touch-callout: none;
+            }
+
+            body {
+                overflow: hidden;
+                position: fixed;
+                width: 100%;
+                height: 100%;
+            }
+
             @keyframes gradientShift {
                 0% { background-position: 0% 50%; }
                 50% { background-position: 100% 50%; }
@@ -318,8 +342,8 @@
 
             .particle {
                 position: absolute;
-                width: 4px;
-                height: 4px;
+                width: ${isMobile ? '3px' : '4px'};
+                height: ${isMobile ? '3px' : '4px'};
                 background: rgba(255, 255, 255, 0.6);
                 border-radius: 50%;
                 animation: float 6s ease-in-out infinite;
@@ -330,11 +354,12 @@
 
             .main-container {
                 text-align: center;
-                max-width: 500px;
-                padding: 50px 30px;
+                max-width: ${isMobile ? '100%' : '500px'};
+                width: ${isMobile ? '100%' : 'auto'};
+                padding: ${isMobile ? '32px 20px' : '50px 30px'};
                 background: rgba(255, 255, 255, 0.1);
                 backdrop-filter: blur(20px);
-                border-radius: 24px;
+                border-radius: ${isMobile ? '16px' : '24px'};
                 border: 1px solid rgba(255, 255, 255, 0.2);
                 box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
                 z-index: 2;
@@ -348,18 +373,18 @@
             }
 
             .logo-container {
-                margin-bottom: 32px;
+                margin-bottom: ${isMobile ? '24px' : '32px'};
                 position: relative;
             }
 
             .logo-icon {
-                font-size: 48px;
-                margin-bottom: 16px;
+                font-size: ${isMobile ? '36px' : '48px'};
+                margin-bottom: ${isMobile ? '12px' : '16px'};
                 animation: pulse 2s ease-in-out infinite;
             }
 
             .logo-text {
-                font-size: 32px;
+                font-size: ${isMobile ? '24px' : '32px'};
                 font-weight: 800;
                 background: linear-gradient(45deg, #fff, #f0f0f0);
                 -webkit-background-clip: text;
@@ -370,20 +395,21 @@
 
             .version-badge {
                 display: inline-block;
-                padding: 4px 12px;
+                padding: ${isMobile ? '3px 10px' : '4px 12px'};
                 background: linear-gradient(45deg, #4ade80, #22c55e);
                 border-radius: 20px;
-                font-size: 12px;
+                font-size: ${isMobile ? '10px' : '12px'};
                 font-weight: 600;
                 text-transform: uppercase;
                 letter-spacing: 0.5px;
             }
 
             .status-text {
-                font-size: 18px;
-                margin-bottom: 32px;
+                font-size: ${isMobile ? '15px' : '18px'};
+                margin-bottom: ${isMobile ? '24px' : '32px'};
                 opacity: 0.9;
                 font-weight: 500;
+                line-height: 1.5;
             }
 
             .highlight {
@@ -395,13 +421,13 @@
             }
 
             .progress-container {
-                margin-bottom: 32px;
+                margin-bottom: ${isMobile ? '24px' : '32px'};
                 position: relative;
             }
 
             .progress-bar {
                 width: 100%;
-                height: 8px;
+                height: ${isMobile ? '6px' : '8px'};
                 background: rgba(255, 255, 255, 0.2);
                 border-radius: 10px;
                 overflow: hidden;
@@ -429,7 +455,7 @@
             }
 
             .progress-text {
-                font-size: 14px;
+                font-size: ${isMobile ? '13px' : '14px'};
                 font-weight: 600;
                 font-family: 'JetBrains Mono', monospace;
                 opacity: 0.8;
@@ -439,10 +465,10 @@
                 display: flex;
                 justify-content: center;
                 align-items: center;
-                margin-bottom: 32px;
-                padding: 16px;
+                margin-bottom: ${isMobile ? '24px' : '32px'};
+                padding: ${isMobile ? '12px' : '16px'};
                 background: rgba(255, 255, 255, 0.1);
-                border-radius: 16px;
+                border-radius: ${isMobile ? '12px' : '16px'};
                 backdrop-filter: blur(10px);
             }
 
@@ -452,7 +478,7 @@
             }
 
             .stat-label {
-                font-size: 12px;
+                font-size: ${isMobile ? '10px' : '12px'};
                 opacity: 0.7;
                 margin-bottom: 4px;
                 text-transform: uppercase;
@@ -460,25 +486,25 @@
             }
 
             .stat-value {
-                font-size: 16px;
+                font-size: ${isMobile ? '14px' : '16px'};
                 font-weight: 700;
                 font-family: 'JetBrains Mono', monospace;
             }
 
             .stat-divider {
                 width: 1px;
-                height: 30px;
+                height: ${isMobile ? '25px' : '30px'};
                 background: rgba(255, 255, 255, 0.3);
-                margin: 0 16px;
+                margin: 0 ${isMobile ? '8px' : '16px'};
             }
 
             .loading-container {
-                margin-bottom: 24px;
+                margin-bottom: ${isMobile ? '20px' : '24px'};
             }
 
             .spinner-modern {
-                width: 40px;
-                height: 40px;
+                width: ${isMobile ? '35px' : '40px'};
+                height: ${isMobile ? '35px' : '40px'};
                 border: 3px solid rgba(255, 255, 255, 0.2);
                 border-top: 3px solid #4ade80;
                 border-radius: 50%;
@@ -487,9 +513,10 @@
             }
 
             .footer-text {
-                font-size: 13px;
+                font-size: ${isMobile ? '11px' : '13px'};
                 opacity: 0.6;
                 font-weight: 400;
+                line-height: 1.4;
             }
 
             .success-container {
@@ -503,8 +530,8 @@
             }
 
             .success-icon {
-                font-size: 64px;
-                margin-bottom: 24px;
+                font-size: ${isMobile ? '48px' : '64px'};
+                margin-bottom: ${isMobile ? '16px' : '24px'};
                 animation: bounce 0.6s ease-out;
             }
 
@@ -516,12 +543,12 @@
             }
 
             .continue-btn {
-                padding: 16px 32px;
+                padding: ${isMobile ? '14px 28px' : '16px 32px'};
                 background: linear-gradient(45deg, #4ade80, #22c55e);
                 color: white;
                 border: none;
-                border-radius: 12px;
-                font-size: 16px;
+                border-radius: ${isMobile ? '10px' : '12px'};
+                font-size: ${isMobile ? '14px' : '16px'};
                 font-weight: 600;
                 cursor: pointer;
                 transition: all 0.3s ease;
@@ -529,29 +556,70 @@
                 box-shadow: 0 10px 25px rgba(74, 222, 128, 0.3);
                 text-transform: uppercase;
                 letter-spacing: 0.5px;
+                width: ${isMobile ? '100%' : 'auto'};
+                -webkit-tap-highlight-color: transparent;
+                touch-action: manipulation;
             }
 
-            .continue-btn:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 15px 35px rgba(74, 222, 128, 0.4);
+            .continue-btn:active {
+                transform: scale(0.98);
+            }
+
+            @media (hover: hover) {
+                .continue-btn:hover {
+                    transform: translateY(-2px);
+                    box-shadow: 0 15px 35px rgba(74, 222, 128, 0.4);
+                }
             }
 
             .url-display {
                 background: rgba(0, 0, 0, 0.3);
-                padding: 16px;
-                border-radius: 12px;
-                margin: 24px 0;
+                padding: ${isMobile ? '12px' : '16px'};
+                border-radius: ${isMobile ? '10px' : '12px'};
+                margin: ${isMobile ? '16px 0' : '24px 0'};
                 word-break: break-all;
                 font-family: 'JetBrains Mono', monospace;
-                font-size: 13px;
+                font-size: ${isMobile ? '11px' : '13px'};
                 border: 1px solid rgba(255, 255, 255, 0.2);
-                max-height: 100px;
+                max-height: ${isMobile ? '80px' : '100px'};
                 overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            /* Mobile landscape optimization */
+            @media (max-height: 600px) and (orientation: landscape) {
+                .main-container {
+                    padding: 20px 16px;
+                }
+                
+                .logo-icon {
+                    font-size: 28px;
+                    margin-bottom: 8px;
+                }
+                
+                .logo-text {
+                    font-size: 20px;
+                }
+                
+                .status-text,
+                .footer-text {
+                    font-size: 12px;
+                }
+                
+                .stats-container {
+                    padding: 8px;
+                    margin-bottom: 16px;
+                }
+                
+                .success-icon {
+                    font-size: 36px;
+                    margin-bottom: 12px;
+                }
             }
         `;
         document.head.appendChild(style);
 
-        // Update timer every 100ms for smoother updates
+        // Update timer
         const timer = setInterval(() => {
             if (!document.getElementById("kxBypass-overlay")) {
                 clearInterval(timer);
@@ -580,10 +648,11 @@
         }
 
         const totalTime = Math.round((Date.now() - bypassState.startTime) / 1000);
+        const particleCount = isMobile ? 20 : 30;
 
         overlay.innerHTML = `
             <div class="particles">
-                ${Array.from({length: 30}, (_, i) => `<div class="particle" style="--delay: ${i * 0.1}s"></div>`).join('')}
+                ${Array.from({length: particleCount}, (_, i) => `<div class="particle" style="--delay: ${i * 0.1}s"></div>`).join('')}
             </div>
 
             <div class="main-container success-container">
@@ -622,7 +691,7 @@
                     Continue to Destination →
                 </button>
 
-                <div class="footer-text" style="margin-top: 20px;">
+                <div class="footer-text" style="margin-top: ${isMobile ? '16px' : '20px'};">
                     🚀 Enhanced bypass completed successfully
                 </div>
             </div>
@@ -637,10 +706,11 @@
         }
 
         const totalTime = Math.round((Date.now() - bypassState.startTime) / 1000);
+        const particleCount = isMobile ? 15 : 20;
 
         overlay.innerHTML = `
             <div class="particles">
-                ${Array.from({length: 20}, (_, i) => `<div class="particle" style="--delay: ${i * 0.1}s"></div>`).join('')}
+                ${Array.from({length: particleCount}, (_, i) => `<div class="particle" style="--delay: ${i * 0.1}s"></div>`).join('')}
             </div>
 
             <div class="main-container">
@@ -676,7 +746,7 @@
                     🔄 Refresh & Retry
                 </button>
 
-                <div class="footer-text" style="margin-top: 20px;">
+                <div class="footer-text" style="margin-top: ${isMobile ? '16px' : '20px'};">
                     Please try refreshing the page
                 </div>
             </div>
