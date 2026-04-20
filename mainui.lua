@@ -2918,6 +2918,8 @@ Avantrix_MODULES[Avantrix["3e"]] = {
 		function LIB:CreateWindow(data)
 			local Window = {
 				Title = data.Title,
+				TitleColor = data.TitleColor,
+				TitleGradient = data.TitleGradient,
 				Icon = data.Icon,
 				Version = data.Author,
 				Folder = data.Folder,
@@ -2974,6 +2976,28 @@ Avantrix_MODULES[Avantrix["3e"]] = {
 			local Tabs = mainFrame.Tabs
 
 			newWindow.Name = Window.Title
+			
+			-- Handle warna/gradient judul
+			if Window.TitleColor then
+				TopFrame.TextLabel.TextColor3 = Window.TitleColor
+			end
+
+			if Window.TitleGradient then
+				TopFrame.TextLabel.TextColor3 = Color3.new(1, 1, 1)
+				local grad = Instance.new("UIGradient")
+				grad.Color = Window.TitleGradient
+				grad.Parent = TopFrame.TextLabel
+
+				-- Animasi gradasi bergerak (smooth shift)
+				task.spawn(function()
+					local offset = 0
+					while true do
+						offset = offset + 0.015
+						grad.Offset = Vector2.new(math.sin(offset) * 0.5, 0)
+						task.wait(0.02)
+					end
+				end)
+			end
 			
 			-- Animasi Typewriter untuk Judul Utama
 			task.spawn(function()
