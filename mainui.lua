@@ -2974,7 +2974,30 @@ Avantrix_MODULES[Avantrix["3e"]] = {
 			local Tabs = mainFrame.Tabs
 
 			newWindow.Name = Window.Title
-			TopFrame.TextLabel.Text = Window.Title.." - "..Window.Version
+			
+			-- Animasi Typewriter untuk Judul Utama
+			task.spawn(function()
+				local fullTitle = Window.Title
+				local versionPart = (Window.Version and Window.Version ~= "") and " - " .. Window.Version or ""
+				
+				while true do
+					-- Ketik Judul
+					for i = 1, #fullTitle do
+						TopFrame.TextLabel.Text = string.sub(fullTitle, 1, i) .. versionPart
+						task.wait(0.12) -- Kecepatan ngetik
+					end
+					
+					task.wait(4) -- Durasi judul tampil lengkap
+					
+					-- Hapus Judul
+					for i = #fullTitle, 0, -1 do
+						TopFrame.TextLabel.Text = string.sub(fullTitle, 1, i) .. versionPart
+						task.wait(0.06) -- Kecepatan ngehapus
+					end
+					
+					task.wait(1) -- Jeda sebelum ngetik ulang
+				end
+			end)
 			if not Window.Icon:find("rbxassetid") then
 				TopFrame.Icon.Image = IconModule.Icon(Window.Icon)[1] or Window.Icon or ""
 				TopFrame.Icon.ImageRectOffset = IconModule.Icon(Window.Icon)[2].ImageRectPosition or Vector2.new(0,0)
