@@ -4669,32 +4669,46 @@ Avantrix_MODULES[Avantrix["3e"]] = {
 					}
 
 					local newButton = Templates.DialogElements.DialogButton:Clone()
-					local originalSize = newButton.Button.Size
+					local targetButton = newButton:FindFirstChild("Button")
+					
+					if not targetButton then
+						-- Fallback if template structure is unexpected
+						targetButton = newButton:IsA("GuiButton") and newButton or newButton:FindFirstChildOfClass("GuiButton")
+					end
 
-					newButton.Button.Label.Text = buttonData.Title
+					if targetButton then
+						local originalSize = targetButton.Size
+						local label = targetButton:FindFirstChild("Label") or targetButton:FindFirstChildWhichIsA("TextLabel")
+						
+						if label then
+							label.Text = buttonData.Title
+						end
 
-					newButton.Button.MouseButton1Click:Connect(function()
-						buttonData.Callback()
+						targetButton.MouseButton1Click:Connect(function()
+							buttonData.Callback()
 
-						local tw = Tween(newDialogDarkOverlay, {Transparency = 1}, TweenConfigs.Global)
-						--local tw = Tween(newDialog, {Size = UDim2.fromOffset(0,0)}, TweenConfigs.PopupClose)
-						newDialog:Destroy()
-						tw.Completed:Wait()
-						newDialogDarkOverlay:Destroy()
+							local tw = Tween(newDialogDarkOverlay, {Transparency = 1}, TweenConfigs.Global)
+							newDialog:Destroy()
+							tw.Completed:Wait()
+							newDialogDarkOverlay:Destroy()
+						end)
 
-					end)
+						targetButton.MouseButton1Down:Connect(function()
+							Tween(targetButton, {Size = originalSize - Dialog.PressDecreaseSize}, TweenConfigs.Global)
+						end)
 
-					newButton.Button.MouseButton1Down:Connect(function()
-						Tween(newButton.Button, {Size = originalSize - Dialog.PressDecreaseSize}, TweenConfigs.Global)
-					end)
+						targetButton.MouseButton1Up:Connect(function()
+							if targetButton and targetButton.Parent then
+								Tween(targetButton, {Size = originalSize}, TweenConfigs.Global)
+							end
+						end)
 
-					newButton.Button.MouseButton1Up:Connect(function()
-						Tween(newButton.Button, {Size = originalSize}, TweenConfigs.Global)
-					end)
-
-					newButton.Button.MouseLeave:Connect(function()
-						Tween(newButton.Button, {Size = originalSize}, TweenConfigs.Global)
-					end)
+						targetButton.MouseLeave:Connect(function()
+							if targetButton and targetButton.Parent then
+								Tween(targetButton, {Size = originalSize}, TweenConfigs.Global)
+							end
+						end)
+					end
 
 					newButton.Parent = newDialog.Buttons
 					newButton.Visible = true
