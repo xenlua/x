@@ -42,11 +42,12 @@ end
 Avantrix["2"] = Instance.new("Frame", Avantrix["1"]);
 Avantrix["2"]["ZIndex"] = 0;
 Avantrix["2"]["BorderSizePixel"] = 2;
-Avantrix["2"]["BackgroundColor3"] = Color3.fromRGB(37, 40, 47);
+Avantrix["2"]["BackgroundColor3"] = Color3.fromRGB(18, 22, 36);
+Avantrix["2"]["BackgroundTransparency"] = 0.35;
 Avantrix["2"]["AnchorPoint"] = Vector2.new(0.5, 0.5);
 Avantrix["2"]["Size"] = UDim2.new(0, 528, 0, 334);
 Avantrix["2"]["Position"] = UDim2.new(0.5278, 0, 0.5, 0);
-Avantrix["2"]["BorderColor3"] = Color3.fromRGB(61, 61, 75);
+Avantrix["2"]["BorderColor3"] = Color3.fromRGB(0, 90, 160);
 Avantrix["2"]["Name"] = [[Window]];
 
 
@@ -60,12 +61,12 @@ Avantrix["4"] = Instance.new("Frame", Avantrix["2"]);
 Avantrix["4"]["Visible"] = false;
 Avantrix["4"]["ZIndex"] = 4;
 Avantrix["4"]["BorderSizePixel"] = 0;
-Avantrix["4"]["BackgroundColor3"] = Color3.fromRGB(32, 35, 41);
+Avantrix["4"]["BackgroundColor3"] = Color3.fromRGB(14, 17, 28);
 Avantrix["4"]["AnchorPoint"] = Vector2.new(0.5, 0.5);
 Avantrix["4"]["ClipsDescendants"] = true;
 Avantrix["4"]["Size"] = UDim2.new(0.7281, 0, 0.68367, 0);
 Avantrix["4"]["Position"] = UDim2.new(0.5, 0, 0.5, 0);
-Avantrix["4"]["BorderColor3"] = Color3.fromRGB(61, 61, 75);
+Avantrix["4"]["BorderColor3"] = Color3.fromRGB(0, 90, 160);
 Avantrix["4"]["Name"] = [[DropdownSelection]];
 
 
@@ -78,7 +79,7 @@ Avantrix["5"]["CornerRadius"] = UDim.new(0, 6);
 Avantrix["6"] = Instance.new("UIStroke", Avantrix["4"]);
 Avantrix["6"]["ApplyStrokeMode"] = Enum.ApplyStrokeMode.Border;
 Avantrix["6"]["Thickness"] = 1.5;
-Avantrix["6"]["Color"] = Color3.fromRGB(61, 61, 75);
+Avantrix["6"]["Color"] = Color3.fromRGB(0, 90, 160);
 
 
 -- Avantrix.Window.DropdownSelection.TopBar
@@ -122,7 +123,7 @@ Avantrix["9"]["Position"] = UDim2.new(0.5, 0, 0.5, 0);
 -- Avantrix.Window.DropdownSelection.TopBar.BoxFrame.Frame
 Avantrix["a"] = Instance.new("Frame", Avantrix["8"]);
 Avantrix["a"]["BorderSizePixel"] = 0;
-Avantrix["a"]["BackgroundColor3"] = Color3.fromRGB(43, 46, 53);
+Avantrix["a"]["BackgroundColor3"] = Color3.fromRGB(22, 26, 42);
 Avantrix["a"]["AutomaticSize"] = Enum.AutomaticSize.Y;
 Avantrix["a"]["Size"] = UDim2.new(1, 0, 1, 0);
 Avantrix["a"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
@@ -137,7 +138,7 @@ Avantrix["b"]["CornerRadius"] = UDim.new(0, 5);
 Avantrix["c"] = Instance.new("UIStroke", Avantrix["a"]);
 Avantrix["c"]["ApplyStrokeMode"] = Enum.ApplyStrokeMode.Border;
 Avantrix["c"]["Thickness"] = 1.5;
-Avantrix["c"]["Color"] = Color3.fromRGB(61, 61, 75);
+Avantrix["c"]["Color"] = Color3.fromRGB(0, 90, 160);
 
 
 -- Avantrix.Window.DropdownSelection.TopBar.BoxFrame.Frame.TextBox
@@ -225,11 +226,12 @@ Avantrix["12"]["Name"] = [[Dropdowns]];
 -- Avantrix.Window.TabButtons
 Avantrix["13"] = Instance.new("Frame", Avantrix["2"]);
 Avantrix["13"]["BorderSizePixel"] = 0;
-Avantrix["13"]["BackgroundColor3"] = Color3.fromRGB(37, 40, 47);
+Avantrix["13"]["BackgroundColor3"] = Color3.fromRGB(18, 22, 36);
+Avantrix["13"]["BackgroundTransparency"] = 0.35;
 Avantrix["13"]["ClipsDescendants"] = true;
 Avantrix["13"]["Size"] = UDim2.new(0, 165, 1, -35);
 Avantrix["13"]["Position"] = UDim2.new(0, 0, 0, 35);
-Avantrix["13"]["BorderColor3"] = Color3.fromRGB(61, 61, 75);
+Avantrix["13"]["BorderColor3"] = Color3.fromRGB(0, 90, 160);
 Avantrix["13"]["Name"] = [[TabButtons]];
 Avantrix["13"]["SelectionGroup"] = true;
 
@@ -242,13 +244,13 @@ Avantrix["14"]["BorderSizePixel"] = 0;
 Avantrix["14"]["CanvasSize"] = UDim2.new(0, 0, 0, 0);
 Avantrix["14"]["ElasticBehavior"] = Enum.ElasticBehavior.Never;
 Avantrix["14"]["TopImage"] = [[rbxasset://textures/ui/Scroll/scroll-middle.png]];
-Avantrix["14"]["BackgroundColor3"] = Color3.fromRGB(37, 40, 47);
+Avantrix["14"]["BackgroundColor3"] = Color3.fromRGB(18, 22, 36);
 Avantrix["14"]["Name"] = [[Lists]];
 Avantrix["14"]["Selectable"] = false;
 Avantrix["14"]["BottomImage"] = [[rbxasset://textures/ui/Scroll/scroll-middle.png]];
 Avantrix["14"]["AutomaticCanvasSize"] = Enum.AutomaticSize.Y;
 Avantrix["14"]["Size"] = UDim2.new(1, 0, 1, 0);
-Avantrix["14"]["BorderColor3"] = Color3.fromRGB(61, 61, 75);
+Avantrix["14"]["BorderColor3"] = Color3.fromRGB(0, 90, 160);
 Avantrix["14"]["ScrollBarThickness"] = 4;
 Avantrix["14"]["BackgroundTransparency"] = 1;
 
@@ -339,9 +341,9 @@ Avantrix["1d"]["PaddingTop"] = UDim.new(0, 8);
 Avantrix["1e"] = Instance.new("Frame", Avantrix["14"]);
 Avantrix["1e"]["Visible"] = false;
 Avantrix["1e"]["BorderSizePixel"] = 0;
-Avantrix["1e"]["BackgroundColor3"] = Color3.fromRGB(61, 61, 75);
+Avantrix["1e"]["BackgroundColor3"] = Color3.fromRGB(0, 90, 160);
 Avantrix["1e"]["Size"] = UDim2.new(1, 0, 0, 1);
-Avantrix["1e"]["BorderColor3"] = Color3.fromRGB(61, 61, 75);
+Avantrix["1e"]["BorderColor3"] = Color3.fromRGB(0, 90, 160);
 Avantrix["1e"]["Name"] = [[Divider]];
 
 
@@ -423,7 +425,8 @@ Avantrix["25"]["CornerRadius"] = UDim.new(0, 6);
 -- Avantrix.Window.TabButtons.AntiCornerTop
 Avantrix["26"] = Instance.new("Frame", Avantrix["13"]);
 Avantrix["26"]["BorderSizePixel"] = 0;
-Avantrix["26"]["BackgroundColor3"] = Color3.fromRGB(37, 40, 47);
+Avantrix["26"]["BackgroundColor3"] = Color3.fromRGB(18, 22, 36);
+Avantrix["26"]["BackgroundTransparency"] = 0.35;
 Avantrix["26"]["Size"] = UDim2.new(1, 0, 0, 5);
 Avantrix["26"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
 Avantrix["26"]["Name"] = [[AntiCornerTop]];
@@ -432,7 +435,8 @@ Avantrix["26"]["Name"] = [[AntiCornerTop]];
 -- Avantrix.Window.TabButtons.AntiCornerRight
 Avantrix["27"] = Instance.new("Frame", Avantrix["13"]);
 Avantrix["27"]["BorderSizePixel"] = 0;
-Avantrix["27"]["BackgroundColor3"] = Color3.fromRGB(37, 40, 47);
+Avantrix["27"]["BackgroundColor3"] = Color3.fromRGB(18, 22, 36);
+Avantrix["27"]["BackgroundTransparency"] = 0.35;
 Avantrix["27"]["AnchorPoint"] = Vector2.new(0.5, 0);
 Avantrix["27"]["Size"] = UDim2.new(0, 2, 1, 0);
 Avantrix["27"]["Position"] = UDim2.new(1, 1, 0, 0);
@@ -444,7 +448,7 @@ Avantrix["27"]["Name"] = [[AntiCornerRight]];
 Avantrix["28"] = Instance.new("Frame", Avantrix["13"]);
 Avantrix["28"]["ZIndex"] = 2;
 Avantrix["28"]["BorderSizePixel"] = 0;
-Avantrix["28"]["BackgroundColor3"] = Color3.fromRGB(61, 61, 75);
+Avantrix["28"]["BackgroundColor3"] = Color3.fromRGB(0, 90, 160);
 Avantrix["28"]["AnchorPoint"] = Vector2.new(1, 0);
 Avantrix["28"]["Size"] = UDim2.new(0, 2, 1, 0);
 Avantrix["28"]["Position"] = UDim2.new(1, 0, 0, 0);
@@ -455,10 +459,11 @@ Avantrix["28"]["Name"] = [[Border]];
 -- Avantrix.Window.TopFrame
 Avantrix["29"] = Instance.new("Frame", Avantrix["2"]);
 Avantrix["29"]["BorderSizePixel"] = 0;
-Avantrix["29"]["BackgroundColor3"] = Color3.fromRGB(37, 40, 47);
+Avantrix["29"]["BackgroundColor3"] = Color3.fromRGB(18, 22, 36);
+Avantrix["29"]["BackgroundTransparency"] = 0.35;
 Avantrix["29"]["ClipsDescendants"] = true;
 Avantrix["29"]["Size"] = UDim2.new(1, 0, 0, 35);
-Avantrix["29"]["BorderColor3"] = Color3.fromRGB(61, 61, 75);
+Avantrix["29"]["BorderColor3"] = Color3.fromRGB(0, 90, 160);
 Avantrix["29"]["Name"] = [[TopFrame]];
 
 
@@ -555,7 +560,7 @@ Avantrix["30"]["CornerRadius"] = UDim.new(0, 6);
 Avantrix["31"] = Instance.new("Frame", Avantrix["29"]);
 Avantrix["31"]["ZIndex"] = 2;
 Avantrix["31"]["BorderSizePixel"] = 0;
-Avantrix["31"]["BackgroundColor3"] = Color3.fromRGB(61, 61, 75);
+Avantrix["31"]["BackgroundColor3"] = Color3.fromRGB(0, 90, 160);
 Avantrix["31"]["AnchorPoint"] = Vector2.new(0, 0.5);
 Avantrix["31"]["Size"] = UDim2.new(1, 0, 0, 2);
 Avantrix["31"]["Position"] = UDim2.new(0, 0, 1, 0);
@@ -567,16 +572,17 @@ Avantrix["31"]["Name"] = [[Border]];
 Avantrix["32"] = Instance.new("UIStroke", Avantrix["2"]);
 Avantrix["32"]["Transparency"] = 0.5;
 Avantrix["32"]["ApplyStrokeMode"] = Enum.ApplyStrokeMode.Border;
-Avantrix["32"]["Color"] = Color3.fromRGB(95, 95, 117);
+Avantrix["32"]["Color"] = Color3.fromRGB(0, 100, 180);
 
 
 -- Avantrix.Window.Tabs
 Avantrix["33"] = Instance.new("Frame", Avantrix["2"]);
 Avantrix["33"]["BorderSizePixel"] = 0;
-Avantrix["33"]["BackgroundColor3"] = Color3.fromRGB(32, 35, 41);
+Avantrix["33"]["BackgroundColor3"] = Color3.fromRGB(14, 17, 28);
+Avantrix["33"]["BackgroundTransparency"] = 0.3;
 Avantrix["33"]["Size"] = UDim2.new(1, -165, 1, -35);
 Avantrix["33"]["Position"] = UDim2.new(0, 165, 0, 35);
-Avantrix["33"]["BorderColor3"] = Color3.fromRGB(61, 61, 75);
+Avantrix["33"]["BorderColor3"] = Color3.fromRGB(0, 90, 160);
 Avantrix["33"]["Name"] = [[Tabs]];
 
 
@@ -589,7 +595,8 @@ Avantrix["34"]["CornerRadius"] = UDim.new(0, 6);
 Avantrix["35"] = Instance.new("Frame", Avantrix["33"]);
 Avantrix["35"]["Visible"] = false;
 Avantrix["35"]["BorderSizePixel"] = 0;
-Avantrix["35"]["BackgroundColor3"] = Color3.fromRGB(32, 35, 41);
+Avantrix["35"]["BackgroundColor3"] = Color3.fromRGB(14, 17, 28);
+Avantrix["35"]["BackgroundTransparency"] = 0.3;
 Avantrix["35"]["Size"] = UDim2.new(0, 5, 1, 0);
 Avantrix["35"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
 Avantrix["35"]["Name"] = [[AntiCornerLeft]];
@@ -598,7 +605,8 @@ Avantrix["35"]["Name"] = [[AntiCornerLeft]];
 -- Avantrix.Window.Tabs.AntiCornerTop
 Avantrix["36"] = Instance.new("Frame", Avantrix["33"]);
 Avantrix["36"]["BorderSizePixel"] = 0;
-Avantrix["36"]["BackgroundColor3"] = Color3.fromRGB(32, 35, 41);
+Avantrix["36"]["BackgroundColor3"] = Color3.fromRGB(14, 17, 28);
+Avantrix["36"]["BackgroundTransparency"] = 0.3;
 Avantrix["36"]["Size"] = UDim2.new(1, 0, 0, 5);
 Avantrix["36"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
 Avantrix["36"]["Name"] = [[AntiCornerTop]];
@@ -613,7 +621,7 @@ Avantrix["37"]["TextSize"] = 14;
 Avantrix["37"]["TextScaled"] = true;
 Avantrix["37"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255);
 Avantrix["37"]["FontFace"] = Font.new([[rbxassetid://11702779517]], Enum.FontWeight.SemiBold, Enum.FontStyle.Normal);
-Avantrix["37"]["TextColor3"] = Color3.fromRGB(135, 140, 150);
+Avantrix["37"]["TextColor3"] = Color3.fromRGB(60, 100, 160);
 Avantrix["37"]["BackgroundTransparency"] = 1;
 Avantrix["37"]["AnchorPoint"] = Vector2.new(0.5, 0.5);
 Avantrix["37"]["Size"] = UDim2.new(1, 0, 0, 16);
@@ -702,9 +710,9 @@ Avantrix["41"]["Name"] = [[Templates]];
 Avantrix["42"] = Instance.new("Frame", Avantrix["41"]);
 Avantrix["42"]["Visible"] = false;
 Avantrix["42"]["BorderSizePixel"] = 0;
-Avantrix["42"]["BackgroundColor3"] = Color3.fromRGB(61, 61, 75);
+Avantrix["42"]["BackgroundColor3"] = Color3.fromRGB(0, 90, 160);
 Avantrix["42"]["Size"] = UDim2.new(1, 0, 0, 1);
-Avantrix["42"]["BorderColor3"] = Color3.fromRGB(61, 61, 75);
+Avantrix["42"]["BorderColor3"] = Color3.fromRGB(0, 90, 160);
 Avantrix["42"]["Name"] = [[Divider]];
 
 
@@ -723,7 +731,7 @@ Avantrix["43"]["Selectable"] = false;
 Avantrix["43"]["BottomImage"] = [[rbxasset://textures/ui/Scroll/scroll-middle.png]];
 Avantrix["43"]["AutomaticCanvasSize"] = Enum.AutomaticSize.Y;
 Avantrix["43"]["Size"] = UDim2.new(1, 0, 1, 0);
-Avantrix["43"]["ScrollBarImageColor3"] = Color3.fromRGB(99, 106, 122);
+Avantrix["43"]["ScrollBarImageColor3"] = Color3.fromRGB(0, 110, 190);
 Avantrix["43"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
 Avantrix["43"]["ScrollBarThickness"] = 5;
 Avantrix["43"]["BackgroundTransparency"] = 1;
@@ -817,7 +825,8 @@ Avantrix["4c"] = Instance.new("ImageButton", Avantrix["41"]);
 Avantrix["4c"]["BorderSizePixel"] = 0;
 Avantrix["4c"]["AutoButtonColor"] = false;
 Avantrix["4c"]["Visible"] = false;
-Avantrix["4c"]["BackgroundColor3"] = Color3.fromRGB(43, 46, 53);
+Avantrix["4c"]["BackgroundColor3"] = Color3.fromRGB(22, 26, 42);
+Avantrix["4c"]["BackgroundTransparency"] = 0.25;
 Avantrix["4c"]["Selectable"] = false;
 Avantrix["4c"]["AutomaticSize"] = Enum.AutomaticSize.Y;
 Avantrix["4c"]["Size"] = UDim2.new(1, 0, 0, 35);
@@ -934,14 +943,15 @@ Avantrix["57"]["CornerRadius"] = UDim.new(0, 6);
 Avantrix["58"] = Instance.new("UIStroke", Avantrix["4c"]);
 Avantrix["58"]["ApplyStrokeMode"] = Enum.ApplyStrokeMode.Border;
 Avantrix["58"]["Thickness"] = 1.5;
-Avantrix["58"]["Color"] = Color3.fromRGB(61, 61, 75);
+Avantrix["58"]["Color"] = Color3.fromRGB(0, 90, 160);
 
 
 -- Avantrix.Templates.Paragraph
 Avantrix["59"] = Instance.new("Frame", Avantrix["41"]);
 Avantrix["59"]["Visible"] = false;
 Avantrix["59"]["BorderSizePixel"] = 0;
-Avantrix["59"]["BackgroundColor3"] = Color3.fromRGB(43, 46, 53);
+Avantrix["59"]["BackgroundColor3"] = Color3.fromRGB(22, 26, 42);
+Avantrix["59"]["BackgroundTransparency"] = 0.25;
 Avantrix["59"]["AutomaticSize"] = Enum.AutomaticSize.Y;
 Avantrix["59"]["Size"] = UDim2.new(1, 0, 0, 35);
 Avantrix["59"]["Position"] = UDim2.new(-0.0375, 0, 0.38434, 0);
@@ -958,7 +968,7 @@ Avantrix["5a"]["CornerRadius"] = UDim.new(0, 6);
 Avantrix["5b"] = Instance.new("UIStroke", Avantrix["59"]);
 Avantrix["5b"]["ApplyStrokeMode"] = Enum.ApplyStrokeMode.Border;
 Avantrix["5b"]["Thickness"] = 1.5;
-Avantrix["5b"]["Color"] = Color3.fromRGB(61, 61, 75);
+Avantrix["5b"]["Color"] = Color3.fromRGB(0, 90, 160);
 
 
 -- Avantrix.Templates.Paragraph.Title
@@ -1018,7 +1028,8 @@ Avantrix["60"] = Instance.new("ImageButton", Avantrix["41"]);
 Avantrix["60"]["BorderSizePixel"] = 0;
 Avantrix["60"]["AutoButtonColor"] = false;
 Avantrix["60"]["Visible"] = false;
-Avantrix["60"]["BackgroundColor3"] = Color3.fromRGB(43, 46, 53);
+Avantrix["60"]["BackgroundColor3"] = Color3.fromRGB(22, 26, 42);
+Avantrix["60"]["BackgroundTransparency"] = 0.25;
 Avantrix["60"]["Selectable"] = false;
 Avantrix["60"]["AutomaticSize"] = Enum.AutomaticSize.Y;
 Avantrix["60"]["Size"] = UDim2.new(1, 0, 0, 35);
@@ -1036,7 +1047,7 @@ Avantrix["61"]["CornerRadius"] = UDim.new(0, 6);
 Avantrix["62"] = Instance.new("UIStroke", Avantrix["60"]);
 Avantrix["62"]["ApplyStrokeMode"] = Enum.ApplyStrokeMode.Border;
 Avantrix["62"]["Thickness"] = 1.5;
-Avantrix["62"]["Color"] = Color3.fromRGB(61, 61, 75);
+Avantrix["62"]["Color"] = Color3.fromRGB(0, 90, 160);
 
 
 -- Avantrix.Templates.Toggle.UIPadding
@@ -1094,7 +1105,7 @@ Avantrix["66"]["Name"] = [[Title]];
 Avantrix["67"] = Instance.new("ImageButton", Avantrix["66"]);
 Avantrix["67"]["BorderSizePixel"] = 0;
 Avantrix["67"]["AutoButtonColor"] = false;
-Avantrix["67"]["BackgroundColor3"] = Color3.fromRGB(54, 57, 63);
+Avantrix["67"]["BackgroundColor3"] = Color3.fromRGB(25, 30, 48);
 Avantrix["67"]["ImageColor3"] = Color3.fromRGB(197, 204, 219);
 Avantrix["67"]["AnchorPoint"] = Vector2.new(1, 0.5);
 Avantrix["67"]["Size"] = UDim2.new(0, 45, 0, 25);
@@ -1132,7 +1143,7 @@ Avantrix["6a"]["CornerRadius"] = UDim.new(100, 0);
 Avantrix["6b"] = Instance.new("ImageLabel", Avantrix["69"]);
 Avantrix["6b"]["BorderSizePixel"] = 0;
 Avantrix["6b"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255);
-Avantrix["6b"]["ImageColor3"] = Color3.fromRGB(54, 57, 63);
+Avantrix["6b"]["ImageColor3"] = Color3.fromRGB(25, 30, 48);
 Avantrix["6b"]["AnchorPoint"] = Vector2.new(0.5, 0.5);
 Avantrix["6b"]["Size"] = UDim2.new(1, -5, 1, -5);
 Avantrix["6b"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
@@ -1156,7 +1167,7 @@ Avantrix["6c"]["PaddingBottom"] = UDim.new(0, 2);
 Avantrix["6d"] = Instance.new("Frame", Avantrix["41"]);
 Avantrix["6d"]["Visible"] = false;
 Avantrix["6d"]["BorderSizePixel"] = 0;
-Avantrix["6d"]["BackgroundColor3"] = Color3.fromRGB(37, 40, 47);
+Avantrix["6d"]["BackgroundColor3"] = Color3.fromRGB(18, 22, 36);
 Avantrix["6d"]["AnchorPoint"] = Vector2.new(0.5, 0.5);
 Avantrix["6d"]["AutomaticSize"] = Enum.AutomaticSize.Y;
 Avantrix["6d"]["Size"] = UDim2.new(1, 0, 0, 65);
@@ -1170,7 +1181,8 @@ Avantrix["6d"]["BackgroundTransparency"] = 1;
 Avantrix["6e"] = Instance.new("CanvasGroup", Avantrix["6d"]);
 Avantrix["6e"]["ZIndex"] = 2;
 Avantrix["6e"]["BorderSizePixel"] = 0;
-Avantrix["6e"]["BackgroundColor3"] = Color3.fromRGB(37, 40, 47);
+Avantrix["6e"]["BackgroundColor3"] = Color3.fromRGB(18, 22, 36);
+Avantrix["6e"]["BackgroundTransparency"] = 0.3;
 Avantrix["6e"]["AutomaticSize"] = Enum.AutomaticSize.Y;
 Avantrix["6e"]["Size"] = UDim2.new(0, 265, 0, 70);
 Avantrix["6e"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
@@ -1323,7 +1335,7 @@ Avantrix["7b"]["Color"] = ColorSequence.new{
 -- Avantrix.Templates.Notification.Items.TimerBarFill
 Avantrix["7c"] = Instance.new("Frame", Avantrix["6e"]);
 Avantrix["7c"]["BorderSizePixel"] = 0;
-Avantrix["7c"]["BackgroundColor3"] = Color3.fromRGB(61, 61, 75);
+Avantrix["7c"]["BackgroundColor3"] = Color3.fromRGB(0, 90, 160);
 Avantrix["7c"]["AnchorPoint"] = Vector2.new(0, 1);
 Avantrix["7c"]["Size"] = UDim2.new(1, 0, 0, 5);
 Avantrix["7c"]["Position"] = UDim2.new(0, 0, 1, 0);
@@ -1337,7 +1349,7 @@ Avantrix["7d"] = Instance.new("UICorner", Avantrix["7c"]);
 -- Avantrix.Templates.Notification.Items.TimerBarFill.Bar
 Avantrix["7e"] = Instance.new("Frame", Avantrix["7c"]);
 Avantrix["7e"]["BorderSizePixel"] = 0;
-Avantrix["7e"]["BackgroundColor3"] = Color3.fromRGB(61, 61, 75);
+Avantrix["7e"]["BackgroundColor3"] = Color3.fromRGB(0, 90, 160);
 Avantrix["7e"]["Size"] = UDim2.new(1, 0, 1, 0);
 Avantrix["7e"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
 Avantrix["7e"]["Name"] = [[Bar]];
@@ -1349,7 +1361,7 @@ Avantrix["7f"] = Instance.new("UICorner", Avantrix["7e"]);
 Avantrix["80"] = Instance.new("UIStroke", Avantrix["6e"]);
 Avantrix["80"]["ApplyStrokeMode"] = Enum.ApplyStrokeMode.Border;
 Avantrix["80"]["Thickness"] = 1.5;
-Avantrix["80"]["Color"] = Color3.fromRGB(61, 61, 75);
+Avantrix["80"]["Color"] = Color3.fromRGB(0, 90, 160);
 
 -- Avantrix.Templates.Notification.Items.UICorner
 Avantrix["81"] = Instance.new("UICorner", Avantrix["6e"]);
@@ -1358,7 +1370,8 @@ Avantrix["81"] = Instance.new("UICorner", Avantrix["6e"]);
 Avantrix["82"] = Instance.new("Frame", Avantrix["41"]);
 Avantrix["82"]["Visible"] = false;
 Avantrix["82"]["BorderSizePixel"] = 0;
-Avantrix["82"]["BackgroundColor3"] = Color3.fromRGB(43, 46, 53);
+Avantrix["82"]["BackgroundColor3"] = Color3.fromRGB(22, 26, 42);
+Avantrix["82"]["BackgroundTransparency"] = 0.25;
 Avantrix["82"]["AutomaticSize"] = Enum.AutomaticSize.Y;
 Avantrix["82"]["Size"] = UDim2.new(1, 0, 0, 35);
 Avantrix["82"]["Position"] = UDim2.new(-0.0375, 0, 0.38434, 0);
@@ -1374,7 +1387,7 @@ Avantrix["83"]["CornerRadius"] = UDim.new(0, 6);
 Avantrix["84"] = Instance.new("UIStroke", Avantrix["82"]);
 Avantrix["84"]["ApplyStrokeMode"] = Enum.ApplyStrokeMode.Border;
 Avantrix["84"]["Thickness"] = 1.5;
-Avantrix["84"]["Color"] = Color3.fromRGB(61, 61, 75);
+Avantrix["84"]["Color"] = Color3.fromRGB(0, 90, 160);
 
 -- Avantrix.Templates.Slider.Title
 Avantrix["85"] = Instance.new("TextLabel", Avantrix["82"]);
@@ -1463,7 +1476,7 @@ Avantrix["8b"]["Position"] = UDim2.new(0.5, 0, 0.5, 0);
 -- Avantrix.Templates.Slider.SliderFrame.Frame.Slider
 Avantrix["8c"] = Instance.new("CanvasGroup", Avantrix["8a"]);
 Avantrix["8c"]["BorderSizePixel"] = 0;
-Avantrix["8c"]["BackgroundColor3"] = Color3.fromRGB(43, 46, 53);
+Avantrix["8c"]["BackgroundColor3"] = Color3.fromRGB(22, 26, 42);
 Avantrix["8c"]["Size"] = UDim2.new(1, 0, 1, 0);
 Avantrix["8c"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
 Avantrix["8c"]["Name"] = [[Slider]];
@@ -1478,7 +1491,7 @@ Avantrix["8d"]["CornerRadius"] = UDim.new(0, 5);
 Avantrix["8e"] = Instance.new("UIStroke", Avantrix["8c"]);
 Avantrix["8e"]["ApplyStrokeMode"] = Enum.ApplyStrokeMode.Border;
 Avantrix["8e"]["Thickness"] = 1.5;
-Avantrix["8e"]["Color"] = Color3.fromRGB(61, 61, 75);
+Avantrix["8e"]["Color"] = Color3.fromRGB(0, 90, 160);
 
 
 -- Avantrix.Templates.Slider.SliderFrame.Frame.Slider.UIPadding
@@ -1595,7 +1608,8 @@ Avantrix["99"]["Position"] = UDim2.new(0.5, 0, 0.5, 0);
 Avantrix["9a"] = Instance.new("Frame", Avantrix["41"]);
 Avantrix["9a"]["Visible"] = false;
 Avantrix["9a"]["BorderSizePixel"] = 0;
-Avantrix["9a"]["BackgroundColor3"] = Color3.fromRGB(43, 46, 53);
+Avantrix["9a"]["BackgroundColor3"] = Color3.fromRGB(22, 26, 42);
+Avantrix["9a"]["BackgroundTransparency"] = 0.25;
 Avantrix["9a"]["AutomaticSize"] = Enum.AutomaticSize.Y;
 Avantrix["9a"]["Size"] = UDim2.new(1, 0, 0, 35);
 Avantrix["9a"]["Position"] = UDim2.new(-0.0375, 0, 0.38434, 0);
@@ -1612,7 +1626,7 @@ Avantrix["9b"]["CornerRadius"] = UDim.new(0, 6);
 Avantrix["9c"] = Instance.new("UIStroke", Avantrix["9a"]);
 Avantrix["9c"]["ApplyStrokeMode"] = Enum.ApplyStrokeMode.Border;
 Avantrix["9c"]["Thickness"] = 1.5;
-Avantrix["9c"]["Color"] = Color3.fromRGB(61, 61, 75);
+Avantrix["9c"]["Color"] = Color3.fromRGB(0, 90, 160);
 
 
 -- Avantrix.Templates.TextBox.Title
@@ -1698,7 +1712,7 @@ Avantrix["a2"]["Position"] = UDim2.new(0.5, 0, 0.5, 0);
 -- Avantrix.Templates.TextBox.BoxFrame.Frame
 Avantrix["a3"] = Instance.new("Frame", Avantrix["a1"]);
 Avantrix["a3"]["BorderSizePixel"] = 0;
-Avantrix["a3"]["BackgroundColor3"] = Color3.fromRGB(43, 46, 53);
+Avantrix["a3"]["BackgroundColor3"] = Color3.fromRGB(22, 26, 42);
 Avantrix["a3"]["AutomaticSize"] = Enum.AutomaticSize.Y;
 Avantrix["a3"]["Size"] = UDim2.new(1, 0, 0, 25);
 Avantrix["a3"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
@@ -1713,7 +1727,7 @@ Avantrix["a4"]["CornerRadius"] = UDim.new(0, 5);
 Avantrix["a5"] = Instance.new("UIStroke", Avantrix["a3"]);
 Avantrix["a5"]["ApplyStrokeMode"] = Enum.ApplyStrokeMode.Border;
 Avantrix["a5"]["Thickness"] = 1.5;
-Avantrix["a5"]["Color"] = Color3.fromRGB(61, 61, 75);
+Avantrix["a5"]["Color"] = Color3.fromRGB(0, 90, 160);
 
 
 -- Avantrix.Templates.TextBox.BoxFrame.Frame.UIListLayout
@@ -1757,7 +1771,8 @@ Avantrix["a9"] = Instance.new("ImageButton", Avantrix["41"]);
 Avantrix["a9"]["BorderSizePixel"] = 0;
 Avantrix["a9"]["AutoButtonColor"] = false;
 Avantrix["a9"]["Visible"] = false;
-Avantrix["a9"]["BackgroundColor3"] = Color3.fromRGB(43, 46, 53);
+Avantrix["a9"]["BackgroundColor3"] = Color3.fromRGB(22, 26, 42);
+Avantrix["a9"]["BackgroundTransparency"] = 0.25;
 Avantrix["a9"]["Selectable"] = false;
 Avantrix["a9"]["AutomaticSize"] = Enum.AutomaticSize.Y;
 Avantrix["a9"]["Size"] = UDim2.new(1, 0, 0, 35);
@@ -1775,7 +1790,7 @@ Avantrix["aa"]["CornerRadius"] = UDim.new(0, 6);
 Avantrix["ab"] = Instance.new("UIStroke", Avantrix["a9"]);
 Avantrix["ab"]["ApplyStrokeMode"] = Enum.ApplyStrokeMode.Border;
 Avantrix["ab"]["Thickness"] = 1.5;
-Avantrix["ab"]["Color"] = Color3.fromRGB(61, 61, 75);
+Avantrix["ab"]["Color"] = Color3.fromRGB(0, 90, 160);
 
 
 -- Avantrix.Templates.Dropdown.Title
@@ -1849,7 +1864,7 @@ Avantrix["af"]["Position"] = UDim2.new(0.5, 0, 0.5, 0);
 Avantrix["b0"] = Instance.new("ImageButton", Avantrix["ae"]);
 Avantrix["b0"]["BorderSizePixel"] = 0;
 Avantrix["b0"]["AutoButtonColor"] = false;
-Avantrix["b0"]["BackgroundColor3"] = Color3.fromRGB(43, 46, 53);
+Avantrix["b0"]["BackgroundColor3"] = Color3.fromRGB(22, 26, 42);
 Avantrix["b0"]["Selectable"] = false;
 Avantrix["b0"]["AnchorPoint"] = Vector2.new(0.5, 0.5);
 Avantrix["b0"]["AutomaticSize"] = Enum.AutomaticSize.X;
@@ -1868,7 +1883,7 @@ Avantrix["b1"]["CornerRadius"] = UDim.new(0, 5);
 Avantrix["b2"] = Instance.new("UIStroke", Avantrix["b0"]);
 Avantrix["b2"]["ApplyStrokeMode"] = Enum.ApplyStrokeMode.Border;
 Avantrix["b2"]["Thickness"] = 1.5;
-Avantrix["b2"]["Color"] = Color3.fromRGB(61, 61, 75);
+Avantrix["b2"]["Color"] = Color3.fromRGB(0, 90, 160);
 
 
 -- Avantrix.Templates.Dropdown.Title.BoxFrame.Trigger.UIListLayout
@@ -1976,7 +1991,7 @@ Avantrix["bd"]["Selectable"] = false;
 Avantrix["bd"]["BottomImage"] = [[rbxasset://textures/ui/Scroll/scroll-middle.png]];
 Avantrix["bd"]["AutomaticCanvasSize"] = Enum.AutomaticSize.Y;
 Avantrix["bd"]["Size"] = UDim2.new(1, 0, 1, -50);
-Avantrix["bd"]["ScrollBarImageColor3"] = Color3.fromRGB(99, 106, 122);
+Avantrix["bd"]["ScrollBarImageColor3"] = Color3.fromRGB(0, 110, 190);
 Avantrix["bd"]["Position"] = UDim2.new(0, 0, 0, 50);
 Avantrix["bd"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
 Avantrix["bd"]["ScrollBarThickness"] = 5;
@@ -2012,7 +2027,7 @@ Avantrix["c0"]["Selectable"] = false;
 Avantrix["c0"]["BottomImage"] = [[rbxasset://textures/ui/Scroll/scroll-middle.png]];
 Avantrix["c0"]["AutomaticCanvasSize"] = Enum.AutomaticSize.Y;
 Avantrix["c0"]["Size"] = UDim2.new(1, 0, 1, -50);
-Avantrix["c0"]["ScrollBarImageColor3"] = Color3.fromRGB(99, 106, 122);
+Avantrix["c0"]["ScrollBarImageColor3"] = Color3.fromRGB(0, 110, 190);
 Avantrix["c0"]["Position"] = UDim2.new(0, 0, 0, 50);
 Avantrix["c0"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
 Avantrix["c0"]["ScrollBarThickness"] = 5;
@@ -2038,7 +2053,8 @@ Avantrix["c3"] = Instance.new("ImageButton", Avantrix["41"]);
 Avantrix["c3"]["BorderSizePixel"] = 0;
 Avantrix["c3"]["AutoButtonColor"] = false;
 Avantrix["c3"]["Visible"] = false;
-Avantrix["c3"]["BackgroundColor3"] = Color3.fromRGB(43, 46, 53);
+Avantrix["c3"]["BackgroundColor3"] = Color3.fromRGB(22, 26, 42);
+Avantrix["c3"]["BackgroundTransparency"] = 0.25;
 Avantrix["c3"]["Selectable"] = false;
 Avantrix["c3"]["AutomaticSize"] = Enum.AutomaticSize.Y;
 Avantrix["c3"]["Size"] = UDim2.new(1, 0, 0, 35);
@@ -2138,14 +2154,15 @@ Avantrix["cd"]["CornerRadius"] = UDim.new(0, 6);
 Avantrix["ce"] = Instance.new("UIStroke", Avantrix["c3"]);
 Avantrix["ce"]["ApplyStrokeMode"] = Enum.ApplyStrokeMode.Border;
 Avantrix["ce"]["Thickness"] = 1.5;
-Avantrix["ce"]["Color"] = Color3.fromRGB(61, 61, 75);
+Avantrix["ce"]["Color"] = Color3.fromRGB(0, 90, 160);
 
 
 -- Avantrix.Templates.Code
 Avantrix["cf"] = Instance.new("Frame", Avantrix["41"]);
 Avantrix["cf"]["Visible"] = false;
 Avantrix["cf"]["BorderSizePixel"] = 0;
-Avantrix["cf"]["BackgroundColor3"] = Color3.fromRGB(43, 46, 53);
+Avantrix["cf"]["BackgroundColor3"] = Color3.fromRGB(22, 26, 42);
+Avantrix["cf"]["BackgroundTransparency"] = 0.25;
 Avantrix["cf"]["AutomaticSize"] = Enum.AutomaticSize.Y;
 Avantrix["cf"]["Size"] = UDim2.new(1, 0, 0, 35);
 Avantrix["cf"]["Position"] = UDim2.new(-0.0375, 0, 0.38434, 0);
@@ -2162,7 +2179,7 @@ Avantrix["d0"]["CornerRadius"] = UDim.new(0, 6);
 Avantrix["d1"] = Instance.new("UIStroke", Avantrix["cf"]);
 Avantrix["d1"]["ApplyStrokeMode"] = Enum.ApplyStrokeMode.Border;
 Avantrix["d1"]["Thickness"] = 1.5;
-Avantrix["d1"]["Color"] = Color3.fromRGB(61, 61, 75);
+Avantrix["d1"]["Color"] = Color3.fromRGB(0, 90, 160);
 
 
 -- Avantrix.Templates.Code.Title
@@ -2223,7 +2240,7 @@ Avantrix["d5"]["BackgroundTransparency"] = 1;
 Avantrix["d6"] = Instance.new("Frame", Avantrix["41"]);
 Avantrix["d6"]["Visible"] = false;
 Avantrix["d6"]["BorderSizePixel"] = 0;
-Avantrix["d6"]["BackgroundColor3"] = Color3.fromRGB(43, 46, 53);
+Avantrix["d6"]["BackgroundColor3"] = Color3.fromRGB(22, 26, 42);
 Avantrix["d6"]["AutomaticSize"] = Enum.AutomaticSize.Y;
 Avantrix["d6"]["Size"] = UDim2.new(1, 0, 0, 35);
 Avantrix["d6"]["Position"] = UDim2.new(0, 0, 0.43728, 0);
@@ -2237,7 +2254,8 @@ Avantrix["d6"]["BackgroundTransparency"] = 1;
 Avantrix["d7"] = Instance.new("ImageButton", Avantrix["d6"]);
 Avantrix["d7"]["BorderSizePixel"] = 0;
 Avantrix["d7"]["AutoButtonColor"] = false;
-Avantrix["d7"]["BackgroundColor3"] = Color3.fromRGB(43, 46, 53);
+Avantrix["d7"]["BackgroundColor3"] = Color3.fromRGB(22, 26, 42);
+Avantrix["d7"]["BackgroundTransparency"] = 0.25;
 Avantrix["d7"]["Selectable"] = false;
 Avantrix["d7"]["AutomaticSize"] = Enum.AutomaticSize.Y;
 Avantrix["d7"]["Size"] = UDim2.new(1, 0, 0, 35);
@@ -2254,7 +2272,7 @@ Avantrix["d8"]["CornerRadius"] = UDim.new(0, 6);
 Avantrix["d9"] = Instance.new("UIStroke", Avantrix["d7"]);
 Avantrix["d9"]["ApplyStrokeMode"] = Enum.ApplyStrokeMode.Border;
 Avantrix["d9"]["Thickness"] = 1.5;
-Avantrix["d9"]["Color"] = Color3.fromRGB(61, 61, 75);
+Avantrix["d9"]["Color"] = Color3.fromRGB(0, 90, 160);
 
 
 -- Avantrix.Templates.Section.Button.Title
@@ -2347,7 +2365,7 @@ Avantrix["e1"]["Color"] = ColorSequence.new{ColorSequenceKeypoint.new(0.000, Col
 Avantrix["e2"] = Instance.new("UIStroke", Avantrix["d7"]);
 Avantrix["e2"]["ApplyStrokeMode"] = Enum.ApplyStrokeMode.Border;
 Avantrix["e2"]["Thickness"] = 1.5;
-Avantrix["e2"]["Color"] = Color3.fromRGB(61, 61, 75);
+Avantrix["e2"]["Color"] = Color3.fromRGB(0, 90, 160);
 
 
 -- Avantrix.Templates.Section.Frame
@@ -2379,9 +2397,9 @@ Avantrix["e5"]["PaddingLeft"] = UDim.new(0, 8);
 -- Avantrix.Templates.Section.Frame.Divider
 Avantrix["e6"] = Instance.new("Frame", Avantrix["e3"]);
 Avantrix["e6"]["BorderSizePixel"] = 0;
-Avantrix["e6"]["BackgroundColor3"] = Color3.fromRGB(61, 61, 75);
+Avantrix["e6"]["BackgroundColor3"] = Color3.fromRGB(0, 90, 160);
 Avantrix["e6"]["Size"] = UDim2.new(1, 0, 0, 3);
-Avantrix["e6"]["BorderColor3"] = Color3.fromRGB(61, 61, 75);
+Avantrix["e6"]["BorderColor3"] = Color3.fromRGB(0, 90, 160);
 Avantrix["e6"]["Name"] = [[Divider]];
 
 
@@ -2411,13 +2429,13 @@ Avantrix["ea"] = Instance.new("Frame", Avantrix["e7"]);
 Avantrix["ea"]["Visible"] = false;
 Avantrix["ea"]["ZIndex"] = 4;
 Avantrix["ea"]["BorderSizePixel"] = 0;
-Avantrix["ea"]["BackgroundColor3"] = Color3.fromRGB(32, 35, 41);
+Avantrix["ea"]["BackgroundColor3"] = Color3.fromRGB(14, 17, 28);
 Avantrix["ea"]["AnchorPoint"] = Vector2.new(0.5, 0.5);
 Avantrix["ea"]["ClipsDescendants"] = true;
 Avantrix["ea"]["AutomaticSize"] = Enum.AutomaticSize.Y;
 Avantrix["ea"]["Size"] = UDim2.new(0, 250, 0, 0);
 Avantrix["ea"]["Position"] = UDim2.new(0.5, 0, 0.5, 0);
-Avantrix["ea"]["BorderColor3"] = Color3.fromRGB(61, 61, 75);
+Avantrix["ea"]["BorderColor3"] = Color3.fromRGB(0, 90, 160);
 Avantrix["ea"]["Name"] = [[Dialog]];
 
 
@@ -2430,7 +2448,7 @@ Avantrix["eb"]["CornerRadius"] = UDim.new(0, 6);
 Avantrix["ec"] = Instance.new("UIStroke", Avantrix["ea"]);
 Avantrix["ec"]["ApplyStrokeMode"] = Enum.ApplyStrokeMode.Border;
 Avantrix["ec"]["Thickness"] = 1.5;
-Avantrix["ec"]["Color"] = Color3.fromRGB(61, 61, 75);
+Avantrix["ec"]["Color"] = Color3.fromRGB(0, 90, 160);
 
 
 -- Avantrix.Templates.DialogElements.Dialog.Title
@@ -2601,7 +2619,8 @@ Avantrix["fc"]["BackgroundTransparency"] = 1;
 Avantrix["fd"] = Instance.new("TextButton", Avantrix["fc"]);
 Avantrix["fd"]["BorderSizePixel"] = 0;
 Avantrix["fd"]["AutoButtonColor"] = false;
-Avantrix["fd"]["BackgroundColor3"] = Color3.fromRGB(43, 46, 53);
+Avantrix["fd"]["BackgroundColor3"] = Color3.fromRGB(22, 26, 42);
+Avantrix["fd"]["BackgroundTransparency"] = 0.25;
 Avantrix["fd"]["Selectable"] = false;
 Avantrix["fd"]["AnchorPoint"] = Vector2.new(0.5, 0.5);
 Avantrix["fd"]["Size"] = UDim2.new(1, 0, 1, 0);
@@ -2619,7 +2638,7 @@ Avantrix["fe"]["CornerRadius"] = UDim.new(0, 5);
 Avantrix["ff"] = Instance.new("UIStroke", Avantrix["fd"]);
 Avantrix["ff"]["ApplyStrokeMode"] = Enum.ApplyStrokeMode.Border;
 Avantrix["ff"]["Thickness"] = 1.5;
-Avantrix["ff"]["Color"] = Color3.fromRGB(61, 61, 75);
+Avantrix["ff"]["Color"] = Color3.fromRGB(0, 90, 160);
 
 
 -- Avantrix.Templates.DialogElements.DialogButton.Button.UIListLayout
@@ -2679,13 +2698,14 @@ Avantrix["105"] = Instance.new("Frame", Avantrix["1"]);
 Avantrix["105"]["Visible"] = false;
 Avantrix["105"]["ZIndex"] = 0;
 Avantrix["105"]["BorderSizePixel"] = 2;
-Avantrix["105"]["BackgroundColor3"] = Color3.fromRGB(37, 40, 47);
+Avantrix["105"]["BackgroundColor3"] = Color3.fromRGB(18, 22, 36);
+Avantrix["105"]["BackgroundTransparency"] = 0.3;
 Avantrix["105"]["AnchorPoint"] = Vector2.new(0.5, 0.5);
 Avantrix["105"]["ClipsDescendants"] = true;
 Avantrix["105"]["AutomaticSize"] = Enum.AutomaticSize.X;
 Avantrix["105"]["Size"] = UDim2.new(0, 85, 0, 45);
 Avantrix["105"]["Position"] = UDim2.new(0.5, 0, 0, 45);
-Avantrix["105"]["BorderColor3"] = Color3.fromRGB(61, 61, 75);
+Avantrix["105"]["BorderColor3"] = Color3.fromRGB(0, 90, 160);
 Avantrix["105"]["Name"] = [[FloatIcon]];
 
 
@@ -2699,7 +2719,7 @@ Avantrix["107"] = Instance.new("UIStroke", Avantrix["105"]);
 Avantrix["107"]["Transparency"] = 0.5;
 Avantrix["107"]["ApplyStrokeMode"] = Enum.ApplyStrokeMode.Border;
 Avantrix["107"]["Thickness"] = 1.5;
-Avantrix["107"]["Color"] = Color3.fromRGB(95, 95, 117);
+Avantrix["107"]["Color"] = Color3.fromRGB(0, 100, 180);
 
 
 -- Avantrix.FloatIcon.UIPadding
@@ -3365,13 +3385,13 @@ Avantrix_MODULES[Avantrix["3e"]] = {
 
 					if ButtonData.Locked then
 						-- greyed out
-						newButton.UIStroke.Color = Color3.fromRGB(47, 47, 58)
-						newButton.BackgroundColor3 = Color3.fromRGB(32, 35, 40)
+						newButton.UIStroke.Color = Color3.fromRGB(0, 70, 130)
+						newButton.BackgroundColor3 = Color3.fromRGB(12, 15, 26)
 
-						newButton.Frame.Title.TextColor3 = Color3.fromRGB(75, 77, 83)
-						newButton.Frame.Title.ClickIcon.ImageColor3 = Color3.fromRGB(75, 77, 83)
+						newButton.Frame.Title.TextColor3 = Color3.fromRGB(40, 55, 90)
+						newButton.Frame.Title.ClickIcon.ImageColor3 = Color3.fromRGB(40, 55, 90)
 
-						newButton.Frame.Description.TextColor3 = Color3.fromRGB(75, 77, 83)
+						newButton.Frame.Description.TextColor3 = Color3.fromRGB(40, 55, 90)
 					end
 
 					newButton.Visible = true
@@ -3399,8 +3419,8 @@ Avantrix_MODULES[Avantrix["3e"]] = {
 
 					newButton.MouseLeave:Connect(function()
 						if not ButtonData.Locked then
-							Tween(newButton.UIStroke, {Color = Color3.fromRGB(60, 60, 74)}, TweenConfigs.Global)
-							newButton.BackgroundColor3 = Color3.fromRGB(42, 45, 52)
+							Tween(newButton.UIStroke, {Color = Color3.fromRGB(0, 85, 150)}, TweenConfigs.Global)
+							newButton.BackgroundColor3 = Color3.fromRGB(20, 24, 40)
 							Tween(newButton.Frame.Title, {TextColor3 = Color3.fromRGB(196, 203, 218)}, TweenConfigs.Global)
 							Tween(newButton.Frame.Description, {TextColor3 = Color3.fromRGB(196, 203, 218)}, TweenConfigs.Global)
 						end
@@ -3468,17 +3488,17 @@ Avantrix_MODULES[Avantrix["3e"]] = {
 
 					function Button:Lock()
 						ButtonData.Locked = true
-						Tween(newButton, {BackgroundColor3 = Color3.fromRGB(32, 35, 40)}, TweenConfigs.Global)
-						Tween(newButton.UIStroke, {Color = Color3.fromRGB(47, 47, 58)}, TweenConfigs.Global)
-						Tween(newButton.Frame.Title, {TextColor3 = Color3.fromRGB(75, 77, 83)}, TweenConfigs.Global)
-						Tween(newButton.Frame.Title.ClickIcon, {ImageColor3 = Color3.fromRGB(75, 77, 83)}, TweenConfigs.Global)
-						Tween(newButton.Frame.Description, {TextColor3 = Color3.fromRGB(75, 77, 83)}, TweenConfigs.Global)
+						Tween(newButton, {BackgroundColor3 = Color3.fromRGB(12, 15, 26)}, TweenConfigs.Global)
+						Tween(newButton.UIStroke, {Color = Color3.fromRGB(0, 70, 130)}, TweenConfigs.Global)
+						Tween(newButton.Frame.Title, {TextColor3 = Color3.fromRGB(40, 55, 90)}, TweenConfigs.Global)
+						Tween(newButton.Frame.Title.ClickIcon, {ImageColor3 = Color3.fromRGB(40, 55, 90)}, TweenConfigs.Global)
+						Tween(newButton.Frame.Description, {TextColor3 = Color3.fromRGB(40, 55, 90)}, TweenConfigs.Global)
 					end
 
 					function Button:Unlock()
 						ButtonData.Locked = false
-						Tween(newButton, {BackgroundColor3 = Color3.fromRGB(42, 45, 52)}, TweenConfigs.Global)
-						Tween(newButton.UIStroke, {Color = Color3.fromRGB(60, 60, 74)}, TweenConfigs.Global)
+						Tween(newButton, {BackgroundColor3 = Color3.fromRGB(20, 24, 40)}, TweenConfigs.Global)
+						Tween(newButton.UIStroke, {Color = Color3.fromRGB(0, 85, 150)}, TweenConfigs.Global)
 						Tween(newButton.Frame.Title, {TextColor3 = Color3.fromRGB(196, 203, 218)}, TweenConfigs.Global)
 						Tween(newButton.Frame.Title.ClickIcon, {ImageColor3 = Color3.fromRGB(196, 203, 218)}, TweenConfigs.Global)
 						Tween(newButton.Frame.Description, {TextColor3 = Color3.fromRGB(196, 203, 218)}, TweenConfigs.Global)
@@ -3618,23 +3638,23 @@ Avantrix_MODULES[Avantrix["3e"]] = {
 
 					if Toggle.State == true then
 						newToggle.Title.Fill.Ball.Position = UDim2.new(0.5, 0,0.5, 0)
-						newToggle.Title.Fill.BackgroundColor3 = Color3.fromRGB(192, 209, 199)
+						newToggle.Title.Fill.BackgroundColor3 = Color3.fromRGB(0, 162, 255)
 						newToggle.Title.Fill.Ball.Icon.ImageTransparency = 0
 					else
 						newToggle.Title.Fill.Ball.Position = UDim2.new(0, 0,0.5, 0)
-						newToggle.Title.Fill.BackgroundColor3 = Color3.fromRGB(53, 56, 62)
+						newToggle.Title.Fill.BackgroundColor3 = Color3.fromRGB(25, 30, 48)
 						newToggle.Title.Fill.Ball.Icon.ImageTransparency = 1
 					end
 
 					if Toggle.Locked then
 						-- greyed out
-						newToggle.UIStroke.Color = Color3.fromRGB(47, 47, 58)
-						newToggle.BackgroundColor3 = Color3.fromRGB(32, 35, 40)
+						newToggle.UIStroke.Color = Color3.fromRGB(0, 70, 130)
+						newToggle.BackgroundColor3 = Color3.fromRGB(12, 15, 26)
 
-						newToggle.Title.TextColor3 = Color3.fromRGB(75, 77, 83)
-						--newToggle.Title.ClickIcon.ImageColor3 = Color3.fromRGB(75, 77, 83)
+						newToggle.Title.TextColor3 = Color3.fromRGB(40, 55, 90)
+						--newToggle.Title.ClickIcon.ImageColor3 = Color3.fromRGB(40, 55, 90)
 
-						newToggle.Description.TextColor3 = Color3.fromRGB(75, 77, 83)
+						newToggle.Description.TextColor3 = Color3.fromRGB(40, 55, 90)
 
 						newToggle.Title.Fill.BackgroundTransparency = 0.7
 						newToggle.Title.Fill.Ball.BackgroundTransparency = 0.7
@@ -3650,9 +3670,9 @@ Avantrix_MODULES[Avantrix["3e"]] = {
 
 					newToggle.Title.Fill.MouseLeave:Connect(function()
 						if not Toggle.Locked then
-							Tween(newToggle.UIStroke, {Color = Color3.fromRGB(60, 60, 74)}, TweenConfigs.Global)
+							Tween(newToggle.UIStroke, {Color = Color3.fromRGB(0, 85, 150)}, TweenConfigs.Global)
 
-							newToggle.BackgroundColor3 = Color3.fromRGB(42, 45, 52)
+							newToggle.BackgroundColor3 = Color3.fromRGB(20, 24, 40)
 							Tween(newToggle.Title, {TextColor3 = Color3.fromRGB(196, 203, 218)}, TweenConfigs.Global)
 							Tween(newToggle.Description, {TextColor3 = Color3.fromRGB(196, 203, 218)}, TweenConfigs.Global)
 						end
@@ -3661,12 +3681,12 @@ Avantrix_MODULES[Avantrix["3e"]] = {
 					local function AnimateSwitch(targetState)
 						if targetState == true then
 							Tween(newToggle.Title.Fill.Ball, {Position = UDim2.new(0.5, 0,0.5, 0)}, TweenConfigs.Global)
-							Tween(newToggle.Title.Fill, {BackgroundColor3 = Color3.fromRGB(192, 209, 199)}, TweenConfigs.Global)
+							Tween(newToggle.Title.Fill, {BackgroundColor3 = Color3.fromRGB(0, 162, 255)}, TweenConfigs.Global)
 
 							Tween(newToggle.Title.Fill.Ball.Icon, {ImageTransparency = 0}, TweenConfigs.Global)
 						elseif targetState == false then
 							Tween(newToggle.Title.Fill.Ball, {Position = UDim2.new(0, 0,0.5, 0)}, TweenConfigs.Global)
-							Tween(newToggle.Title.Fill, {BackgroundColor3 = Color3.fromRGB(53, 56, 62)}, TweenConfigs.Global)
+							Tween(newToggle.Title.Fill, {BackgroundColor3 = Color3.fromRGB(25, 30, 48)}, TweenConfigs.Global)
 
 							Tween(newToggle.Title.Fill.Ball.Icon, {ImageTransparency = 1}, TweenConfigs.Global)
 						end
@@ -3710,10 +3730,10 @@ Avantrix_MODULES[Avantrix["3e"]] = {
 
 					function Toggle:Lock()
 						Toggle.Locked = true
-						Tween(newToggle, {BackgroundColor3 = Color3.fromRGB(32, 35, 40)}, TweenConfigs.Global)
-						Tween(newToggle.UIStroke, {Color = Color3.fromRGB(47, 47, 58)}, TweenConfigs.Global)
-						Tween(newToggle.Title, {TextColor3 = Color3.fromRGB(75, 77, 83)}, TweenConfigs.Global)
-						Tween(newToggle.Description, {TextColor3 = Color3.fromRGB(75, 77, 83)}, TweenConfigs.Global)
+						Tween(newToggle, {BackgroundColor3 = Color3.fromRGB(12, 15, 26)}, TweenConfigs.Global)
+						Tween(newToggle.UIStroke, {Color = Color3.fromRGB(0, 70, 130)}, TweenConfigs.Global)
+						Tween(newToggle.Title, {TextColor3 = Color3.fromRGB(40, 55, 90)}, TweenConfigs.Global)
+						Tween(newToggle.Description, {TextColor3 = Color3.fromRGB(40, 55, 90)}, TweenConfigs.Global)
 
 						Tween(newToggle.Title.Fill, {BackgroundTransparency = 0.7}, TweenConfigs.Global)
 						Tween(newToggle.Title.Fill.Ball, {BackgroundTransparency = 0.7}, TweenConfigs.Global)
@@ -3721,8 +3741,8 @@ Avantrix_MODULES[Avantrix["3e"]] = {
 
 					function Toggle:Unlock()
 						Toggle.Locked = false
-						Tween(newToggle, {BackgroundColor3 = Color3.fromRGB(42, 45, 52)}, TweenConfigs.Global)
-						Tween(newToggle.UIStroke, {Color = Color3.fromRGB(60, 60, 74)}, TweenConfigs.Global)
+						Tween(newToggle, {BackgroundColor3 = Color3.fromRGB(20, 24, 40)}, TweenConfigs.Global)
+						Tween(newToggle.UIStroke, {Color = Color3.fromRGB(0, 85, 150)}, TweenConfigs.Global)
 						Tween(newToggle.Title, {TextColor3 = Color3.fromRGB(196, 203, 218)}, TweenConfigs.Global)
 						Tween(newToggle.Description, {TextColor3 = Color3.fromRGB(196, 203, 218)}, TweenConfigs.Global)
 
@@ -3819,13 +3839,13 @@ Avantrix_MODULES[Avantrix["3e"]] = {
 
 					if Slider.Locked then
 						-- greyed out
-						newSlider.UIStroke.Color = Color3.fromRGB(47, 47, 58)
-						newSlider.BackgroundColor3 = Color3.fromRGB(32, 35, 40)
+						newSlider.UIStroke.Color = Color3.fromRGB(0, 70, 130)
+						newSlider.BackgroundColor3 = Color3.fromRGB(12, 15, 26)
 
-						newSlider.Title.TextColor3 = Color3.fromRGB(75, 77, 83)
-						newSlider.Description.TextColor3 = Color3.fromRGB(75, 77, 83)
+						newSlider.Title.TextColor3 = Color3.fromRGB(40, 55, 90)
+						newSlider.Description.TextColor3 = Color3.fromRGB(40, 55, 90)
 
-						newSlider.SliderFrame.Frame.Slider.UIStroke.Color = Color3.fromRGB(47, 47, 58)
+						newSlider.SliderFrame.Frame.Slider.UIStroke.Color = Color3.fromRGB(0, 70, 130)
 						newSlider.SliderFrame.Frame.Slider.BackgroundTransparency = 0.5
 						newSlider.SliderFrame.Frame.Slider.Fill.UIStroke.Transparency = 0.5
 						newSlider.SliderFrame.Frame.Slider.Fill.BackgroundGradient.BackgroundTransparency = 0.5
@@ -3894,7 +3914,7 @@ Avantrix_MODULES[Avantrix["3e"]] = {
 						until MouseDown == false or Slider.Locked == true
 
 						if not Hovering then
-							Tween(newSlider.UIStroke, {Color = Color3.fromRGB(60, 60, 74)}, TweenConfigs.Global)
+							Tween(newSlider.UIStroke, {Color = Color3.fromRGB(0, 85, 150)}, TweenConfigs.Global)
 						end
 					end
 
@@ -3927,7 +3947,7 @@ Avantrix_MODULES[Avantrix["3e"]] = {
 					Trigger.MouseLeave:Connect(function()
 						Hovering = false
 						if not Slider.Locked and not MouseDown then
-							Tween(newSlider.UIStroke, {Color = Color3.fromRGB(60, 60, 74)}, TweenConfigs.Global)
+							Tween(newSlider.UIStroke, {Color = Color3.fromRGB(0, 85, 150)}, TweenConfigs.Global)
 						end
 					end)
 
@@ -3965,12 +3985,12 @@ Avantrix_MODULES[Avantrix["3e"]] = {
 
 					function Slider:Lock()
 						Slider.Locked = true
-						Tween(newSlider, {BackgroundColor3 = Color3.fromRGB(32, 35, 40)}, TweenConfigs.Global)
-						Tween(newSlider.UIStroke, {Color = Color3.fromRGB(47, 47, 58)}, TweenConfigs.Global)
-						Tween(newSlider.Title, {TextColor3 = Color3.fromRGB(75, 77, 83)}, TweenConfigs.Global)
-						Tween(newSlider.Description, {TextColor3 = Color3.fromRGB(75, 77, 83)}, TweenConfigs.Global)
+						Tween(newSlider, {BackgroundColor3 = Color3.fromRGB(12, 15, 26)}, TweenConfigs.Global)
+						Tween(newSlider.UIStroke, {Color = Color3.fromRGB(0, 70, 130)}, TweenConfigs.Global)
+						Tween(newSlider.Title, {TextColor3 = Color3.fromRGB(40, 55, 90)}, TweenConfigs.Global)
+						Tween(newSlider.Description, {TextColor3 = Color3.fromRGB(40, 55, 90)}, TweenConfigs.Global)
 
-						Tween(newSlider.SliderFrame.Frame.Slider.UIStroke, {Color = Color3.fromRGB(47, 47, 58)}, TweenConfigs.Global)
+						Tween(newSlider.SliderFrame.Frame.Slider.UIStroke, {Color = Color3.fromRGB(0, 70, 130)}, TweenConfigs.Global)
 						Tween(newSlider.SliderFrame.Frame.Slider, {BackgroundTransparency = 0.5}, TweenConfigs.Global)
 						Tween(newSlider.SliderFrame.Frame.Slider.Fill.UIStroke, {Transparency = 0.5}, TweenConfigs.Global)
 						Tween(newSlider.SliderFrame.Frame.Slider.Fill.BackgroundGradient, {BackgroundTransparency = 0.5}, TweenConfigs.Global)
@@ -3980,12 +4000,12 @@ Avantrix_MODULES[Avantrix["3e"]] = {
 					function Slider:Unlock()
 						Slider.Locked = false
 
-						Tween(newSlider, {BackgroundColor3 = Color3.fromRGB(42, 45, 52)}, TweenConfigs.Global)
-						Tween(newSlider.UIStroke, {Color = Color3.fromRGB(60, 60, 74)}, TweenConfigs.Global)
+						Tween(newSlider, {BackgroundColor3 = Color3.fromRGB(20, 24, 40)}, TweenConfigs.Global)
+						Tween(newSlider.UIStroke, {Color = Color3.fromRGB(0, 85, 150)}, TweenConfigs.Global)
 						Tween(newSlider.Title, {TextColor3 = Color3.fromRGB(196, 203, 218)}, TweenConfigs.Global)
 						Tween(newSlider.Description, {TextColor3 = Color3.fromRGB(196, 203, 218)}, TweenConfigs.Global)
 
-						Tween(newSlider.SliderFrame.Frame.Slider.UIStroke, {Color = Color3.fromRGB(60, 60, 74)}, TweenConfigs.Global)
+						Tween(newSlider.SliderFrame.Frame.Slider.UIStroke, {Color = Color3.fromRGB(0, 85, 150)}, TweenConfigs.Global)
 						Tween(newSlider.SliderFrame.Frame.Slider, {BackgroundTransparency = 0}, TweenConfigs.Global)
 						Tween(newSlider.SliderFrame.Frame.Slider.Fill.UIStroke, {Transparency = 0}, TweenConfigs.Global)
 						Tween(newSlider.SliderFrame.Frame.Slider.Fill.BackgroundGradient, {BackgroundTransparency = 0}, TweenConfigs.Global)
@@ -4037,16 +4057,16 @@ Avantrix_MODULES[Avantrix["3e"]] = {
 
 					if Input.Locked then
 						-- greyed out
-						newInput.UIStroke.Color = Color3.fromRGB(47, 47, 58)
-						newInput.BackgroundColor3 = Color3.fromRGB(32, 35, 40)
+						newInput.UIStroke.Color = Color3.fromRGB(0, 70, 130)
+						newInput.BackgroundColor3 = Color3.fromRGB(12, 15, 26)
 
-						newInput.Title.TextColor3 = Color3.fromRGB(75, 77, 83)
-						newInput.Description.TextColor3 = Color3.fromRGB(75, 77, 83)
+						newInput.Title.TextColor3 = Color3.fromRGB(40, 55, 90)
+						newInput.Description.TextColor3 = Color3.fromRGB(40, 55, 90)
 
-						newInput.BoxFrame.Frame.BackgroundColor3 = Color3.fromRGB(32, 35, 40)
-						newInput.BoxFrame.Frame.UIStroke.Color = Color3.fromRGB(47, 47, 58)
-						newInput.BoxFrame.Frame.TextBox.TextColor3 = Color3.fromRGB(75, 77, 83)
-						newInput.BoxFrame.Frame.TextBox.PlaceholderColor3 = Color3.fromRGB(75, 77, 83)
+						newInput.BoxFrame.Frame.BackgroundColor3 = Color3.fromRGB(12, 15, 26)
+						newInput.BoxFrame.Frame.UIStroke.Color = Color3.fromRGB(0, 70, 130)
+						newInput.BoxFrame.Frame.TextBox.TextColor3 = Color3.fromRGB(40, 55, 90)
+						newInput.BoxFrame.Frame.TextBox.PlaceholderColor3 = Color3.fromRGB(40, 55, 90)
 
 						newInput.BoxFrame.Frame.TextBox.Active = false
 						newInput.BoxFrame.Frame.TextBox.Interactable = false
@@ -4075,20 +4095,20 @@ Avantrix_MODULES[Avantrix["3e"]] = {
 
 					newInput.BoxFrame.Frame.TextBox.MouseLeave:Connect(function()
 						if not Input.Locked then
-							Tween(newInput.UIStroke, {Color = Color3.fromRGB(60, 60, 74)}, TweenConfigs.Global)
+							Tween(newInput.UIStroke, {Color = Color3.fromRGB(0, 85, 150)}, TweenConfigs.Global)
 						end
 					end)
 
 					newInput.BoxFrame.Frame.TextBox.Focused:Connect(function()
 						if not Input.Locked then
-							Tween(newInput.UIStroke, {Color = Color3.fromRGB(60, 60, 74)}, TweenConfigs.Global)
+							Tween(newInput.UIStroke, {Color = Color3.fromRGB(0, 85, 150)}, TweenConfigs.Global)
 							Tween(newInput.BoxFrame.Frame.UIStroke, {Color = Color3.fromRGB(0, 162, 255)}, TweenConfigs.Global)
 						end
 					end)
 
 					newInput.BoxFrame.Frame.TextBox.FocusLost:Connect(function()
 						if not Input.Locked then
-							Tween(newInput.BoxFrame.Frame.UIStroke, {Color = Color3.fromRGB(60, 60, 74)}, TweenConfigs.Global)
+							Tween(newInput.BoxFrame.Frame.UIStroke, {Color = Color3.fromRGB(0, 85, 150)}, TweenConfigs.Global)
 							Input.Text = newInput.BoxFrame.Frame.TextBox.Text
 							Input.Callback(Input.Text)
                             CONFIG[NAMETAB][name] = Input.Text
@@ -4123,18 +4143,18 @@ Avantrix_MODULES[Avantrix["3e"]] = {
 					function Input:Lock()
 						Input.Locked = true
 
-						Tween(newInput.UIStroke, {Color = Color3.fromRGB(47, 47, 58)}, TweenConfigs.Global)
-						Tween(newInput, {BackgroundColor3 = Color3.fromRGB(32, 35, 40)}, TweenConfigs.Global)
+						Tween(newInput.UIStroke, {Color = Color3.fromRGB(0, 70, 130)}, TweenConfigs.Global)
+						Tween(newInput, {BackgroundColor3 = Color3.fromRGB(12, 15, 26)}, TweenConfigs.Global)
 
-						Tween(newInput.Title, {TextColor3 = Color3.fromRGB(75, 77, 83)}, TweenConfigs.Global)
-						Tween(newInput.Description, {TextColor3 = Color3.fromRGB(75, 77, 83)}, TweenConfigs.Global)
+						Tween(newInput.Title, {TextColor3 = Color3.fromRGB(40, 55, 90)}, TweenConfigs.Global)
+						Tween(newInput.Description, {TextColor3 = Color3.fromRGB(40, 55, 90)}, TweenConfigs.Global)
 
-						Tween(newInput.BoxFrame.Frame, {BackgroundColor3 = Color3.fromRGB(32, 35, 40)}, TweenConfigs.Global)
-						Tween(newInput.BoxFrame.Frame.UIStroke, {Color = Color3.fromRGB(47, 47, 58)}, TweenConfigs.Global)
+						Tween(newInput.BoxFrame.Frame, {BackgroundColor3 = Color3.fromRGB(12, 15, 26)}, TweenConfigs.Global)
+						Tween(newInput.BoxFrame.Frame.UIStroke, {Color = Color3.fromRGB(0, 70, 130)}, TweenConfigs.Global)
 
 						Tween(newInput.BoxFrame.Frame.TextBox, {
-							TextColor3 = Color3.fromRGB(75, 77, 83),
-							PlaceholderColor3 = Color3.fromRGB(75, 77, 83)
+							TextColor3 = Color3.fromRGB(40, 55, 90),
+							PlaceholderColor3 = Color3.fromRGB(40, 55, 90)
 						}, TweenConfigs.Global)
 
 						newInput.BoxFrame.Frame.TextBox.Active = false
@@ -4145,14 +4165,14 @@ Avantrix_MODULES[Avantrix["3e"]] = {
 					function Input:Unlock()
 						Input.Locked = false
 
-						Tween(newInput.UIStroke, {Color = Color3.fromRGB(60, 60, 74)}, TweenConfigs.Global)
-						Tween(newInput, {BackgroundColor3 = Color3.fromRGB(42, 45, 52)}, TweenConfigs.Global)
+						Tween(newInput.UIStroke, {Color = Color3.fromRGB(0, 85, 150)}, TweenConfigs.Global)
+						Tween(newInput, {BackgroundColor3 = Color3.fromRGB(20, 24, 40)}, TweenConfigs.Global)
 
 						Tween(newInput.Title, {TextColor3 = Color3.fromRGB(196, 203, 218)}, TweenConfigs.Global)
 						Tween(newInput.Description, {TextColor3 = Color3.fromRGB(196, 203, 218)}, TweenConfigs.Global)
 
-						Tween(newInput.BoxFrame.Frame, {BackgroundColor3 = Color3.fromRGB(42, 45, 52)}, TweenConfigs.Global)
-						Tween(newInput.BoxFrame.Frame.UIStroke, {Color = Color3.fromRGB(60, 60, 74)}, TweenConfigs.Global)
+						Tween(newInput.BoxFrame.Frame, {BackgroundColor3 = Color3.fromRGB(20, 24, 40)}, TweenConfigs.Global)
+						Tween(newInput.BoxFrame.Frame.UIStroke, {Color = Color3.fromRGB(0, 85, 150)}, TweenConfigs.Global)
 
 						Tween(newInput.BoxFrame.Frame.TextBox, {
 							TextColor3 = Color3.fromRGB(196, 203, 218),
@@ -4253,16 +4273,16 @@ Avantrix_MODULES[Avantrix["3e"]] = {
 
 					if Dropdown.Locked then
 						-- greyed out
-						newDropdown.UIStroke.Color = Color3.fromRGB(47, 47, 58)
-						newDropdown.BackgroundColor3 = Color3.fromRGB(32, 35, 40)
+						newDropdown.UIStroke.Color = Color3.fromRGB(0, 70, 130)
+						newDropdown.BackgroundColor3 = Color3.fromRGB(12, 15, 26)
 
-						newDropdown.Title.TextColor3 = Color3.fromRGB(75, 77, 83)
-						newDropdown.Description.TextColor3 = Color3.fromRGB(75, 77, 83)
-						newDropdown.Title.ClickIcon.ImageColor3 = Color3.fromRGB(75, 77, 83)
+						newDropdown.Title.TextColor3 = Color3.fromRGB(40, 55, 90)
+						newDropdown.Description.TextColor3 = Color3.fromRGB(40, 55, 90)
+						newDropdown.Title.ClickIcon.ImageColor3 = Color3.fromRGB(40, 55, 90)
 
-						newDropdown.Title.BoxFrame.Trigger.BackgroundColor3 = Color3.fromRGB(32, 35, 40)
-						newDropdown.Title.BoxFrame.Trigger.UIStroke.Color = Color3.fromRGB(47, 47, 58)
-						newDropdown.Title.BoxFrame.Trigger.Title.TextColor3 = Color3.fromRGB(75, 77, 83)
+						newDropdown.Title.BoxFrame.Trigger.BackgroundColor3 = Color3.fromRGB(12, 15, 26)
+						newDropdown.Title.BoxFrame.Trigger.UIStroke.Color = Color3.fromRGB(0, 70, 130)
+						newDropdown.Title.BoxFrame.Trigger.Title.TextColor3 = Color3.fromRGB(40, 55, 90)
 
 						newDropdown.Active = false
 						newDropdown.Interactable = false
@@ -4284,7 +4304,7 @@ Avantrix_MODULES[Avantrix["3e"]] = {
 									Tween(otherButton.Frame.Title, {TextColor3 = Color3.fromRGB(196, 203, 218)}, TweenConfigs.Global)
 									Tween(otherButton.Frame.Description, {TextColor3 = Color3.fromRGB(196, 203, 218)}, TweenConfigs.Global)
 									Tween(otherButton.Frame, {BackgroundTransparency = 1}, TweenConfigs.Global)
-									Tween(otherButton.UIStroke, {Color = Color3.fromRGB(60, 60, 74)}, TweenConfigs.Global)
+									Tween(otherButton.UIStroke, {Color = Color3.fromRGB(0, 85, 150)}, TweenConfigs.Global)
 								end
 							end
 							for _,otherButton in dropdownFolder.DropdownItemsSearch:GetChildren() do
@@ -4292,7 +4312,7 @@ Avantrix_MODULES[Avantrix["3e"]] = {
 									Tween(otherButton.Frame.Title, {TextColor3 = Color3.fromRGB(196, 203, 218)}, TweenConfigs.Global)
 									Tween(otherButton.Frame.Description, {TextColor3 = Color3.fromRGB(196, 203, 218)}, TweenConfigs.Global)
 									Tween(otherButton.Frame, {BackgroundTransparency = 1}, TweenConfigs.Global)
-									Tween(otherButton.UIStroke, {Color = Color3.fromRGB(60, 60, 74)}, TweenConfigs.Global)
+									Tween(otherButton.UIStroke, {Color = Color3.fromRGB(0, 85, 150)}, TweenConfigs.Global)
 								end
 							end
 
@@ -4322,12 +4342,12 @@ Avantrix_MODULES[Avantrix["3e"]] = {
 
 									Tween(targetButton.Frame.Title, {TextColor3 = Color3.fromRGB(196, 203, 218)}, TweenConfigs.Global)
 									Tween(targetButton.Frame.Description, {TextColor3 = Color3.fromRGB(196, 203, 2185)}, TweenConfigs.Global)
-									Tween(targetButton.UIStroke, {Color = Color3.fromRGB(60, 60, 74)}, TweenConfigs.Global)
+									Tween(targetButton.UIStroke, {Color = Color3.fromRGB(0, 85, 150)}, TweenConfigs.Global)
 									Tween(targetButton.Frame, {BackgroundTransparency = 1}, TweenConfigs.Global)
 
 									Tween(targetbuttonSearch.Frame.Title, {TextColor3 = Color3.fromRGB(196, 203, 218)}, TweenConfigs.Global)
 									Tween(targetbuttonSearch.Frame.Description, {TextColor3 = Color3.fromRGB(196, 203, 2185)}, TweenConfigs.Global)
-									Tween(targetbuttonSearch.UIStroke, {Color = Color3.fromRGB(60, 60, 74)}, TweenConfigs.Global)
+									Tween(targetbuttonSearch.UIStroke, {Color = Color3.fromRGB(0, 85, 150)}, TweenConfigs.Global)
 									Tween(targetbuttonSearch.Frame, {BackgroundTransparency = 1}, TweenConfigs.Global)
 								else
 									-- select
@@ -4550,16 +4570,16 @@ Avantrix_MODULES[Avantrix["3e"]] = {
 
 					function Dropdown:Lock()
 						Dropdown.Locked = true
-						Tween(newDropdown.UIStroke, {Color = Color3.fromRGB(47, 47, 58)}, TweenConfigs.Global)
-						Tween(newDropdown, {BackgroundColor3 = Color3.fromRGB(32, 35, 40)}, TweenConfigs.Global)
+						Tween(newDropdown.UIStroke, {Color = Color3.fromRGB(0, 70, 130)}, TweenConfigs.Global)
+						Tween(newDropdown, {BackgroundColor3 = Color3.fromRGB(12, 15, 26)}, TweenConfigs.Global)
 
-						Tween(newDropdown.Title, {TextColor3 = Color3.fromRGB(75, 77, 83)}, TweenConfigs.Global)
-						Tween(newDropdown.Description, {TextColor3 = Color3.fromRGB(75, 77, 83)}, TweenConfigs.Global)
-						Tween(newDropdown.Title.ClickIcon, {ImageColor3 = Color3.fromRGB(75, 77, 83)}, TweenConfigs.Global)
+						Tween(newDropdown.Title, {TextColor3 = Color3.fromRGB(40, 55, 90)}, TweenConfigs.Global)
+						Tween(newDropdown.Description, {TextColor3 = Color3.fromRGB(40, 55, 90)}, TweenConfigs.Global)
+						Tween(newDropdown.Title.ClickIcon, {ImageColor3 = Color3.fromRGB(40, 55, 90)}, TweenConfigs.Global)
 
-						Tween(newDropdown.Title.BoxFrame.Trigger, {BackgroundColor3 = Color3.fromRGB(32, 35, 40)}, TweenConfigs.Global)
-						Tween(newDropdown.Title.BoxFrame.Trigger.UIStroke, {Color = Color3.fromRGB(47, 47, 58)}, TweenConfigs.Global)
-						Tween(newDropdown.Title.BoxFrame.Trigger.Title, {TextColor3 = Color3.fromRGB(75, 77, 83)}, TweenConfigs.Global)
+						Tween(newDropdown.Title.BoxFrame.Trigger, {BackgroundColor3 = Color3.fromRGB(12, 15, 26)}, TweenConfigs.Global)
+						Tween(newDropdown.Title.BoxFrame.Trigger.UIStroke, {Color = Color3.fromRGB(0, 70, 130)}, TweenConfigs.Global)
+						Tween(newDropdown.Title.BoxFrame.Trigger.Title, {TextColor3 = Color3.fromRGB(40, 55, 90)}, TweenConfigs.Global)
 
 						newDropdown.Active = false
 						newDropdown.Interactable = false
@@ -4567,15 +4587,15 @@ Avantrix_MODULES[Avantrix["3e"]] = {
 
 					function Dropdown:Unlock()
 						Dropdown.Locked = false
-						Tween(newDropdown.UIStroke, {Color = Color3.fromRGB(60, 60, 74)}, TweenConfigs.Global)
-						Tween(newDropdown, {BackgroundColor3 = Color3.fromRGB(42, 45, 52)}, TweenConfigs.Global)
+						Tween(newDropdown.UIStroke, {Color = Color3.fromRGB(0, 85, 150)}, TweenConfigs.Global)
+						Tween(newDropdown, {BackgroundColor3 = Color3.fromRGB(20, 24, 40)}, TweenConfigs.Global)
 
 						Tween(newDropdown.Title, {TextColor3 = Color3.fromRGB(196, 203, 218)}, TweenConfigs.Global)
 						Tween(newDropdown.Description, {TextColor3 = Color3.fromRGB(196, 203, 218)}, TweenConfigs.Global)
 						Tween(newDropdown.Title.ClickIcon, {ImageColor3 = Color3.fromRGB(196, 203, 218)}, TweenConfigs.Global)
 
-						Tween(newDropdown.Title.BoxFrame.Trigger, {BackgroundColor3 = Color3.fromRGB(42, 45, 52)}, TweenConfigs.Global)
-						Tween(newDropdown.Title.BoxFrame.Trigger.UIStroke, {Color = Color3.fromRGB(60, 60, 74)}, TweenConfigs.Global)
+						Tween(newDropdown.Title.BoxFrame.Trigger, {BackgroundColor3 = Color3.fromRGB(20, 24, 40)}, TweenConfigs.Global)
+						Tween(newDropdown.Title.BoxFrame.Trigger.UIStroke, {Color = Color3.fromRGB(0, 85, 150)}, TweenConfigs.Global)
 						Tween(newDropdown.Title.BoxFrame.Trigger.Title, {TextColor3 = Color3.fromRGB(196, 203, 218)}, TweenConfigs.Global)
 
 						newDropdown.Active = true
